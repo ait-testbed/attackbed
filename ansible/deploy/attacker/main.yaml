@@ -1,0 +1,22 @@
+- name: Install Attacker Host
+  hosts: 10.18.5.147
+  become: true
+  vars:
+    attacker_user: aecid
+  roles:
+    - role: aeciduser
+      vars:
+            # pass: aecid
+            aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+    - role: metasploit
+      vars:
+        metasploit_user: "{{attacker_user}}"
+        metasploit_msfdb: True
+        metasploit_msfrpcd: True
+        metasploit_rpcpassword: hackerman
+    - role: disableresolved
+      vars:
+            disableresolved_nameservers:
+                    - 192.42.2.2
+                    - 8.8.8.8

@@ -1,0 +1,58 @@
+#cloud-config
+system_info:
+  default_user:
+    name: aecid
+    plain_text_passwd: aecid
+    lock_passwd: False
+
+write_files: 
+-  content: |
+     #!/bin/bash
+  
+     NETPLAN="/etc/netplan/50-cloud-init.yaml"
+     
+     MAINIF=`ip link show | grep UP | grep -v LOOPBACK | head -n 1 | awk '{print $2}' | rev | cut -c 2- | rev`
+     MAINMAC=`cat /sys/class/net/$MAINIF/address`
+     
+     function printnetconfig()
+     {
+        echo "            match:"
+        echo "                macaddress: '$1'"
+     	echo "            dhcp4: true"
+     	echo "            dhcp4-overrides:"
+     	echo "                use-routes: false"
+     }
+     
+     echo "network:" > $NETPLAN
+     echo "    ethernets:" >> $NETPLAN
+     echo "        $MAINIF:" >> $NETPLAN
+     echo "            dhcp4: true" >> $NETPLAN
+     echo "            match:" >> $NETPLAN
+     echo "                macaddress: '$MAINMAC'" >> $NETPLAN
+     for IF in `ip link show | grep UP | tail -n +3 | awk '{print $2}' | rev | cut -c 2- | rev`
+     do
+     echo "        $IF:" >> $NETPLAN
+     printnetconfig $(cat /sys/class/net/$IF/address) >> $NETPLAN
+     done
+     echo "    version: 2" >> $NETPLAN
+     
+     echo "network: {config: disabled}" > /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+     
+     /usr/sbin/netplan apply
+
+   owner: root:root     
+   path: /root/ifsetup.sh     
+   permissions: '0700'
+ 
+bootcmd:
+  - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
+
+runcmd:
+  -  [ /root/ifsetup.sh ]
+  -  [apt-get, update]
+  -  [apt-get, install, -y, python3]
+  - [systemctl, enable, shorewall ]
+  - [systemctl, restart, shorewall]
+    #  -  [iptables, -P, FORWARD, ACCEPT]
+    #  -  [iptables, -t, nat, -A, POSTROUTING, -o, ens3, -j, MASQUERADE]
+    #  -  "echo 1 > /proc/sys/net/ipv4/ip_forward"

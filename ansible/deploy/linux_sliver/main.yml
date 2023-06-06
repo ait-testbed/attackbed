@@ -1,0 +1,5 @@
+- name: Include Attacker Host
+  include: attacker.yml
+
+- name: Include Linux Sliver Host
+  include: linux_sliver.yml

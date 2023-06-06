@@ -1,0 +1,10 @@
+roles/
+venv/
+.env
+.terragrunt-cache/
+.terraform.lock.hcl
+collections
+docs/build/
+*.qcow2
+.mypy_cache/
+*.tfstate

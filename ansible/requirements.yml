@@ -1,0 +1,11 @@
+# Ansible Collection  requirements
+collections:
+  # openstack modules for inventory src
+  - name: openstack.cloud
+    version: 1.7.0
+
+roles:
+  - name: l50.sliver
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-zoneminder.git
+    version: v1.0 
+    name: zoneminder

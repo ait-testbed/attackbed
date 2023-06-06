@@ -1,0 +1,28 @@
+roles:
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-zoneminder.git
+    version: v1.0
+    name: zoneminder
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-debiansnapshot.git
+    version: v1.1
+    name: debiansnapshot
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-logrotten.git
+    version: v1.0
+    name: logrotten
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-sudoweakness.git
+    version: v1.0
+    name: sudoweakness
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-sshkeyprivesc.git
+    version: v1.0
+    name: sshkeyprivesc
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-awffullprivesc.git
+    version: v1.0
+    name: awffullprivesc
+  - src: https://github.com/ait-cs-IaaS/ansible-mariadb.git
+    version: v1.0.0
+    name: mariadb
+  - src: https://github.com/ait-cs-IaaS/ansible-apache2.git
+    version: v1.3
+    name: apache2
+  - src: https://github.com/ait-cs-IaaS/ansible-auditd.git
+    version: v1.1
+    name: auditd

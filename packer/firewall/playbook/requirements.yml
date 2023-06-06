@@ -1,0 +1,17 @@
+roles:
+  - src: https://github.com/ait-cs-IaaS/ansible-auditd.git
+    version: v1.1
+    name: auditd
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-dnsmasq.git
+    version: v1.1.3
+    name: dnsmasq
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-suricata.git
+    version: v1.1.4
+    name: suricata
+  - src: https://github.com/whotwagner/ansible-role-shorewall.git
+    version: v2.0.2
+    name: shorewall
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-aeciduser.git
+    version: v1.0.0
+    name: aeciduser
+

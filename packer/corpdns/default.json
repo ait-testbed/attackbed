@@ -1,0 +1,7 @@
+{
+    "base_image" : "ubuntu-2204",
+    "image_name" : "atb-corpdns-image",
+    "security_group": "default",
+    "network": "419d4072-4070-4554-aec5-84cef97ed95c",
+    "floating_ip_pool": "provider-aecid-208"
+}

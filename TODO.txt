@@ -1,0 +1,2 @@
+- Attacker does not work. Problems with disableresolved
+- Attacker packed. Test new attacker-image atb-attacker-image-2023-06-05T13-03-46Z

@@ -1,0 +1,45 @@
+- name: Install old Debian-Archive-Repo Host
+  hosts: all
+  remote_user: debian
+  become: true
+  vars:
+    debsnap_timestamp: 20210815T082041Z
+  roles:
+    - role: debiansnapshot
+
+- name: Install Videoserver Host
+  hosts: all
+  remote_user: debian
+  become: true
+  tasks:
+    - name: Install Videoserver Packages
+      ansible.builtin.apt:
+          pkg:
+            - policykit-1
+            - vim
+            - curl
+          update_cache: yes
+    - name: Misconfigured Systemd Service
+      ansible.builtin.file:
+          path: /lib/systemd/system/zoneminder.service
+          mode: 0646
+  roles:
+          - role: mariadb
+          - role: logrotten
+          - role: apache2
+            vars:
+              apache2_modules:
+                - name: "headers"
+                - name: "rewrite"
+                - name: "expires"
+                - name: "cgi"
+              apache2_vhosts:
+                - name: default
+                  http: true
+                  vhost_template: "redir.j2"            
+          - role: zoneminder
+          - role: sudoweakness
+          - role: sshkeyprivesc
+          - role: awffullprivesc
+          - role: auditd
+

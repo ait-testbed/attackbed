@@ -1,0 +1,7 @@
+- name: Install Attacker Host
+  hosts: attacker
+  become: true
+  roles:
+    - role: disableresolved
+      vars:
+        disableresolved_header: "# hoti was here"

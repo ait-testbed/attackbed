@@ -1,0 +1,16 @@
+roles:
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-metasploit.git
+    version: v1.1
+    name: metasploit
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-postexploit.git
+    version: v1.0
+    name: postexploit
+  - name: l50.sliver
+    version: v1.0.1
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-aeciduser.git
+    version: v1.0
+    name: aecidtools
+  - src: https://github.com/ait-aecid/aecidtools.git
+    version: v1.0.0
+    name: aecidtools
+

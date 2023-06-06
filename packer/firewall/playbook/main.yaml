@@ -1,0 +1,69 @@
+---
+- hosts: all
+  become: true
+  vars:
+    suricata_interface: [ens3]
+  roles:
+    - role: aeciduser
+      vars:
+            # pass: aecid
+            aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: suricata
+    - role: dnsmasq
+      vars:
+        dnsmasq_systemd_resolved_disable: true
+    - role: shorewall
+      vars:
+        shorewall_startup: 0
+        shorewall_ipforward: "On"
+    
+        shorewall_configs:
+          zones:
+            - { name: inet,
+                type: ipv4,
+                interface: { name: $INETIF, broadcast: detect, options: "routeback,nosmurfs" }
+              }
+            - {
+                name: lan,
+                type: ipv4,
+                interface: { name: $LANIF, broadcast: detect, options: "routeback,bridge,nosmurfs" }
+              }
+            - {
+                name: dmz,
+                type: ipv4,
+                interface: { name: $DMZIF, broadcast: detect, options: "routeback,bridge,nosmurfs" }
+              }
+          policy:
+            - { source: fw,    dest: all,   policy: ACCEPT }
+            - { source: lan,   dest: inet,  policy: ACCEPT }
+            - { source: lan,   dest: dmz,  policy: ACCEPT }
+            - { source: dmz,   dest: inet,  policy: ACCEPT }
+            - THIS POLICY HAS TO BE THE LAST
+            - { source: all,   dest: all,   policy: REJECT, log: info }
+          rules:
+            - { action: DNAT, source: inet, dest: "dmz:172.17.100.121", proto: tcp, dest_port: 80 }
+            - Permit access to SSH
+            - { action: SSH/ACCEPT,  source: lan, dest: fw }
+            - { action: SSH/ACCEPT,  source: dmz, dest: fw }
+            - { action: DNS/ACCEPT,  source: lan, dest: fw }
+            - { action: DNS/ACCEPT,  source: dmz, dest: fw }
+            # - { action: ACCEPT,      source: inet, dest: fw, proto: tcp, dest_port: "443,8006" }
+            - PING Rules
+            - { action: Ping/ACCEPT, source: all, dest: all }
+          snat:
+            - { dest: $INETIF, source: 192.168.100.0/24 }
+            - { dest: $INETIF, source: 172.17.100.0/24 }
+          params:
+            - Interfaces
+            - { name: INETIF, value: ens3 }
+            - { name: LANIF, value: ens4 }
+            - { name: DMZIF, value: ens5 }
+ 
+    - role: auditd
+  tasks:
+    - name: Start Shorewall on startup
+      lineinfile: >
+        dest=/etc/default/shorewall
+        line="startup=1"
+        regexp="^startup="
+        state=present

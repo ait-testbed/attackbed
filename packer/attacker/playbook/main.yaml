@@ -1,0 +1,43 @@
+- name: Install Attacker Host
+  hosts: all
+  become: true
+  vars:
+    attacker_user: aecid
+  tasks:
+    - name: Install Packages for Attacker
+      ansible.builtin.apt:
+          pkg:
+            - nmap
+            - nikto
+            - ffuf
+            - git
+            - dnsenum
+          update_cache: yes
+  roles:
+    - role: aeciduser
+      vars:
+            # pass: aecid
+            aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+      vars:
+            aecidtools_user: "{{attacker_user}}"
+    - role: postexploit
+    - role: l50.sliver
+      vars:
+            server_path: "/home/{{attacker_user}}/sliver-server"
+            client_path: /usr/local/bin/sliver
+            sliver_service_path: /etc/systemd/system/sliver.service
+            sliver_client_config_path: "/home/{{attacker_user}}/.sliver-client/configs"
+            setup_systemd: true
+    - role: metasploit
+      vars:
+        metasploit_user: "{{attacker_user}}"
+        metasploit_msfdb: True
+        metasploit_msfrpcd: True
+        metasploit_rpcpassword: hackerman
+    - role: seclists
+    - role: disableresolved
+      vars:
+            disableresolved_nameservers:
+                    - 192.42.2.2
+                    - 8.8.8.8
