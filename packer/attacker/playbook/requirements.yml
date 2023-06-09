@@ -1,6 +1,6 @@
 roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-metasploit.git
-    version: v1.3
+    version: v1.5
     name: metasploit
   - src: https://github.com/ait-cs-IaaS/atb-ansible-disableresolved
     version: v1.0.0
