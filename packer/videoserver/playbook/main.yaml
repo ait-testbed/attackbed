@@ -18,11 +18,17 @@
             - policykit-1
             - vim
             - curl
+            - netcat-traditional
           update_cache: yes
     - name: Misconfigured Systemd Service
       ansible.builtin.file:
           path: /lib/systemd/system/zoneminder.service
           mode: 0646
+    - name: Allow password login
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/password.conf
+        content: 'PasswordAuthentication yes'
+
   roles:
           - role: aeciduser
             vars:
@@ -50,4 +56,5 @@
           - role: sshkeyprivesc
           - role: awffullprivesc
           - role: auditd
+          - role: rootkeys
 

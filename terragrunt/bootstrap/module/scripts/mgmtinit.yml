@@ -43,7 +43,13 @@ write_files:
    path: /root/ifsetup.sh     
    permissions: '0700'
 
+-  content: |
+     PasswordAuthentication yes
+   owner: root:root
+   path: /etc/ssh/sshd_config.d/password.conf
+
 runcmd:
   - [ /root/ifsetup.sh ]
   -  [apt-get, update]
   -  [apt-get, install, -y, python]
+  -  [systemctl, restart, ssh]

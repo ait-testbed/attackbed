@@ -1,0 +1,14 @@
+roles:
+  - src: https://github.com/ait-cs-IaaS/ansible-manage_unattended_upgrades.git
+    version: v1.0.0
+    name: manage_unattended_upgrades
+  - src: https://github.com/ait-cs-IaaS/ansible-rootkeys.git
+    version: v1.0.0
+    name: rootkeys
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-aeciduser.git
+    version: v1.0.0
+    name: aeciduser
+  - src: https://github.com/ait-aecid/aecidtools.git
+    version: v1.0.0
+    name: aecidtools
+

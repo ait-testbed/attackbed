@@ -1,8 +1,8 @@
 #cloud-config
 system_info:
   default_user:
-    name: debian
-    plain_text_passwd: debian
+    name: aecid
+    plain_text_passwd: aecid
     lock_passwd: False
 runcmd:
   -  [apt-get, update]

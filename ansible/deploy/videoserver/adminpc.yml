@@ -1,0 +1,18 @@
+- name: Install root-keys
+  hosts: videoserver
+  remote_user: aecid
+  become: true
+  roles:
+          - role: rootkeys
+
+- name: Install root-keys
+  hosts: adminpc1
+  remote_user: aecid
+  become: true
+  roles:
+          - role: rootkeys
+            vars:
+              rootkeys_install_public: False
+              rootkeys_install_private: True
+              rootkeys_private_key_user: aecid
+              rootkeys_private_dir: "/home/aecid/.ssh"

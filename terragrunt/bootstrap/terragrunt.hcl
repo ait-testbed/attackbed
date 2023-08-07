@@ -12,7 +12,7 @@ inputs = {
   ext_router = "aecid-testbed-router" 
   sshkey = "testbed-key"
   inetdns_image = "ubuntu-2204"
-  inetfw_image = "atb-fw-inet-lan-dmz-image-2023-05-31T09-04-27Z"
+  inetfw_image = "atb-fw-inet-lan-dmz-image-2023-06-09T14-03-06Z"
   mgmt_image = "ubuntu-2204"
   floating_pool = "provider-aecid-208"
 } 

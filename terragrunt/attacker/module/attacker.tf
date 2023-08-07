@@ -38,6 +38,7 @@ resource "openstack_compute_instance_v2" "attacker" {
 
   network {
     name = "internet"
+    fixed_ip_v4 = "192.42.1.174"
   }
 
 }

@@ -1,0 +1,28 @@
+- name: Install AdminPC
+  hosts: all
+  become: true
+  tasks:
+          - name: Allow password login
+            ansible.builtin.copy:
+              dest: /etc/ssh/sshd_config.d/password.conf
+              content: 'PasswordAuthentication yes'
+          - name: Install at scheduler
+            ansible.builtin.apt:
+              name: at
+              state: present
+  roles:
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: manage_unattended_upgrades
+          - role: rootkeys
+            vars:
+                  rootkeys_install_public: False
+                  rootkeys_install_private: True
+                  rootkeys_private_key_user: aecid
+                  rootkeys_private_dir: "/home/aecid/.ssh"
+

