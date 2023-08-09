@@ -134,12 +134,14 @@
               owner: "{{attacker_user}}"
               group: "{{attacker_user}}"
               mode: '0644'
+          notify: restart msfrpcd
       tags:
          - metasploit
          - zoneminder
          - exploit
          - config
          - install
+         - playbooks
 
     - debug:
          msg: "{{sshkey}}"

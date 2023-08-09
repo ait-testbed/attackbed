@@ -6,7 +6,7 @@ roles:
     version: v1.0.0
     name: disableresolved
   - src: https://github.com/ait-cs-IaaS/atb-ansible-postexploit.git
-    version: v1.2
+    version: v1.2.1
     name: postexploit
   - name: l50.sliver
     version: v1.0.1
