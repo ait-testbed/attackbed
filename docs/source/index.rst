@@ -3,18 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to aecid_testbed's documentation!
-=========================================
+AECID Testbed Documenation
+==========================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :numbered:
+   :caption: Installation
+
+   installation/overview
+   installation/requirements
+   installation/repository
+   installation/configure
+   installation/images
+   installation/bootstrap
+   installation/scenario
 
 
+.. toctree::
+   :maxdepth: 4
+   :caption: Scenarios
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   attacks
+   scenarios/videoserver
