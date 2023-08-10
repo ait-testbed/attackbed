@@ -20,7 +20,7 @@ pipeline {
         	        }
         	}
         	steps {
-                       dir("docs") {
+                       dir("${env.WORKSPACE}/docs") {
             	            script {
         	                    docsimage = true
         	            }
