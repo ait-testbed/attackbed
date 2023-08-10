@@ -32,14 +32,17 @@ pipeline {
         	        }
                         dir("docs") {
         	                sh "make html"
-//        	                sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
                         }
                 }
         }
         stage("Deploy Docs") {
+        	when {
+        	        expression {
+        	                BRANCH_NAME == "main" || BRANCH_NAME == "development"
+        	        }
+        	}
                 steps {
-                	sh "find"
-                	sh "pwd"
+       	                sh "scripts/deploydocs.sh ${env.BRANCH_NAME} docs/build/html /var/www/aeciddocs/atb-aecid-testbed"
                 }
         }
     }
