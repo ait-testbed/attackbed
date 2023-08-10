@@ -18,6 +18,7 @@ pipeline {
                 dockerfile { 
                              dir 'docs' 
                              args '-v $PWD:/docs'
+                             reuseNode true
                 } 
         }
         	 when {
