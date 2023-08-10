@@ -37,8 +37,10 @@ pipeline {
                 }
         }
         stage("Deploy Docs") {
-                sh "find"
-                sh "pwd"
+                steps {
+                	sh "find"
+                	sh "pwd"
+                }
         }
     }
     
