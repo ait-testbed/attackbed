@@ -14,14 +14,14 @@ pipeline {
     agent any
     stages {
         stage("Build Documentation") {
-        agent { 
-                dockerfile { 
-                             dir 'docs' 
-                             args '-v $PWD:/docs'
-                             reuseNode true
-                } 
-        }
-        	 when {
+                agent { 
+                        dockerfile { 
+                                     dir 'docs' 
+                                     args '-v $PWD:/docs'
+                                     reuseNode true
+                        } 
+                }
+        	when {
         	        expression {
         	                BRANCH_NAME == "main" || BRANCH_NAME == "development"
         	        }
@@ -31,11 +31,14 @@ pipeline {
         	                docsimage = true
         	        }
                         dir("docs") {
-                        sh "find"
-        	        sh "make html"
-//        	        sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
+        	                sh "make html"
+//        	                sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
                         }
                 }
+        }
+        stage("Deploy Docs") {
+                sh "find"
+                sh "pwd"
         }
     }
     
