@@ -26,7 +26,7 @@ pipeline {
                         sh "cd docs"
         	        sh "docker build -f Dockerfile -t aecid/testbed-docs ."
         	        sh "docker run --rm -v ${PWD}/docs:/docs aecid/aminer-docs make html"
-#        	        sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
+//        	        sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
                 }
         }
     }
