@@ -20,7 +20,9 @@ pipeline {
         	        }
         	}
         	steps {
+                       sh "pwd"
                        dir("${env.WORKSPACE}/docs") {
+                            sh "pwd"
             	            script {
         	                    docsimage = true
         	            }
