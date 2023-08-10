@@ -14,6 +14,12 @@ pipeline {
     agent any
     stages {
         stage("Build Documentation") {
+        agent { 
+                dockerfile { 
+                             dir 'docs' 
+                             args '-v $PWD:/docs'
+                } 
+        }
         	 when {
         	        expression {
         	                BRANCH_NAME == "main" || BRANCH_NAME == "development"
@@ -21,16 +27,13 @@ pipeline {
         	}
         	steps {
                        sh "pwd"
-                       dir("${env.WORKSPACE}/docs") {
                             sh "pwd"
             	            script {
         	                    docsimage = true
         	            }
                             sh "cd docs"
-        	            sh "docker build -f Dockerfile -t aecid/testbed-docs ."
         	            sh "docker run --rm -v ${PWD}:/docs aecid/aminer-docs make html"
 //        	            sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
-                        }
                 }
         }
     }
