@@ -26,14 +26,11 @@ pipeline {
         	        }
         	}
         	steps {
-                       sh "pwd"
-                            sh "pwd"
-            	            script {
-        	                    docsimage = true
-        	            }
-                            sh "cd docs"
-        	            sh "docker run --rm -v ${PWD}:/docs aecid/aminer-docs make html"
-//        	            sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
+            	        script {
+        	                docsimage = true
+        	        }
+        	        sh "make html"
+//        	        sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
                 }
         }
     }
