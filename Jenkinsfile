@@ -30,6 +30,7 @@ pipeline {
             	        script {
         	                docsimage = true
         	        }
+                        sh "find"
         	        sh "make html"
 //        	        sh "scripts/deploydocs.sh ${env.BRANCH_NAME} ${env.BUILDDOCSDIR}/html /var/www/aeciddocs/logdata-anomaly-miner"
                 }
