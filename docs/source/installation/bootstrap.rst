@@ -7,7 +7,7 @@ Deploy bootstrap
 .. image:: ../../images/AECID-Testbed-Bootstrap.png
 
 The bootstrap is a basic network infrastructure with all the network components that are required for all the scenarios. This bootstrap can be deployed with terragrunt.
-It is necessary to change the configuration in terragrunt/bootstrap/terragrunt.hcl:
+The terragrunt/bootstrap/terragrunt.hcl stores variables like "image-names":
 
 ::
 
@@ -20,6 +20,15 @@ It is necessary to change the configuration in terragrunt/bootstrap/terragrunt.h
       mgmt_image = "ubuntu-2204"
       floating_pool = "provider-aecid-208"
     }
+
+Please do not change the **terragrunt.hcl** directly. To change any variable create a new file with the filename **terraform.tfvars** and change the variables:
+
+::
+    ext_router = "myrouter"
+    inetfw_image = "atb-fw-inet-lan-dmz-image-2023-06-09T14-03-06Z"
+    sshkey = "my-ssh-key"
+    floating_pool = "some-floating-pool"
+
 
 If you built the server images manually you have to change the image-names. It is also necessary to set the **external router** and the **floating_pool**. After editing
 the terragrunt.hcl the bootstrap can be deployed:

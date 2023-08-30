@@ -21,8 +21,8 @@ TODO: write documentation about "how to download serverimages"
 Build server images manually
 ============================
 
-In the directory *packer* there is a separate directory for each server image. It is neccessary to manually edit the file *"default.json"* in each directory.
-You need to change at least the values for **network** and **floating_ip_pool**. Then you can build an image by running packer:
+In the directory *packer* there is a separate directory for each server image. It is neccessary to manually create the file *"default.json"* in each directory.
+You need to copy **default.json.example** to **default.json** and change at least the values for **network** and **floating_ip_pool**. Then you can build an image by running packer:
 
 ::
 

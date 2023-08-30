@@ -8,4 +8,13 @@ docs/build/
 *.qcow2
 .mypy_cache/
 *.tfstate
+
+# ignore gathered logs
 gather/
+
+# ignore packer-configs
+default.json
+
+# ignore terraform variables file
+terraform.tfvars
+terraform.tfvars.json
