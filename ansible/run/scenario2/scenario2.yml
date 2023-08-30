@@ -1,0 +1,105 @@
+- name: Install Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+  handlers:
+    - name: restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
+      delegate_to: inetdns
+
+  tasks:
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+      tags:
+        - playbooks
+
+    - name: get ssh key from videoserver for privesc
+      ansible.builtin.shell: cat /home/webdev/.ssh/id_rsa
+      register: sshkey
+      delegate_to: videoserver
+      tags:
+        - playbooks
+
+    - name: Configure public DNS
+      ansible.builtin.copy:
+        content: "address=/faaacebook.com/{{ attacker_ip }}\n"
+        owner: root
+        dest: /etc/dnsmasq.d/attacker.conf
+      delegate_to: inetdns
+      notify: restart dnsmasq
+      tags:
+        - playbooks
+
+    - name: save sshkey 
+      ansible.builtin.copy:
+        content: "{{sshkey.stdout}}"
+        dest: "{{user_home.stdout}}/.ssh/privesc_key_videoserver"
+        mode: "0600"
+        owner: "{{attacker_user}}"
+
+    - name: Prepare and Install PenPal
+      block:
+        - name: Install Python3-venv
+          ansible.builtin.apt:
+              name: python3-virtualenv
+           #    - name: Git checkout
+           #      become: true
+           #      become_user: {{ attacker_user }}
+           #      ansible.builtin.git:
+           #        repo: 'git@github.com:ait-aecid/hackhelfer.git'
+           #        dest: "{{user_home.stdout}}/penpal"
+           #        accept_hostkey: True
+        - name: Install PenPal-Module
+          ansible.builtin.pip:
+              name: "file://{{user_home.stdout}}/penpal"
+              virtualenv: "{{user_home.stdout}}/penpal/venv"
+        - name: Copy PenPal-Wrapper
+          become: True
+          become_user: "{{attacker_user}}"
+          ansible.builtin.template:
+              src: wrapper.sh.j2
+              dest: "{{user_home.stdout}}/penpal/wrapper.sh"
+              mode: '0755'
+        - name: Copy PenPal-Config
+          ansible.builtin.copy:
+              content: |
+                      ###
+                      sliver_config:
+                        config_file: /home/aecid/.sliver-client/configs/aecid_localhost.cfg
+                      
+                      msf_config:
+                        password: hackerman
+                        server: localhost
+              dest: "{{user_home.stdout}}/penpal/.penpal.yml"
+              owner: "{{attacker_user }}"
+        - name: Copy playbooks
+          become: True
+          become_user: "{{attacker_user}}"
+          ansible.builtin.template:
+              src: "{{ item }}.j2"
+              dest: "{{user_home.stdout}}/penpal/{{ item }}.yml"
+              mode: '0755'
+          loop:
+              - scenario_2_a_a
+      tags:
+         - playbooks
+
+    - name: "Run Scenario 2 a a"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_2_a_a.yml"
+          chdir: "{{user_home.stdout}}/penpal"
+      tags:
+         - scenario_2_a_a
+         - metasploit
+         - penpal
+         - exploit
+
