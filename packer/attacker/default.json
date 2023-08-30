@@ -2,6 +2,6 @@
     "base_image" : "ubuntu-2204",
     "image_name" : "atb-attacker-image",
     "security_group": "default",
-    "network": "065398c8-b3cb-48c8-8617-d72038557e66",
+    "network": "653b15f3-c7e1-41bf-99d5-f8ad0f96f959",
     "floating_ip_pool": "provider-aecid-208"
 }

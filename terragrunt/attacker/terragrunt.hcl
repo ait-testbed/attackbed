@@ -9,7 +9,7 @@ terraform {
 
 inputs = {
   sshkey = "testbed-key"
-  attacker_image = "atb-attacker-image-2023-08-09T10-04-18Z"
+  attacker_image = "atb-attacker-image-2023-08-24T12-53-52Z"
 } 
 
 

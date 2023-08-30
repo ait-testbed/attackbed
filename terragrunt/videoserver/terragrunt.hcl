@@ -9,9 +9,9 @@ terraform {
 
 inputs = {
   sshkey = "testbed-key"
-  dnsserver_image = "atb-corpdns-image-2023-05-31T13-10-03Z"
-  videoserver_image = "atb-videoserver-image-2023-07-21T09-06-09Z"
-  adminpc_image = "atb-adminpc-image-2023-07-21T12-46-16Z"
+  dnsserver_image = "atb-corpdns-image-2023-08-24T13-25-37Z"
+  videoserver_image = "atb-videoserver-image-2023-08-25T13-54-02Z"
+  adminpc_image = "atb-adminpc-image-2023-08-24T12-25-50Z"
 } 
 
 

@@ -16,4 +16,6 @@ roles:
   - src: https://github.com/ait-aecid/aecidtools.git
     version: v1.0.0
     name: aecidtools
-
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-seclists.git
+    version: v0.0.1
+    name: seclists
