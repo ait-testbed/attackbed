@@ -4,6 +4,7 @@
   become: true
   vars:
     debsnap_timestamp: 20210815T082041Z
+    debsnap_debrelease: bullseye
   roles:
     - role: debiansnapshot
 
@@ -52,6 +53,8 @@
                   http: true
                   vhost_template: "redir.j2"            
           - role: zoneminder
+            vars:
+              zoneminder_debrelease: bullseye
           - role: sudoweakness
           - role: sshkeyprivesc
           - role: awffullprivesc

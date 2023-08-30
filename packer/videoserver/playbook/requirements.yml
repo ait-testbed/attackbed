@@ -3,10 +3,10 @@ roles:
     version: v1.0.0
     name: manage_unattended_upgrades
   - src: https://github.com/ait-cs-IaaS/atb-ansible-zoneminder.git
-    version: v1.0
+    version: v1.1
     name: zoneminder
   - src: https://github.com/ait-cs-IaaS/atb-ansible-debiansnapshot.git
-    version: v1.1
+    version: v1.2
     name: debiansnapshot
   - src: https://github.com/ait-cs-IaaS/atb-ansible-logrotten.git
     version: v1.2
