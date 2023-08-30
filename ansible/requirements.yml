@@ -9,3 +9,6 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-zoneminder.git
     version: v1.0 
     name: zoneminder
+  - name: kyoushi-gather
+    src: https://github.com/ait-cs-IaaS/ansible-kyoushi-gather.git
+    version: master

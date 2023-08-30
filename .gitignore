@@ -8,3 +8,4 @@ docs/build/
 *.qcow2
 .mypy_cache/
 *.tfstate
+gather/

@@ -11,7 +11,9 @@
     - role: suricata
     - role: dnsmasq
       vars:
-        dnsmasq_systemd_resolved_disable: true
+       dnsmasq_config:
+         - { name: "logging",  content: "log-queries" }
+       dnsmasq_systemd_resolved_disable: true
     - role: shorewall
       vars:
         shorewall_startup: 0

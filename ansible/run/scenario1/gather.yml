@@ -1,0 +1,12 @@
+- hosts: videoserver, corpdns, inetfw
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_logs:
+      - /var/log
+
+    kyoushi_gather_configs:
+      - src: /etc
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
