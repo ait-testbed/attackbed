@@ -9,10 +9,10 @@ terraform {
 
 inputs = {
   host_userdata = "firewallinit.yml"
-  ext_router = "aecid-testbed-router" 
+  ext_router = "taq-router" 
   sshkey = "testbed-key"
   inetdns_image = "ubuntu-2204"
-  inetfw_image = "atb-fw-inet-lan-dmz-image-2023-06-09T14-03-06Z"
+  inetfw_image = "atb-fw-inet-lan-dmz-image-2023-08-24T13-50-01Z"
   mgmt_image = "ubuntu-2204"
   floating_pool = "provider-aecid-208"
 } 

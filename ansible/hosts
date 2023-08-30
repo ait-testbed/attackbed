@@ -2,4 +2,4 @@
 10.18.5.147 ansible_user=ubuntu
 
 [RegionOne:vars]
-ansible_ssh_common_args='-o ProxyCommand="ssh -A -p 22 -W %h:%p -q aecid@10.18.6.49"'
+ansible_ssh_common_args='-o ProxyCommand="ssh -A -p 22 -W %h:%p -q aecid@10.18.4.214"'

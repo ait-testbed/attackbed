@@ -161,6 +161,18 @@
           ansible.builtin.pip:
               name: "file://{{user_home.stdout}}/penpal"
               virtualenv: "{{user_home.stdout}}/penpal/venv"
+        - name: Copy PenPal-Config
+          ansible.builtin.copy:
+              content: |
+                      ###
+                      sliver_config:
+                        config_file: /home/aecid/.sliver-client/configs/aecid_localhost.cfg
+
+                      msf_config:
+                        password: hackerman
+                        server: localhost
+              dest: "{{user_home.stdout}}/penpal/.penpal.yml"
+              owner: "{{attacker_user }}"
         - name: Copy PenPal-Wrapper
           become: True
           become_user: "{{attacker_user}}"
@@ -206,7 +218,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_a_a.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_a_a.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_a_a
@@ -218,7 +230,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_b_a.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_b_a.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_b_a
@@ -230,7 +242,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_f_a.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_f_a.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_f_a
@@ -242,7 +254,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_e_a.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_e_a.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_e_a
@@ -254,7 +266,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_c_a.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_c_a.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_c_a
@@ -266,7 +278,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_d_a.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_d_a.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_d_a
@@ -278,7 +290,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_a_b.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_a_b.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_a_b
@@ -290,7 +302,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_b_b.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_b_b.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_b_b
@@ -302,7 +314,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_c_b.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_c_b.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_c_b
@@ -314,7 +326,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_d_b.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_d_b.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_d_b
@@ -326,7 +338,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_e_b.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_e_b.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_e_b
@@ -338,7 +350,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_f_b.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_f_b.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_f_b
@@ -350,7 +362,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_a_c.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_a_c.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_a_c
@@ -362,7 +374,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_b_c.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_b_c.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_b_c
@@ -374,7 +386,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_c_c.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_c_c.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_c_c
@@ -386,7 +398,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_d_c.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_d_c.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_d_c
@@ -398,7 +410,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_e_c.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_e_c.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_e_c
@@ -410,7 +422,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh --config=scenario_1_f_c.yml"
+          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_f_c.yml"
           chdir: "{{user_home.stdout}}/penpal"
       tags:
          - scenario_1_f_c
