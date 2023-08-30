@@ -14,7 +14,7 @@ To do this, `download the openstack rc file <https://docs.openstack.org/mitaka/c
 We also need the Gitlab-user and Gitlab-token to store the Terraform state. We store them in the same .env file:
 
 ::
-
+    echo "" >> .env
     echo "export CR_GITLAB_ACCESS_TOKEN=YOURTOKEN" >> .env
     echo "export GITLAB_USERNAME=YOURUSERNAME" >> .env
 
