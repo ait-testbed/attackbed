@@ -11,6 +11,11 @@
         state: restarted
       delegate_to: inetdns
 
+    - name: restart msfrpcd
+      ansible.builtin.service:
+        name: msfrpcd
+        state: restarted
+
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >
