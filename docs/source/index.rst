@@ -24,5 +24,6 @@ AECID Testbed Documenation
    :maxdepth: 4
    :caption: Scenarios
 
-   attacks
+   scenarios/overview
+   scenarios/attacks
    scenarios/videoserver
