@@ -1,4 +1,0 @@
-- name: restart msfrpcd
-  ansible.builtin.service:
-    name: msfrpcd
-    state: restarted

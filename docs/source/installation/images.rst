@@ -26,7 +26,8 @@ You need to change at least the values for **network** and **floating_ip_pool**.
 
 ::
 
-    cd packer/adminpc
+    cd packer/adminpc/playbook
+    ansible-galaxy install -r requirements.yml
     packer build -var-file=default.json .
 
 .. note::

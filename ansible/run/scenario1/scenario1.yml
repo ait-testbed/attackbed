@@ -4,6 +4,11 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
+  handlers:
+    - name: restart msfrpcd
+      ansible.builtin.service:
+        name: msfrpcd
+        state: restarted
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >
