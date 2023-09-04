@@ -22,7 +22,7 @@
         - config
         - install
         - git
-        - penpal
+        - attackmate
         - playbooks
 
     - name: Create shellcode for port 3333
@@ -37,7 +37,7 @@
         - config
         - install
         - git
-        - penpal
+        - attackmate
         - playbooks
 
     - name: create private ssh key for attacker
@@ -150,7 +150,7 @@
 
     - debug:
          msg: "{{sshkey}}"
-    - name: Prepare and Install PenPal
+    - name: Prepare and Install AttackMate
       block:
         - name: Install Python3-venv
           ansible.builtin.apt:
@@ -160,13 +160,13 @@
            #      become_user: {{ attacker_user }}
            #      ansible.builtin.git:
            #        repo: 'git@github.com:ait-aecid/hackhelfer.git'
-           #        dest: "{{user_home.stdout}}/penpal"
+           #        dest: "{{user_home.stdout}}/attackmate"
            #        accept_hostkey: True
-        - name: Install PenPal-Module
+        - name: Install AttackMate-Module
           ansible.builtin.pip:
-              name: "file://{{user_home.stdout}}/penpal"
-              virtualenv: "{{user_home.stdout}}/penpal/venv"
-        - name: Copy PenPal-Config
+              name: "file://{{user_home.stdout}}/attackmate"
+              virtualenv: "{{user_home.stdout}}/attackmate/venv"
+        - name: Copy AttackMate-Config
           ansible.builtin.copy:
               content: |
                       ###
@@ -176,21 +176,21 @@
                       msf_config:
                         password: hackerman
                         server: localhost
-              dest: "{{user_home.stdout}}/penpal/.penpal.yml"
+              dest: "{{user_home.stdout}}/attackmate/.attackmate.yml"
               owner: "{{attacker_user }}"
-        - name: Copy PenPal-Wrapper
+        - name: Copy AttackMate-Wrapper
           become: True
           become_user: "{{attacker_user}}"
           ansible.builtin.template:
               src: wrapper.sh.j2
-              dest: "{{user_home.stdout}}/penpal/wrapper.sh"
+              dest: "{{user_home.stdout}}/attackmate/wrapper.sh"
               mode: '0755'
         - name: Copy playbooks
           become: True
           become_user: "{{attacker_user}}"
           ansible.builtin.template:
               src: "{{ item }}.j2"
-              dest: "{{user_home.stdout}}/penpal/{{ item }}.yml"
+              dest: "{{user_home.stdout}}/attackmate/{{ item }}.yml"
               mode: '0755'
           loop:
               - scenario_1_a_a
@@ -213,7 +213,7 @@
               - scenario_1_f_c
       tags:
          - metasploit
-         - penpal
+         - attackmate
          - exploit
          - config
          - install
@@ -223,215 +223,215 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_a_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_a_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_a_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 b a"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_b_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_b_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_b_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 f a"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_f_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_f_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_f_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 e a"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_e_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_e_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_e_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 c a"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_c_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_c_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_c_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 d a"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_d_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_d_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_d_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 a b"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_a_b.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_a_b.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_a_b
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 b b"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_b_b.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_b_b.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_b_b
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 c b"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_c_b.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_c_b.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_c_b
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 d b"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_d_b.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_d_b.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_d_b
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 e b"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_e_b.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_e_b.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_e_b
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 f b"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_f_b.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_f_b.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_f_b
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 a c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_a_c.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_a_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_a_c
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 b c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_b_c.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_b_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_b_c
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 c c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_c_c.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_c_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_c_c
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 d c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_d_c.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_d_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_d_c
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 e c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_e_c.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_e_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_e_c
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
     - name: "Run Scenario 1 f c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_1_f_c.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_f_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_1_f_c
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-project_path="{{ penpal_dir | default('/home/aecid/penpal') }}"
-session="{{ penpal_session | default('aecid') }}"
-window="{{ penpal_window | default('penpal') }}"
+project_path="{{ attackmate_dir | default('/home/aecid/attackmate') }}"
+session="{{ attackmate_session | default('aecid') }}"
+window="{{ attackmate_window | default('attackmate') }}"
 
 tmux has-session -t ${session} 2> /dev/null
 if [ $? == "1" ]
@@ -19,4 +19,4 @@ then
 	tmux send-keys -t "$session" "source ${project_path}/venv/bin/activate" Enter
 fi
 
-tmux send-keys -t "$pane" "penpal $@" Enter
+tmux send-keys -t "$pane" "attackmate $@" Enter

@@ -49,7 +49,7 @@
         mode: "0600"
         owner: "{{attacker_user}}"
 
-    - name: Prepare and Install PenPal
+    - name: Prepare and Install AttackMate
       block:
         - name: Install Python3-venv
           ansible.builtin.apt:
@@ -59,20 +59,20 @@
            #      become_user: {{ attacker_user }}
            #      ansible.builtin.git:
            #        repo: 'git@github.com:ait-aecid/hackhelfer.git'
-           #        dest: "{{user_home.stdout}}/penpal"
+           #        dest: "{{user_home.stdout}}/attackmate"
            #        accept_hostkey: True
-        - name: Install PenPal-Module
+        - name: Install AttackMate-Module
           ansible.builtin.pip:
-              name: "file://{{user_home.stdout}}/penpal"
-              virtualenv: "{{user_home.stdout}}/penpal/venv"
-        - name: Copy PenPal-Wrapper
+              name: "file://{{user_home.stdout}}/attackmate"
+              virtualenv: "{{user_home.stdout}}/attackmate/venv"
+        - name: Copy AttackMate-Wrapper
           become: True
           become_user: "{{attacker_user}}"
           ansible.builtin.template:
               src: wrapper.sh.j2
-              dest: "{{user_home.stdout}}/penpal/wrapper.sh"
+              dest: "{{user_home.stdout}}/attackmate/wrapper.sh"
               mode: '0755'
-        - name: Copy PenPal-Config
+        - name: Copy AttackMate-Config
           ansible.builtin.copy:
               content: |
                       ###
@@ -82,14 +82,14 @@
                       msf_config:
                         password: hackerman
                         server: localhost
-              dest: "{{user_home.stdout}}/penpal/.penpal.yml"
+              dest: "{{user_home.stdout}}/attackmate/.attackmate.yml"
               owner: "{{attacker_user }}"
         - name: Copy playbooks
           become: True
           become_user: "{{attacker_user}}"
           ansible.builtin.template:
               src: "{{ item }}.j2"
-              dest: "{{user_home.stdout}}/penpal/{{ item }}.yml"
+              dest: "{{user_home.stdout}}/attackmate/{{ item }}.yml"
               mode: '0755'
           loop:
               - scenario_2_a_a
@@ -100,11 +100,11 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/penpal/wrapper.sh scenario_2_a_a.yml"
-          chdir: "{{user_home.stdout}}/penpal"
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_2_a_a.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
       tags:
          - scenario_2_a_a
          - metasploit
-         - penpal
+         - attackmate
          - exploit
 
