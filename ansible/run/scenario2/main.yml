@@ -25,6 +25,14 @@
       tags:
         - playbooks
 
+    - name: Install dependencies
+      ansible.builtin.apt:
+        pkg:
+          - xz-utils
+          - coreutils
+      tags:
+        - playbooks
+
     - name: get ssh key from videoserver for privesc
       ansible.builtin.shell: cat /home/webdev/.ssh/id_rsa
       register: sshkey
@@ -39,6 +47,15 @@
         dest: /etc/dnsmasq.d/attacker.conf
       delegate_to: inetdns
       notify: restart dnsmasq
+      tags:
+        - playbooks
+
+    - name: Copy fatherchroot
+      ansible.builtin.copy:
+        src: "glibc_rootjail.tar.xz"
+        dest: "/home/aecid/glibc_rootjail.tar.xz"
+        owner: "aecid"
+        group: "aecid"
       tags:
         - playbooks
 
@@ -93,6 +110,7 @@
               mode: '0755'
           loop:
               - scenario_2_a_a
+              - scenario_2_a_c
       tags:
          - playbooks
 
@@ -107,4 +125,13 @@
          - metasploit
          - attackmate
          - exploit
+
+    - name: "Run Scenario 2 a c"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_2_a_c.yml"
+          chdir: "{{user_home.stdout}}/attackmate"
+      tags:
+         - scenario_2_a_c
 
