@@ -16,7 +16,15 @@ TODO: write documentation about downloading ubuntu2204 and debian-11-amd64-20210
 Download and install server images
 ==================================
 
-TODO: write documentation about "how to download serverimages"
+There are pre-built server images at https://aecidimages.ait.ac.at. The `testbedimage-tool <https://github.com/ait-aecid/testbedimage-tool.git>`_
+can import all prebuild images to the openstack-project:
+
+::
+
+  $ pip3 install testbedimage
+  $ export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+  $ . myproject-openrc.sh
+  $ testbedimage import_images
 
 Build server images manually
 ============================
