@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2023-10-05T10:22:40.464Z" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0" etag="y_pvDklS_bJh_bP9suZJ" version="21.8.2" type="device">
+<mxfile host="app.diagrams.net" modified="2023-10-05T13:02:23.438Z" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0" etag="XSlKHuNi4z9OrB9t6SBR" version="21.8.2" type="device">
   <diagram name="Page-1" id="gUWhoODglxjBxta9EbK4">
     <mxGraphModel dx="2897" dy="2256" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -206,6 +206,18 @@
         </mxCell>
         <mxCell id="lHEHGnT4-a6rpqSoE6ra-39" value="Monitoring" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="210" y="854.37" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lHEHGnT4-a6rpqSoE6ra-43" value="" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="532.9" y="270" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="lHEHGnT4-a6rpqSoE6ra-45" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.8;entryY=0.8;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;" edge="1" parent="1" source="lHEHGnT4-a6rpqSoE6ra-43" target="ZttpDixC8CZAMg3ueifD-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lHEHGnT4-a6rpqSoE6ra-46" value="Cam" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="525" y="245" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lHEHGnT4-a6rpqSoE6ra-47" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn2.iconfinder.com/data/icons/boxicons-regular-vol-1/24/bx-cctv-128.png" vertex="1" parent="1">
+          <mxGeometry x="540" y="275" width="40" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
