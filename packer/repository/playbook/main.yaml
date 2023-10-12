@@ -1,0 +1,28 @@
+- name: Install Repository Host
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  tasks:
+    - name: Install Reposerver Packages
+      ansible.builtin.apt:
+          pkg:
+            - curl
+            - netcat-traditional
+          update_cache: yes
+    - name: Allow password login
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/password.conf
+        content: 'PasswordAuthentication yes'
+
+  roles:
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: manage_unattended_upgrades
+          - role: auditd
+          - role: mate-desktop
+          - role: weaklinuxuser

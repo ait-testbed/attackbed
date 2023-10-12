@@ -45,6 +45,9 @@
           rules:
             - { action: DNAT, source: inet, dest: "dmz:172.17.100.121", proto: tcp, dest_port: 80 }
             - { action: DNAT, source: inet, dest: "dmz:172.17.100.121:22", proto: tcp, dest_port: 2222 }
+            - { action: DNAT, source: inet, dest: "dmz:172.17.100.122:22", proto: tcp, dest_port: 10022 }
+            - { action: DNAT, source: inet, dest: "dmz:172.17.100.122", proto: tcp, dest_port: 3389 }
+            - { action: DNAT, source: inet, dest: "dmz:172.17.100.122", proto: tcp, dest_port: 4501 }
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }

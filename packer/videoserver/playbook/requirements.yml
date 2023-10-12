@@ -32,3 +32,9 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-rootkeys.git
     version: v1.0.0
     name: rootkeys
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-aeciduser.git
+    version: v1.0.0
+    name: aeciduser
+  - src: https://github.com/ait-aecid/aecidtools.git
+    version: v1.0.0
+    name: aecidtools
