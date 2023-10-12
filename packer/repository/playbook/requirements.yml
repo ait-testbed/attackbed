@@ -17,3 +17,6 @@ roles:
   - src: https://github.com/ait-cs-IaaS/ansible-mate-desktop.git
     version: v1.2.1
     name: mate-desktop
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-weaklinuxuser.git
+    version: v1.0.0
+    name: weaklinuxuser
