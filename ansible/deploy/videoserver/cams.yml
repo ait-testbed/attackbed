@@ -1,0 +1,12 @@
+- name: Install Camera
+  hosts: videoserver
+  remote_user: aecid
+  become: true
+  roles:
+    - role: zoneminder
+      vars:
+        zoneminder_cams:
+                - name: cam-1
+                  id: 3
+                  url: rtsp://cam:cam@172.17.100.80:8554/mystream
+

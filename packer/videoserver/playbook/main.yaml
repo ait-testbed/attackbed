@@ -55,6 +55,10 @@
           - role: zoneminder
             vars:
               zoneminder_debrelease: bullseye
+              zoneminder_cams:
+                - name: cam-1
+                  id: 1
+                  url: rtsp://cam:cam@172.17.100.80:8554/mystream
           - role: sudoweakness
           - role: sshkeyprivesc
           - role: awffullprivesc
