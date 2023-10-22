@@ -15,8 +15,4 @@ variable "videoserver_userdata" {
   default     = null
 }
 
-variable "dmz_cidr" {
-  type        = string
-  description = "CIDR of the dmz subnet"
-  default     = "172.17.100.0/24"
-}
+

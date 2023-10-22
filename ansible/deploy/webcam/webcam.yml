@@ -1,0 +1,7 @@
+- name: Deploy Camera
+  hosts: webcam
+  remote_user: ubuntu
+  become: true
+  roles:
+    - role: simulatedwebcam
+
