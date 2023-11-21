@@ -1,3 +1,1 @@
-- Add automated admin to scenario1(c)
-  * use this image for admin: atb-adminpc-image-2023-07-20T14-53-39Z
-  * generate new videoserverimage
+- create new reposerver with atb-repository-image-2023-11-07T13-28-02Z

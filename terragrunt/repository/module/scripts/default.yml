@@ -4,6 +4,8 @@ system_info:
     name: aecid
     plain_text_passwd: aecid
     lock_passwd: False
+bootcmd:
+  - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
 runcmd:
   -  [apt-get, update]
   -  [apt-get, install, -y, python3]

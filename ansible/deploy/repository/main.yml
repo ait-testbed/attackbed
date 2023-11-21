@@ -1,0 +1,7 @@
+- name: Deploy Repo
+  hosts: reposerver
+  remote_user: aecid
+  become: true
+  roles:
+    - role: puppetmaster
+

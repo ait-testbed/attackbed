@@ -20,3 +20,9 @@ variable "dmz_cidr" {
   description = "CIDR of the dmz subnet"
   default     = "172.17.100.0/24"
 }
+
+variable "reposerver_dns" {
+  type        = string
+  description = "DNS-Server to use. Only the last ip-segment"
+  default     = "254"
+}

@@ -1,9 +1,9 @@
-- name: Install Repository Host
+- name: Install Fileshare Host
   hosts: all
   remote_user: ubuntu
   become: true
   tasks:
-    - name: Install Reposerver Packages
+    - name: Install Fileshare Packages
       ansible.builtin.apt:
           pkg:
             - curl
@@ -13,13 +13,13 @@
       ansible.builtin.copy:
         dest: /etc/ssh/sshd_config.d/password.conf
         content: 'PasswordAuthentication yes'
-
   roles:
+          - role: puppetclient
           - role: hostname
             vars:
-                  hostname: "puppet"
-                  hostname_fqdn: "puppet.aecid-testbed.local"
-                  hostname_ip: "172.17.100.122"
+                  hostname: linuxshare
+                  hostname_ip: 192.168.100.23
+                  hostname_fqdn: linuxshare.aecid-testbed.local
           - role: aeciduser
             vars:
                   # pass: aecid
@@ -29,8 +29,5 @@
                   aecidtools_user: "aecid"
           - role: manage_unattended_upgrades
           - role: auditd
-          - role: mate-desktop
           - role: weaklinuxuser
-          - role: puppetmaster
           - role: disableresolved
-

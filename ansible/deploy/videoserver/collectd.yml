@@ -1,0 +1,6 @@
+- name: Install Videoserver Host
+  hosts: videoserver
+  remote_user: aecid
+  become: true
+  roles:
+          - role: collectd

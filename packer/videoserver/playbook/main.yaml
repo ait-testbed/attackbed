@@ -5,6 +5,9 @@
   vars:
     debsnap_timestamp: 20210815T082041Z
     debsnap_debrelease: bullseye
+  tasks:
+    - name: Deactivate ipv6
+      ansible.builtin.shell: echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
   roles:
     - role: debiansnapshot
 
@@ -63,5 +66,6 @@
           - role: sshkeyprivesc
           - role: awffullprivesc
           - role: auditd
+          - role: acct
+          - role: collectd
           - role: rootkeys
-

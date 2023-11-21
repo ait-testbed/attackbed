@@ -8,6 +8,9 @@ locals {
 #
 data "template_file" "userdata_reposerver" {
   template = "${file("${local.ext_reposerver_userdata_file}")}"
+  vars = {
+      dns_server_address = cidrhost(var.dmz_cidr, var.reposerver_dns)
+  }
 }
 
 data "template_cloudinit_config" "cloudinitreposerver" {

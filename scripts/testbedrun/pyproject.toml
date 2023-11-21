@@ -1,0 +1,25 @@
+[project]
+name = "testbedrun"
+authors = [
+    {name = "Wolfgang Hotwagner", email = "wolfgang.hotwagner@ait.ac.at"},
+]
+description = "Redeploy virtual machines in the AECID Testbed"
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["Testbed", "AECID", "OpenTofu", "Terragrunt", "VirtualMachine"]
+license = {text = "GPL-3.0"}
+dependencies = [
+    "inquirer"
+]
+dynamic = ["version"]
+
+[project.scripts]
+testbedrun = "testbedrun.__main__:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
