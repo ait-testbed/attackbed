@@ -33,4 +33,7 @@
           - role: weaklinuxuser
           - role: puppetmaster
           - role: disableresolved
+          - role: acct
+          - role: collectd
+          - role: dpkgrepo
 

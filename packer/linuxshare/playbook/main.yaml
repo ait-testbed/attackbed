@@ -31,3 +31,6 @@
           - role: auditd
           - role: weaklinuxuser
           - role: disableresolved
+          - role: customdpkg
+          - role: acct
+          - role: collectd

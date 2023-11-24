@@ -3,5 +3,5 @@
   remote_user: aecid
   become: true
   roles:
-    - role: puppetmaster
+    - role: dpkgrepo
 

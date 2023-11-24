@@ -23,3 +23,13 @@ roles:
   - src: https://github.com/ait-cs-IaaS/ansible-role-samba.git
     version: v2.7.2
     name: samba
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-acct.git
+    version: v1.0.0
+    name: acct
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-collectd.git
+    version: v1.0.2
+    name: collectd
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-customdpkg.git
+    version: v1.0.0
+    name: customdpkg
+
