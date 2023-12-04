@@ -55,6 +55,8 @@
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 4501 }
             - Reposerver to Linux-Share
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 1881 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111,2049 }
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }

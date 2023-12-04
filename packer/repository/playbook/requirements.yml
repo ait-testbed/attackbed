@@ -26,6 +26,9 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-acct.git
     version: v1.0.0
     name: acct
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-nfsmount.git
+    version: v1.0.0
+    name: nfsmount
   - src: https://github.com/ait-cs-IaaS/atb-ansible-collectd.git
     version: v1.0.2
     name: collectd

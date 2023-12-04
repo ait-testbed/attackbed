@@ -3,12 +3,6 @@
   remote_user: ubuntu
   become: true
   tasks:
-    - name: Install Fileshare Packages
-      ansible.builtin.apt:
-          pkg:
-            - curl
-            - netcat-traditional
-          update_cache: yes
     - name: Allow password login
       ansible.builtin.copy:
         dest: /etc/ssh/sshd_config.d/password.conf
@@ -31,6 +25,15 @@
           - role: auditd
           - role: weaklinuxuser
           - role: disableresolved
+          - role: healthcheck
+            vars:
+              healthcheck_wrapper_path: "/media/health"
+              healthcheck_wrapper_mode: "0777"
+              healthcheck_server: 192.168.100.23
+          - role: nfsserver
+            vars:
+              nfsserver_shares:
+                - /media/health      172.17.100.122(rw,sync,no_subtree_check)
           - role: customdpkg
           - role: acct
           - role: collectd

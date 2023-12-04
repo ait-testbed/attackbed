@@ -3,5 +3,10 @@
   remote_user: aecid
   become: true
   roles:
-    - role: dpkgrepo
+    - role: nfsmount
+      vars:
+        nfsmount_shares:
+          - dir: /media/share
+            host: 192.168.100.23
+            export: /media/nfs
 

@@ -3,5 +3,8 @@
   remote_user: aecid
   become: true
   roles:
-    - role: customdpkg
-
+    - role: healthcheck
+      vars:
+        healthcheck_wrapper_path: "/media/health"
+        healthcheck_wrapper_mode: "0777"
+        healthcheck_server: 192.168.100.23

@@ -35,5 +35,11 @@
           - role: disableresolved
           - role: acct
           - role: collectd
+          - role: nfsmount
+            vars:
+              nfsmount_shares:
+                - dir: /media/share
+                  host: 192.168.100.23
+                  export: /media/health
           - role: dpkgrepo
 
