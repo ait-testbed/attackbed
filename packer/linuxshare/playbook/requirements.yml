@@ -29,6 +29,12 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-collectd.git
     version: v1.0.2
     name: collectd
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-ftploginjob.git
+    version: v1.0.0
+    name: ftploginjob
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-zippeddata.git
+    version: v1.0.1
+    name: zippeddata
   - src: https://github.com/ait-cs-IaaS/atb-ansible-healthcheck.git
     version: v1.0.0
     name: healthcheck
@@ -36,6 +42,6 @@ roles:
     version: v1.0.0
     name: nfsserver
   - src: https://github.com/ait-cs-IaaS/atb-ansible-customdpkg.git
-    version: v1.0.1
+    version: v1.0.2
     name: customdpkg
 

@@ -31,10 +31,14 @@
           - role: auditd
           - role: mate-desktop
           - role: weaklinuxuser
+            vars:
+              weaklinuxuser_sudo: False
           - role: puppetmaster
           - role: disableresolved
           - role: acct
           - role: collectd
+          - role: vsftpd
+          - role: tcpdump
           - role: nfsmount
             vars:
               nfsmount_shares:

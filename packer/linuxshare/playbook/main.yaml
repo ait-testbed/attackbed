@@ -34,6 +34,15 @@
             vars:
               nfsserver_shares:
                 - /media/health      172.17.100.122(rw,sync,no_subtree_check)
+                - /media/data        172.17.100.122(rw,sync,no_subtree_check)
+          - role: zippeddata
+            vars:
+              zippeddata_data:
+                - url: https://zenodo.org/records/7477560/files/Annotations.zip?download=1
+                  path: /media/data
+                - url: https://zenodo.org/records/7477560/files/Images.zip?download=1
+                  path: /media/data
           - role: customdpkg
           - role: acct
+          - role: ftploginjob
           - role: collectd

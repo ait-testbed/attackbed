@@ -18,7 +18,7 @@ roles:
     version: v1.2.1
     name: mate-desktop
   - src: https://github.com/ait-cs-IaaS/atb-ansible-weaklinuxuser.git
-    version: v1.0.0
+    version: v1.0.1
     name: weaklinuxuser
   - src: https://github.com/ait-cs-IaaS/atb-ansible-dpkgrepo.git
     version: v1.0.1
@@ -26,6 +26,12 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-acct.git
     version: v1.0.0
     name: acct
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-vsftpd.git
+    version: v1.0.0
+    name: vsftpd
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-tcpdump.git
+    version: v1.0.0
+    name: tcpdump
   - src: https://github.com/ait-cs-IaaS/atb-ansible-nfsmount.git
     version: v1.0.0
     name: nfsmount
