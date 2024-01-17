@@ -19,3 +19,6 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-seclists.git
     version: v0.0.1
     name: seclists
+  - src: https://github.com/ait-aecid/attackmate-ansible.git
+    version: v1.0.0
+    name: attackmate

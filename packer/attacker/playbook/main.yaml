@@ -36,6 +36,12 @@
         metasploit_msfdb: True
         metasploit_msfrpcd: True
         metasploit_rpcpassword: hackerman
+    - role: attackmate
+      vars:
+        attackmate_msf_server: "localhost"
+        attackmate_msf_passwd: "hackerman"
+        attackmate_sliver_config: "/home/aecid/.sliver-client/configs/aecid_localhost.cfg"
+        attackmate_tmux_session: "aecid"
     - role: seclists
     - role: disableresolved
       vars:
