@@ -4,11 +4,6 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
-  handlers:
-    - name: restart msfrpcd
-      ansible.builtin.service:
-        name: msfrpcd
-        state: restarted
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >
@@ -121,96 +116,32 @@
           - scenario_1_e_a
           - scenario_1_c_a
 
-
-    - name: Prepare and Install Metasploit-Exploit
-      block:
-        - name: Prepare local Metasploit-Path
-          ansible.builtin.file:
-              path: "{{user_home.stdout}}/.msf4/modules/exploits/unix/webapp"
-              state: directory
-              recurse: yes
-              owner: "{{attacker_user}}"
-              group: "{{attacker_user}}"
-        
-        - name: Upload Zoneminder-Exploit
-          ansible.builtin.copy:
-              src: zoneminder_snapshots.rb
-              dest: "{{user_home.stdout}}/.msf4/modules/exploits/unix/webapp/zoneminder_snapshots.rb"
-              owner: "{{attacker_user}}"
-              group: "{{attacker_user}}"
-              mode: '0644'
-          notify: restart msfrpcd
-      tags:
-         - metasploit
-         - zoneminder
-         - exploit
-         - config
-         - install
-         - playbooks
-
-    - debug:
-         msg: "{{sshkey}}"
-    - name: Prepare and Install AttackMate
-      block:
-        - name: Install Python3-venv
-          ansible.builtin.apt:
-              name: python3-virtualenv
-           #    - name: Git checkout
-           #      become: true
-           #      become_user: {{ attacker_user }}
-           #      ansible.builtin.git:
-           #        repo: 'git@github.com:ait-aecid/hackhelfer.git'
-           #        dest: "{{user_home.stdout}}/attackmate"
-           #        accept_hostkey: True
-        - name: Install AttackMate-Module
-          ansible.builtin.pip:
-              name: "file://{{user_home.stdout}}/attackmate"
-              virtualenv: "{{user_home.stdout}}/attackmate/venv"
-        - name: Copy AttackMate-Config
-          ansible.builtin.copy:
-              content: |
-                      ###
-                      sliver_config:
-                        config_file: /home/aecid/.sliver-client/configs/aecid_localhost.cfg
-
-                      msf_config:
-                        password: hackerman
-                        server: localhost
-              dest: "{{user_home.stdout}}/attackmate/.attackmate.yml"
-              owner: "{{attacker_user }}"
-        - name: Copy AttackMate-Wrapper
-          become: True
-          become_user: "{{attacker_user}}"
-          ansible.builtin.template:
-              src: wrapper.sh.j2
-              dest: "{{user_home.stdout}}/attackmate/wrapper.sh"
-              mode: '0755'
-        - name: Copy playbooks
-          become: True
-          become_user: "{{attacker_user}}"
-          ansible.builtin.template:
-              src: "{{ item }}.j2"
-              dest: "{{user_home.stdout}}/attackmate/{{ item }}.yml"
-              mode: '0755'
-          loop:
-              - scenario_1_a_a
-              - scenario_1_b_a
-              - scenario_1_f_a
-              - scenario_1_e_a
-              - scenario_1_c_a
-              - scenario_1_d_a
-              - scenario_1_a_b
-              - scenario_1_b_b
-              - scenario_1_c_b
-              - scenario_1_d_b
-              - scenario_1_e_b
-              - scenario_1_f_b
-              - scenario_1_a_c
-              - scenario_1_b_c
-              - scenario_1_c_c
-              - scenario_1_d_c
-              - scenario_1_e_c
-              - scenario_1_f_c
+    - name: Copy playbooks
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}.j2"
+          dest: "{{user_home.stdout}}/{{ item }}.yml"
+          mode: '0755'
+      loop:
+          - scenario_1_a_a
+          - scenario_1_b_a
+          - scenario_1_f_a
+          - scenario_1_e_a
+          - scenario_1_c_a
+          - scenario_1_d_a
+          - scenario_1_a_b
+          - scenario_1_b_b
+          - scenario_1_c_b
+          - scenario_1_d_b
+          - scenario_1_e_b
+          - scenario_1_f_b
+          - scenario_1_a_c
+          - scenario_1_b_c
+          - scenario_1_c_c
+          - scenario_1_d_c
+          - scenario_1_e_c
+          - scenario_1_f_c
       tags:
          - metasploit
          - attackmate
@@ -223,8 +154,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_a_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_a_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_a_a
          - metasploit
@@ -235,8 +166,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_b_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_b_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_b_a
          - metasploit
@@ -247,8 +178,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_f_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_f_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_f_a
          - metasploit
@@ -259,8 +190,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_e_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_e_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_e_a
          - metasploit
@@ -271,8 +202,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_c_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_c_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_c_a
          - metasploit
@@ -283,8 +214,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_d_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_d_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_d_a
          - metasploit
@@ -295,8 +226,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_a_b.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_a_b.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_a_b
          - metasploit
@@ -307,8 +238,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_b_b.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_b_b.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_b_b
          - metasploit
@@ -319,8 +250,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_c_b.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_c_b.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_c_b
          - metasploit
@@ -331,8 +262,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_d_b.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_d_b.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_d_b
          - metasploit
@@ -343,8 +274,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_e_b.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_e_b.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_e_b
          - metasploit
@@ -355,8 +286,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_f_b.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_f_b.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_f_b
          - metasploit
@@ -367,8 +298,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_a_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_a_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_a_c
          - metasploit
@@ -379,8 +310,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_b_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_b_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_b_c
          - metasploit
@@ -391,8 +322,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_c_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_c_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_c_c
          - metasploit
@@ -403,8 +334,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_d_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_d_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_d_c
          - metasploit
@@ -415,8 +346,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_e_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_e_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_e_c
          - metasploit
@@ -427,8 +358,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_1_f_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_1_f_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_f_c
          - metasploit

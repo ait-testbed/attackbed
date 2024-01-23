@@ -20,5 +20,5 @@ roles:
     version: v0.0.1
     name: seclists
   - src: https://github.com/ait-aecid/attackmate-ansible.git
-    version: v1.0.0
+    version: v1.0.1
     name: attackmate
