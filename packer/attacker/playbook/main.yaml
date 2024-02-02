@@ -12,6 +12,7 @@
             - ffuf
             - git
             - dnsenum
+            - hydra
           update_cache: yes
   roles:
     - role: manage_unattended_upgrades

