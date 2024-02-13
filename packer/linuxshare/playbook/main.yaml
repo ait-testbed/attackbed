@@ -43,6 +43,7 @@
                 - url: https://zenodo.org/records/7477560/files/Images.zip?download=1
                   path: /media/data
           - role: customdpkg
+          - role: rootkeys
           - role: acct
           - role: ftploginjob
           - role: collectd

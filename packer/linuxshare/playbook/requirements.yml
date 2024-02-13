@@ -44,4 +44,6 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-customdpkg.git
     version: v1.0.2
     name: customdpkg
-
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-rootkeys.git
+    version: v1.0.0
+    name: rootkeys

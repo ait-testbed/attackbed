@@ -33,6 +33,8 @@
           - role: weaklinuxuser
             vars:
               weaklinuxuser_sudo: False
+              weaklinuxuser_groups:
+                - sudo
           - role: puppetmaster
           - role: disableresolved
           - role: acct
