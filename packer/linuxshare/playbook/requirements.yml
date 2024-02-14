@@ -47,3 +47,7 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-rootkeys.git
     version: v1.0.0
     name: rootkeys
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-puppetclient.git
+    version: v1.0.0
+    name: puppetclient
+
