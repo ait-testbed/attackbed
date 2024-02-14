@@ -32,6 +32,7 @@
           - upgrade
           - scenario_3_b
           - scenario_3_c
+          - scenario_3_d
       tags:
          - metasploit
          - attackmate
@@ -72,6 +73,18 @@
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_c
+         - metasploit
+         - attackmate
+         - exploit
+
+    - name: "Run Scenario 3 d"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_d
          - metasploit
          - attackmate
          - exploit
