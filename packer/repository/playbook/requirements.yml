@@ -38,4 +38,7 @@ roles:
   - src: https://github.com/ait-cs-IaaS/atb-ansible-collectd.git
     version: v1.0.2
     name: collectd
+  - src: https://github.com/ait-cs-IaaS/atb-ansible-puppetserver.git
+    version: v1.0.0
+    name: puppetserver
 

@@ -35,7 +35,7 @@
               weaklinuxuser_sudo: False
               weaklinuxuser_groups:
                 - sudo
-          - role: puppetmaster
+          - role: puppetserver
           - role: disableresolved
           - role: acct
           - role: collectd
