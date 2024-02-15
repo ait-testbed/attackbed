@@ -2,6 +2,8 @@
 Lateral Movement (Scenario 3)
 =============================
 
+.. image:: ../../images/AECID-Testbed-LateralMovement.png
+
 1. Attacker brute-forces (T1078, T1133, T1110):
    a) ssh
 2. Attacker sniffs for credentials (server automatically logs into ftp) (T1040)
