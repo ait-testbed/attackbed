@@ -27,3 +27,5 @@ AECID Testbed Documenation
    scenarios/overview
    scenarios/attacks
    scenarios/videoserver
+   scenarios/linuxmalware
+   scenarios/lateralmovement

@@ -31,6 +31,3 @@ Videoserver(Scenario1)
 14. Attacker runs lspci and lsusb(T1120)  [lsusb ist nicht installiert]
 15. Attacker runs ntpdate or date(T1124)  [ntpdate ist nicht installiert]
 16. Attacker checks virtualbox-files(T1497)
-17. Apache is misconfigured! Remote-Attacker uses Apache as a Proxy(T1090)
-
-
