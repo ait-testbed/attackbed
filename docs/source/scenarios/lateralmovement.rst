@@ -4,6 +4,10 @@ Lateral Movement (Scenario 3)
 
 .. image:: ../../images/AECID-Testbed-LateralMovement.png
 
+Attacker Steps:
+---------------
+
+
 1. Attacker brute-forces (T1078, T1133, T1110):
    a) ssh
 2. Attacker sniffs for credentials (server automatically logs into ftp) (T1040)
@@ -19,9 +23,9 @@ Lateral Movement (Scenario 3)
    d) exploit: attacker exploits a vulnerable service on another server(T1210)
 
 On other host: (T1499)
-a) remove account(T1531)
-b) delete data (T1485 from share-folder)
-c) encrypt data using ransomware(T1486, T1565)
-d) Delete Backupfiles(T1490)
-e) Stop Service(T1489)
+1. remove account(T1531)
+2. delete data (T1485 from share-folder)
+3. encrypt data using ransomware(T1486, T1565)
+4. Delete Backupfiles(T1490)
+5. Stop Service(T1489)
 

@@ -4,6 +4,9 @@ Videoserver(Scenario1)
 
 .. image:: ../../images/AECID-Testbed-Videoserver.png
 
+Attacker Steps:
+---------------
+
 1. Attacker scans DNS-Server of company with dns-brute(T1590,T1591)
 2. Attacker scans Host with nmap(T1595) auch mit -O (T1592)
 3. Attacker scans Host with nikto(T1595)
