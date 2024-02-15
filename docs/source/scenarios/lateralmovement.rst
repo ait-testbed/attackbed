@@ -27,6 +27,7 @@ Attacker Steps:
 
 
 On other host: (T1499)
+
 1. remove account(T1531)
 2. delete data (T1485 from share-folder)
 3. encrypt data using ransomware(T1486, T1565)
