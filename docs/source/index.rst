@@ -21,7 +21,7 @@ AECID Testbed Documenation
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
    :caption: Scenarios
 
    scenarios/overview
