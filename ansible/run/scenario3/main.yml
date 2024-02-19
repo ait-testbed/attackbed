@@ -20,6 +20,14 @@
         - attackmate
         - playbooks
 
+    - name: Copy user-password-combo
+      ansible.builtin.copy:
+              src: user_pass_combo.txt
+              dest: "{{user_home.stdout}}/user_pass_combo.txt"
+              mode: "0644"
+      tags:
+          - playbooks
+
     - name: Copy playbooks
       become: True
       become_user: "{{attacker_user}}"
