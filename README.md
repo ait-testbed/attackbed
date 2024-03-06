@@ -8,7 +8,8 @@ The testbed simulates an enterprise IT network, involving mail servers, file sha
 
 ## Videoserver Scenario
 
-![Videoserver Scenario](/docs/images/AECID-Testbed-Videoserver.png)
+<img src="/docs/images/AECID-Testbed-Videoserver.png" alt="Videoserver Scenario" style="width:200px;"/>
+
 
 ## Lateral Movement Scenario
 
