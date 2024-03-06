@@ -8,7 +8,13 @@ Wir bauen viele Tactics von der Mitre Attack Framework ein
 
 # Scenarios
 
+## Videoserver Scenario
 
+![Videoserver Scenario](/docs/images/AECID-Testbed-Videoserver.png)
+
+## Lateral Movement Scenario
+
+![Videoserver Scenario](/docs/images/AECID-Testbed-Videoserver.png)
 
 ## MITRE Navigator
 
