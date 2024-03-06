@@ -22,16 +22,15 @@ The following tactics and techniques are covered:
 
 ![MITRE Navigator](/docs/images/Szenario1_2_3.png)
 
-* List of all scenarios
 * Matrix für Logdaten die wir sammeln?
 
 
 # Requirements
 
-* OpenStack
-* Terraform
-* Terragrunt
-* ansible
+* [OpenStack](https://www.openstack.org/)
+* [OpenTofu](https://opentofu.org/)
+* [Terragrunt](https://terragrunt.gruntwork.io/)
+* [Ansible](https://www.ansible.com/)
 
 # Documentation
 
