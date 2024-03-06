@@ -1,6 +1,6 @@
 # Welcome to AIT AECID Testbed!
 
-The AECID Testbed is a simulated enterprise network with numerous vulnerabilities.  Attacks in this testbed are executed automized and cover as many tactics and techniques of the mitre enterprise framework as possible.  
+The AECID Testbed is a simulated enterprise network with numerous vulnerabilities.  Attacks in this testbed are executed automized and cover a variety of tactics and techniques of the mitre enterprise framework.  
  
 ## Scenarios
 
