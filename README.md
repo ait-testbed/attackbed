@@ -8,10 +8,14 @@ The testbed simulates an enterprise IT network, involving mail servers, file sha
 
 ## Videoserver Scenario
 
+In the video server scenario, an attacker scans the network for vulnerabilities. Next, the attacker gains access to the DMZ through an unauthenticated remote code execution in the video server. He then increases his privileges through various vulnerabilities. Finally, as the system administrator, he can pause the camera image momentarily, allowing physical access.
+
 <img src="/docs/images/AECID-Testbed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
 
 
 ## Lateral Movement Scenario
+
+In the lateral movement scenario, the attacker gains access to a repository server in the DMZ through various remote services. By sniffing network connections, he obtains access data that gives him administrator rights. Next, the malicious actor gains access to a linux share in the local network through various vulnerabilities. Finally, the attacker executes various malicious payloads (such as a ransomware attack) on the target system. 
 
 <img src="/docs/images/AECID-Testbed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
 
@@ -20,8 +24,6 @@ The testbed simulates an enterprise IT network, involving mail servers, file sha
 The following tactics and techniques are covered:
 
 <img src="/docs/images/Szenario1_2_3.png" alt="MITRE Navigator" style="width:600pt;"/>
-
-* Matrix für Logdaten die wir sammeln?
 
 
 # Requirements
