@@ -8,7 +8,7 @@ Wir bauen viele Tactics von der Mitre Attack Framework ein
 
 # Scenarios
 
-![MITRE Navigator](/docs/images/Scenario_1_2_3.png)
+![MITRE Navigator](/docs/images/Scenario1_2_3.png)
 
 * List of all scenarios
 * Attacks covered? (Mitre Navigator Büttal)
