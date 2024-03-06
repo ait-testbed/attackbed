@@ -1,11 +1,7 @@
-# Welcome to AECID Testbed!
+# Welcome to AIT AECID Testbed!
 
 The testbed simulates an enterprise IT network, involving mail servers, file share, firewall, intranet, DMZ, DNS, VPN, etc. Log data is collected from many sources, including network traffic, apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc. 
  
-## What is it?
-
-Wir bauen viele Tactics von der Mitre Attack Framework ein
-
 # Scenarios
 
 ## Videoserver Scenario
@@ -34,7 +30,8 @@ The following tactics and techniques are covered:
 
 # Documentation
 
-Check our our [documentation](https://aeciddocs.ait.ac.at/atb-aecid-testbed/current/)
+* [Installation](https://aeciddocs.ait.ac.at/atb-aecid-testbed/current/installation/overview.html)
+* [Documentation](https://aeciddocs.ait.ac.at/atb-aecid-testbed/current/)
 
 # Publications
 
