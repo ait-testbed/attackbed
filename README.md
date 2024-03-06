@@ -13,13 +13,13 @@ The testbed simulates an enterprise IT network, involving mail servers, file sha
 
 ## Lateral Movement Scenario
 
-![Lateral Movement Scenario](/docs/images/AECID-Testbed-LateralMovement.png)
+<img src="/docs/images/AECID-Testbed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
 
 ## MITRE Navigator
 
 The following tactics and techniques are covered:
 
-![MITRE Navigator](/docs/images/Szenario1_2_3.png)
+<img src="/docs/images/Szenario1_2_3.png" alt="MITRE Navigator" style="width:600pt;"/>
 
 * Matrix für Logdaten die wir sammeln?
 
