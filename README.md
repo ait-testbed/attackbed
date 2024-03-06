@@ -12,6 +12,9 @@ In the video server scenario, an attacker scans the network for vulnerabilities.
 
 <img src="/docs/images/AECID-Testbed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
 
+## Linux Malware Scenario
+
+The Linux malware scenario uses the same network components as the Vidoserver scenario. An attacker gains access to the system through a remote service and manages to increase his privileges there. Next, the malicious actor installs a post exploitation toolkit to persist his access. In a variation, the attacker installs a Linux rootkit to hide the post exploitation toolkit.
 
 ## Lateral Movement Scenario
 
