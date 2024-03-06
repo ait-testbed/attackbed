@@ -2,13 +2,13 @@ roles:
   - src: https://github.com/ait-cs-IaaS/ansible-auditd.git
     version: v1.1
     name: auditd
-  - src: https://github.com/ait-cs-IaaS/atb-ansible-dnsmasq.git
+  - src: https://github.com/ait-testbed/atb-ansible-dnsmasq.git
     version: v1.1.3
     name: dnsmasq
-  - src: https://github.com/ait-cs-IaaS/atb-ansible-suricata.git
+  - src: https://github.com/ait-testbed/atb-ansible-suricata.git
     version: v1.1.4
     name: suricata
-  - src: https://github.com/ait-cs-IaaS/atb-ansible-aeciduser.git
+  - src: https://github.com/ait-testbed/atb-ansible-aeciduser.git
     version: v1.0.0
     name: aeciduser
 

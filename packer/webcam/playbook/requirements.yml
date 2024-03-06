@@ -5,12 +5,12 @@ roles:
   - src: https://github.com/ait-cs-IaaS/ansible-auditd.git
     version: v1.1
     name: auditd
-  - src: https://github.com/ait-cs-IaaS/atb-ansible-simulatedwebcam.git
+  - src: https://github.com/ait-testbed/atb-ansible-simulatedwebcam.git
     version: v0.0.9
     name: simulatedwebcam
-  - src: https://github.com/ait-cs-IaaS/atb-ansible-aeciduser.git
+  - src: https://github.com/ait-testbed/atb-ansible-aeciduser.git
     version: v1.0.0
     name: aeciduser
-  - src: https://github.com/ait-aecid/aecidtools.git
+  - src: https://github.com/ait-testbed/atb-ansible-aecidtools.git
     version: v1.0.0
     name: aecidtools
