@@ -14,7 +14,7 @@ Wir bauen viele Tactics von der Mitre Attack Framework ein
 
 ## Lateral Movement Scenario
 
-![Videoserver Scenario](/docs/images/AECID-Testbed-Videoserver.png)
+![Lateral Movement Scenario](/docs/images/AECID-Testbed-LateralMovement.png)
 
 ## MITRE Navigator
 
