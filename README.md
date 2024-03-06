@@ -1,6 +1,6 @@
 # Welcome to AIT AECID Testbed!
 
-The AECID Testbed is a simulated enterprise network with numerous vulnerabilities.  Attacks in this testbed are executed automized and cover a variety of tactics and techniques of the mitre enterprise framework.  
+The AECID Testbed is a simulated enterprise network with numerous vulnerabilities.  Attacks in this testbed are executed automated and cover a variety of tactics and techniques of the MITRE enterprise framework.  
  
 ## Scenarios
 
@@ -14,7 +14,7 @@ In the video server scenario, an attacker scans the network for vulnerabilities.
 
 ### Linux Malware Scenario
 
-The Linux malware scenario uses the same network components as the Vidoserver scenario. An attacker gains access to the system through a remote service and manages to increase his privileges there. Next, the malicious actor installs a post exploitation toolkit to persist his access. In a variation, the attacker installs a Linux rootkit to hide the post exploitation toolkit.
+The Linux malware scenario uses the same network components as the video server scenario. An attacker gains access to the system through a remote service and manages to increase his privileges there. Next, the malicious actor installs a post exploitation toolkit to persist his access. In a variation, the attacker installs a Linux rootkit to hide the post exploitation toolkit.
 
 ### Lateral Movement Scenario
 
@@ -43,7 +43,7 @@ The following tactics and techniques are covered:
 
 ## Publications
 
-If you use the Kyoushi Testbed Environment or any of the generated datasets, please cite the following publications: 
+If you use the testbed environment or any of the generated datasets, please cite the following publications: 
 
 * Landauer M., Skopik F., Frank M., Hotwagner W., Wurzenberger M., Rauber A. (2023): [Maintainable Log Datasets for Evaluation of Intrusion Detection Systems.](https://ieeexplore.ieee.org/abstract/document/9866880) IEEE Transactions on Dependable and Secure Computing, vol. 20, no. 4, pp. 3466-3482. \[[PDF](https://arxiv.org/pdf/2203.08580.pdf)\]
 * Landauer M., Skopik F., Wurzenberger M., Hotwagner W., Rauber A. (2021): [Have It Your Way: Generating Customized Log Data Sets with a Model-driven Simulation Testbed.](https://ieeexplore.ieee.org/document/9262078) IEEE Transactions on Reliability, Vol.70, Issue 1, pp. 402-415. IEEE. \[[PDF](https://www.skopik.at/ait/2020_trel.pdf)\]
@@ -51,7 +51,7 @@ If you use the Kyoushi Testbed Environment or any of the generated datasets, ple
 
 ## Contact
 
-[Austrian Institute of Technology](https://www.ait.ac.at/themen/cyber-security)
+[Austrian Institute of Technology](https://www.ait.ac.at/en/research-topics/cyber-security)
 
 ## License
 
