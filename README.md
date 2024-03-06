@@ -1,8 +1,10 @@
 # Welcome to AIT AECID Testbed!
 
-The testbed simulates an enterprise IT network, involving mail servers, file share, firewall, intranet, DMZ, DNS, VPN, etc. Log data is collected from many sources, including network traffic, apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc. 
+The AECID Testbed is a simulated enterprise network with numerous vulnerabilities.  Attacks in this testbed are executed automized to cover as many tactics and techniques of the mitre enterprise framework as possible. 
  
 # Scenarios
+
+The testbed simulates an enterprise IT network, involving mail servers, file share, firewall, intranet, DMZ, DNS, VPN, etc. Log data is collected from many sources, including network traffic, apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc. 
 
 ## Videoserver Scenario
 
