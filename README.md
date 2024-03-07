@@ -1,30 +1,30 @@
 # Welcome to AIT AECID Testbed!
 
-The AECID Testbed is a simulated enterprise network with numerous vulnerabilities.  Attacks in this testbed are executed automated and cover a variety of tactics and techniques of the MITRE enterprise framework.  
+The AECID Testbed is a simulated enterprise network packed with numerous vulnerabilities. The testbed can be used to automatically launch several attack scenarios and collect log data (apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc.) as well as network traffic for forensic or live analysis and IDS evaluation. The attack scenarios are designed to cover as many tactics and techniques of the MITRE enterprise framework as possible. This repository contains all scripts required to setup such a testbed and launch the attack scenarios within a virtualized environment.
  
 ## Scenarios
 
-The testbed simulates an enterprise IT network, involving mail servers, file share, firewall, intranet, DMZ, DNS, VPN, etc. Log data is collected from many sources, including network traffic, apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc. 
+The testbed comprises three segments connected via a firewall: Internet (contains public DNS server), DMZ (contains a video server), and Intranet (contains user hosts). The scenarios are designed as multi-step attacks; to incorporate as many different attack techniques as possible, attack scenarios can be launched with many different variations of specific attack steps. Each scenario targets certain components or services in the network, which are described in the following.
 
 ### Videoserver Scenario
 
-In the video server scenario, an attacker scans the network for vulnerabilities. Next, the attacker gains access to the DMZ through an unauthenticated remote code execution in the video server. He then increases his privileges through various vulnerabilities. Finally, as the system administrator, he can pause the camera image momentarily, allowing physical access.
+In the video server scenario, an attacker first scans the network for vulnerabilities. After disclosing a vulnerable CCTV software on a video server, the attacker gains access to the DMZ through unauthenticated remote code execution. Subsequently, one of several vulnerabilities is used by the attacker to escalate privileges. Finally, using root permissions, the attacker is able to pause the CCTV image momentarily, potentially allowing intruders to physically invade the enterprise without being recorded.
 
 <img src="/docs/images/AECID-Testbed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
 
 ### Linux Malware Scenario
 
-The Linux malware scenario uses the same network components as the video server scenario. An attacker gains access to the system through a remote service and manages to increase his privileges there. Next, the malicious actor installs a post exploitation toolkit to persist his access. In a variation, the attacker installs a Linux rootkit to hide the post exploitation toolkit.
+The Linux malware scenario uses the same network components as the video server scenario. An attacker gains access to the system through a remote service and manages to increase their privileges there. Next, the malicious actor installs a post exploitation toolkit to persist their access. In a variation of this scenario, the attacker installs a Linux rootkit to hide the post exploitation toolkit.
 
 ### Lateral Movement Scenario
 
-In the lateral movement scenario, the attacker gains access to a repository server in the DMZ through various remote services. By sniffing network connections, he obtains access data that gives him administrator rights. Next, the malicious actor gains access to a linux share in the local network through various vulnerabilities. Finally, the attacker executes various malicious payloads (such as a ransomware attack) on the target system. 
+In the lateral movement scenario, the attacker gains access to a repository server in the DMZ through various remote services. By sniffing network connections, they obtain access credentials that provide administrator permissions. Next, the malicious actor gains access to a linux share in the local network through various vulnerabilities. Finally, the attacker executes various malicious payloads (such as a ransomware attack) on the target system. 
 
 <img src="/docs/images/AECID-Testbed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
 
 ### MITRE Navigator
 
-The following tactics and techniques are covered:
+The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
 
 <img src="/docs/images/Szenario1_2_3.png" alt="MITRE Navigator" style="width:600pt;"/>
 
