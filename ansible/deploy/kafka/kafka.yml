@@ -1,0 +1,7 @@
+- name: Deploy kafka
+  hosts: kafka
+  remote_user: ubuntu
+  become: true
+  roles:
+    - role: kafka
+
