@@ -16,6 +16,7 @@
          - { name: "logging",  content: "log-queries" }
          - { name: "puppetserver", content: "address=/puppet.{{ internal_domain }}/172.17.100.122" }
          - { name: "linuxshare", content: "address=/linuxshare.{{ internal_domain }}/192.168.100.23" }
+         - { name: "kafka", content: "address=/kafka.{{ internal_domain }}/192.168.100.10" }
        dnsmasq_systemd_resolved_disable: true
     - role: shorewall
       vars:
@@ -57,6 +58,8 @@
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 1881 }
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111,2049 }
+            - Kafka Ports
+            - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }
@@ -77,6 +80,7 @@
             - { name: REPOSERVER, value: 172.17.100.122}
             - { name: LINUXSHARE, value: 192.168.100.23}
             - { name: VIDEOSERVER, value: 172.17.100.121}
+            - { name: KAFKA, value: 192.168.100.10}
  
     - role: auditd
   tasks:
