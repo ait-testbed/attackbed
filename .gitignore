@@ -11,6 +11,7 @@ docs/build/
 
 # ignore gathered logs
 gather/
+gather_scenario_*/
 
 # ignore packer-configs
 default.json

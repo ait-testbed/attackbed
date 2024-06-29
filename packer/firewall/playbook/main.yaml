@@ -2,8 +2,9 @@
 - hosts: all
   become: true
   vars:
-    suricata_interface: [ens3]
+    suricata_interface: [ens5]
     internal_domain: "aecid-testbed.local"
+    suricata_home_nets: ["172.17.100.0/24"]
   roles:
     - role: aeciduser
       vars:

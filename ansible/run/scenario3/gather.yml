@@ -1,4 +1,4 @@
-- hosts: corpdns, inetfw
+- hosts: inetfw
   roles:
     - kyoushi-gather
   vars:
@@ -17,13 +17,13 @@
         recursive: true
 
 
-- hosts: videoserver
+- hosts: reposerver 
   roles:
     - kyoushi-gather
   vars:
     kyoushi_gather_ignore_errors: yes
     kyoushi_gather_logs:
-      - /var/www/default/log/
+      - /home/john/.bash_history
       - src: /var/log
         recursive: true
 
@@ -34,6 +34,23 @@
           - "/etc/runit "
           - "/etc/sv "
 
+- hosts: linuxshare
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - src: /var/log
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+
+
 - hosts: attacker
   roles:
     - kyoushi-gather
@@ -42,6 +59,8 @@
     kyoushi_gather_logs:
       - /home/aecid/attackmate.log
       - /home/aecid/output.log
+      - src: /home/aecid/.msf4
+        recursive: true
       - src: /var/log
         recursive: true
 

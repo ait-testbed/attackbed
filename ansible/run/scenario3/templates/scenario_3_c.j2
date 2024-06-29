@@ -106,6 +106,9 @@ commands:
     session: foothold
     interactive: True
 
+  - type: sleep
+    seconds: 20
+
   - type: ssh
     session: foothold
     cmd: "mkdir /tmp/.tmux_data\n"
@@ -202,7 +205,7 @@ commands:
     hostname: 192.168.100.223
     username: aecid
     password: aecid
-    jmp_hostname:  192.42.1.53
+    jmp_hostname:  192.42.2.42
     clear_cache: True
     exit_on_error: False
 

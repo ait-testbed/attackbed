@@ -1,0 +1,65 @@
+- name: Install OpenSearch Host
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  vars:
+    os_test: True
+    os_version: "2.13.0"
+    os_dashboards_version: "2.13.0"
+    os_dashboards_user: opensearch-dashboards
+    os_download_url: https://artifacts.opensearch.org/releases/bundle/opensearch
+    os_user: opensearch
+    os_cluster_name: os-cluster
+    admin_password: "myStrongPassword@123!"
+    kibanaserver_password: "Test@6789"
+    logstash_password: "Test@456"
+    domain_name: aecid-testbed.local
+    opensearch_hostname: search.aecid-testbed.local
+    opensearch_hosts:
+            search.aecid-testbed.local: 
+              ip: 127.0.0.1
+  tasks:
+    - name: Install Reposerver Packages
+      ansible.builtin.apt:
+          pkg:
+            - curl
+            - netcat-traditional
+          update_cache: yes
+
+  roles:
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: manage_unattended_upgrades
+          - role: hostname
+            vars:
+              hostname: search
+              hostname_ip: 127.0.0.1
+              hostname_fqdn: search.aecid-testbed.local
+          - role: opensearch
+          - role: opensearch-dashboards
+
+- name: Fix IP-adresses
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  tasks:
+    - name: replace ip in opensearch.yml
+      ansible.builtin.lineinfile:
+        path: /usr/share/opensearch/config/opensearch.yml
+        regexp: 'network.host: \"127\.0\.0\.1\"'
+        line: 'network.host: "192.168.100.11"'
+    - name: replace server.host in opensearch_dashboards.yml
+      ansible.builtin.lineinfile:
+        path: /usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+        regexp: 'server.host: \"127\.0\.0\.1\"'
+        line: 'server.host: "192.168.100.11"'
+    - name: replace opensearch.host in opensearch_dashboards.yml
+      ansible.builtin.lineinfile:
+        path: /usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+        regexp: 'opensearch.hosts: \[\"https:\/\/127\.0\.0\.1:9200\"\]'
+        line: 'opensearch.hosts: ["https://192.168.100.11:9200"]'

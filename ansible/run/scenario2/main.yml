@@ -65,52 +65,19 @@
         dest: "{{user_home.stdout}}/.ssh/privesc_key_videoserver"
         mode: "0600"
         owner: "{{attacker_user}}"
+      tags:
+        - playbooks
 
-    - name: Prepare and Install AttackMate
-      block:
-        - name: Install Python3-venv
-          ansible.builtin.apt:
-              name: python3-virtualenv
-           #    - name: Git checkout
-           #      become: true
-           #      become_user: {{ attacker_user }}
-           #      ansible.builtin.git:
-           #        repo: 'git@github.com:ait-aecid/hackhelfer.git'
-           #        dest: "{{user_home.stdout}}/attackmate"
-           #        accept_hostkey: True
-        - name: Install AttackMate-Module
-          ansible.builtin.pip:
-              name: "file://{{user_home.stdout}}/attackmate"
-              virtualenv: "{{user_home.stdout}}/attackmate/venv"
-        - name: Copy AttackMate-Wrapper
-          become: True
-          become_user: "{{attacker_user}}"
-          ansible.builtin.template:
-              src: wrapper.sh.j2
-              dest: "{{user_home.stdout}}/attackmate/wrapper.sh"
-              mode: '0755'
-        - name: Copy AttackMate-Config
-          ansible.builtin.copy:
-              content: |
-                      ###
-                      sliver_config:
-                        config_file: /home/aecid/.sliver-client/configs/aecid_localhost.cfg
-                      
-                      msf_config:
-                        password: hackerman
-                        server: localhost
-              dest: "{{user_home.stdout}}/attackmate/.attackmate.yml"
-              owner: "{{attacker_user }}"
-        - name: Copy playbooks
-          become: True
-          become_user: "{{attacker_user}}"
-          ansible.builtin.template:
-              src: "{{ item }}.j2"
-              dest: "{{user_home.stdout}}/attackmate/{{ item }}.yml"
-              mode: '0755'
-          loop:
-              - scenario_2_a_a
-              - scenario_2_a_c
+    - name: Copy playbooks
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}.j2"
+          dest: "{{user_home.stdout}}/{{ item }}.yml"
+          mode: '0755'
+      loop:
+          - scenario_2_a_a
+          - scenario_2_a_c
       tags:
          - playbooks
 
@@ -118,8 +85,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_2_a_a.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_2_a_a.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_2_a_a
          - metasploit
@@ -130,8 +97,8 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "{{user_home.stdout}}/attackmate/wrapper.sh scenario_2_a_c.yml"
-          chdir: "{{user_home.stdout}}/attackmate"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_2_a_c.yml"
+          chdir: "{{user_home.stdout}}"
       tags:
          - scenario_2_a_c
 
