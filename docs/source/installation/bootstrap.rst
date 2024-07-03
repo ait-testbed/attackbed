@@ -24,6 +24,7 @@ The terragrunt/bootstrap/terragrunt.hcl stores variables like "image-names":
 Please do not change the **terragrunt.hcl** directly. To change any variable create a new file with the filename **terraform.tfvars** and change the variables:
 
 ::
+
     ext_router = "myrouter"
     inetfw_image = "atb-fw-inet-lan-dmz-image-2023-06-09T14-03-06Z"
     sshkey = "my-ssh-key"
