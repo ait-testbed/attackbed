@@ -6,7 +6,7 @@ variable "reposerver_image" {
 variable "reposerver_flavor" {
   type        = string
   description = "flavor of the reposerver host"
-  default     = "m1.medium"
+  default     = "d2-4"
 }
 
 variable "reposerver_userdata" {
