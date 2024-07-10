@@ -15,6 +15,7 @@ AECID Testbed Documenation
    installation/requirements
    installation/repository
    installation/configure
+   installation/virtualenv
    installation/images
    installation/bootstrap
    installation/scenario
