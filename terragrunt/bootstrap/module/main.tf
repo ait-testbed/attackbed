@@ -214,6 +214,18 @@ data "openstack_images_image_v2" "mgmt-image" {
   most_recent = true
 }
 
+locals {
+  mgmt_internet_ip = cidrhost(var.inet_cidr, 201)  # Static IP for mgmt host in internet network
+}
+
+locals {
+  mgmt_lan_ip = cidrhost(var.lan_cidr, 201)  # Static IP for mgmt host in lan network
+}
+
+locals {
+  mgmt_dmz_ip = cidrhost(var.dmz_cidr, 201)  # Static IP for mgmt host in idmz network
+}
+
 resource "openstack_compute_instance_v2" "mgmt" {
   name        = "mgmt"
   flavor_name = var.mgmt_flavor
@@ -223,14 +235,17 @@ resource "openstack_compute_instance_v2" "mgmt" {
 
   network {
     name = "internet"
+    fixed_ip_v4 = local.mgmt_internet_ip 
   }
 
   network {
     name = "lan"
+    fixed_ip_v4 = local.mgmt_lan_ip  
   }
 
   network {
     name = "dmz"
+    fixed_ip_v4 = local.mgmt_dmz_ip  
   }
 
   depends_on = [
@@ -241,11 +256,18 @@ resource "openstack_compute_instance_v2" "mgmt" {
 
 }
 
-resource "openstack_networking_floatingip_v2" "mgmt" {
-  pool = var.floating_pool
+data "openstack_networking_port_v2" "mgmt"{
+  fixed_ip = local.mgmt_internet_ip
 }
 
-resource "openstack_compute_floatingip_associate_v2" "mgmt" {
-  floating_ip = "${openstack_networking_floatingip_v2.mgmt.address}"
-  instance_id = "${openstack_compute_instance_v2.mgmt.id}"
+### a floating ip with this description has to be already allocated to the project 
+### (via horizon dashboard or openstack sdk) and not assigned to any other host 
+
+data "openstack_networking_floatingip_v2" "mgmt" {
+  description = "mgmt"
+}
+
+resource "openstack_networking_floatingip_associate_v2" "mgmt" {
+  floating_ip = data.openstack_networking_floatingip_v2.mgmt.address
+  port_id     = data.openstack_networking_port_v2.mgmt.id
 }
