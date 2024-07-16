@@ -219,11 +219,11 @@ locals {
 }
 
 locals {
-  mgmt_lan_ip = cidrhost(var.lan_cidr, 201)  # Static IP for mgmt host in lan network
+  mgmt_lan_ip = cidrhost(var.lan_cidr, 201)  # Static IP for mgmt host in internet network
 }
 
 locals {
-  mgmt_dmz_ip = cidrhost(var.dmz_cidr, 201)  # Static IP for mgmt host in idmz network
+  mgmt_dmz_ip = cidrhost(var.dmz_cidr, 201)  # Static IP for mgmt host in internet network
 }
 
 resource "openstack_compute_instance_v2" "mgmt" {
@@ -235,17 +235,17 @@ resource "openstack_compute_instance_v2" "mgmt" {
 
   network {
     name = "internet"
-    fixed_ip_v4 = local.mgmt_internet_ip 
+    fixed_ip_v4 = local.mgmt_internet_ip
   }
 
   network {
     name = "lan"
-    fixed_ip_v4 = local.mgmt_lan_ip  
+    fixed_ip_v4 = local.mgmt_lan_ip
   }
 
   network {
     name = "dmz"
-    fixed_ip_v4 = local.mgmt_dmz_ip  
+    fixed_ip_v4 = local.mgmt_dmz_ip
   }
 
   depends_on = [
@@ -258,6 +258,9 @@ resource "openstack_compute_instance_v2" "mgmt" {
 
 data "openstack_networking_port_v2" "mgmt"{
   fixed_ip = local.mgmt_internet_ip
+    depends_on = [
+      openstack_compute_instance_v2.mgmt  
+  ]
 }
 
 ### a floating ip with this description has to be already allocated to the project 
@@ -270,4 +273,9 @@ data "openstack_networking_floatingip_v2" "mgmt" {
 resource "openstack_networking_floatingip_associate_v2" "mgmt" {
   floating_ip = data.openstack_networking_floatingip_v2.mgmt.address
   port_id     = data.openstack_networking_port_v2.mgmt.id
+
+  depends_on = [
+     data.openstack_networking_port_v2.mgmt,
+     data.openstack_networking_floatingip_v2.mgmt
+  ]
 }
