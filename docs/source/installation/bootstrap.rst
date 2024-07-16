@@ -37,7 +37,7 @@ This can be done either in the OpenStack Web Interface OR via openstacksdk on th
 
 ::
 
-    openstack floating ip create --network <network> --description mgmt
+    openstack floating ip create <network> --description mgmt
     
 After these steps the bootstrap can be deployed:
 
