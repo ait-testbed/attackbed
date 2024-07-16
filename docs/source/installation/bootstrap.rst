@@ -32,8 +32,8 @@ Please do not change the **terragrunt.hcl** directly. To change any variable cre
 
 
 If you built the server images manually you have to change the image-names. It is also necessary to set the **external router** and the **floating_pool**. 
-Additionally provide one pre-allocated floating IP with the description "mgmt" (used for the jumphost across deployments). This can be done either in the OpenStack 
-Web Interface OR via openstacksdk on the command line:
+Additionally provide one pre-allocated floating IP with the description "mgmt" (used for the jumphost across deployments). 
+This can be done either in the OpenStack Web Interface OR via openstacksdk on the command line:
 
 ::
 
