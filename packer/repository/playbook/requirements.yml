@@ -33,7 +33,7 @@ roles:
     version: v1.0.0
     name: vsftpd
   - src: https://github.com/ait-testbed/atb-ansible-tcpdump.git
-    version: v1.0.0
+    version: v1.0.1
     name: tcpdump
   - src: https://github.com/ait-testbed/atb-ansible-nfsmount.git
     version: v1.0.0
