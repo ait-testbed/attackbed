@@ -33,6 +33,7 @@
             - { source: fw,    dest: all,   policy: ACCEPT }
             - { source: lan,   dest: inet,  policy: ACCEPT }
             - { source: dmz,   dest: inet,  policy: ACCEPT }
+            - { source: lan,   dest: dmz,  policy: ACCEPT }
             - THIS POLICY HAS TO BE THE LAST
             - { source: all,   dest: all,   policy: REJECT, log: info } 
           rules:
@@ -43,6 +44,11 @@
             # - { action: ACCEPT,      source: inet, dest: fw, proto: tcp, dest_port: "443,8006" }
             - PING Rules
             - { action: Ping/ACCEPT, source: all, dest: all }
+            - { action: ACCEPT, source: lan, dest: dmz }
+            - { action: ACCEPT, source: dmz, dest: lan }
+            - { action: ACCEPT, source: dmz, dest: dmz }
+            - { action: ACCEPT, source: lan, dest: dmz:172.17.100.122, proto: tcp, dest_port: 5000 }
+            - { action: ACCEPT, source: dmz:172.17.100.122, dest: lan:192.168.100.222, proto: tcp, dest_port: 5000 }
           snat:
             - { dest: $INETIF, source: 192.168.100.0/24 }
             - { dest: $INETIF, source: 172.17.100.0/24 }
