@@ -47,5 +47,5 @@ variable "timestamp_image" {
 variable "build_user" {
   type    = string
   description = "User to use when building the image"
-  default = "debian" # thats for packer to log in to execute ansible
+  default = "debian"
 }
