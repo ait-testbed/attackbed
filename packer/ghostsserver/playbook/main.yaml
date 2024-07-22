@@ -1,0 +1,26 @@
+- name: Deploy Ghosts-Server
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  roles:
+    - role: aeciduser
+      vars:
+            # pass: aecid
+            aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+      vars:
+            aecidtools_user: "aecid"
+    - role: docker
+      vars:
+            docker_edition: 'ce'
+            docker_service_manage: true
+            docker_service_state: started
+            docker_service_enabled: true
+            docker_restart_handler_state: restarted
+            docker_install_compose_plugin: true
+            docker_compose_package: docker-compose-plugin
+            docker_compose_package_state: present
+            docker_users:
+              - aecid
+    - role: ghostsserver
+    - role: manage_unattended_upgrades
