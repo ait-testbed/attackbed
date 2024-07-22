@@ -14,7 +14,7 @@ variable "base_image" {
 variable "flavor" {
     type = string
     description = "The openstack flavor to use for the build host"
-    default = "m1.small"
+    default = "d2-2"
 }
 
 variable "security_group" {
@@ -47,5 +47,5 @@ variable "timestamp_image" {
 variable "build_user" {
   type    = string
   description = "User to use when building the image"
-  default = "debian"
+  default = "debian" # thats for packer to log in to execute ansible
 }

@@ -14,7 +14,7 @@ variable "base_image" {
 variable "flavor" {
     type = string
     description = "The openstack flavor to use for the build host"
-    default = "m1.medium"
+    default = "d2-4"
 }
 
 variable "security_group" {
