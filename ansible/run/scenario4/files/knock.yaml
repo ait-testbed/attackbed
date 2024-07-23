@@ -1,0 +1,21 @@
+rules:
+  - name: "knock-firewall"
+    host: 192.42.0.254
+    sequence:
+      - 32768
+      - 28977
+      - 51234
+  - name: "execute-implant1"
+    host: 192.42.0.254
+    sequence:
+      - 18933
+      - 32768
+  - name: "execute-implant2"
+    host: 192.42.0.254
+    sequence:
+      - 54321
+      - 12345
+
+      
+
+

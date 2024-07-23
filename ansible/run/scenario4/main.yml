@@ -1,0 +1,143 @@
+- name: Install Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+  handlers:
+    - name: restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
+      delegate_to: inetdns
+
+    - name: restart msfrpcd
+      ansible.builtin.service:
+        name: msfrpcd
+        state: restarted
+
+  tasks:
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+      tags:
+        - playbooks
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        pkg:
+          - xz-utils
+          - coreutils
+          - sshpass
+      tags:
+        - playbooks
+
+    - name: Configure public DNS
+      ansible.builtin.copy:
+        content: "address=/faaacebook.com/{{ attacker_ip }}\n"
+        owner: root
+        dest: /etc/dnsmasq.d/attacker.conf
+      delegate_to: inetdns
+      notify: restart dnsmasq
+      tags:
+        - playbooks
+
+    - name: Copy knock binary
+      ansible.builtin.copy:
+        src: "v0.1.2-x86_64-unknown-linux-musl.tar.gz"
+        dest: "/home/aecid/knock.tar.gz"
+        owner: "aecid"
+        group: "aecid"
+      tags:
+        - playbooks
+
+    - name: Copy knock client config
+      ansible.builtin.copy:
+        src: "knock.yaml"
+        dest: "/home/aecid/knock.yaml"
+        owner: "aecid"
+        group: "aecid"
+      tags:
+        - playbooks
+
+    - name: Copy knock server config
+      ansible.builtin.copy:
+        src: "config.yaml"
+        dest: "/home/aecid/config.yaml"
+        owner: "aecid"
+        group: "aecid"
+      tags:
+        - playbooks
+
+    - name: Extract knock tar archive
+      ansible.builtin.unarchive:
+        remote_src: true
+        src: /home/aecid/knock.tar.gz
+        dest: /home/aecid 
+      tags: 
+        - playbooks
+
+    - name: Rename knock binary to auditf
+      ansible.builtin.copy:
+        remote_src: true
+        src: /home/aecid/knockd
+        dest: /home/aecid/auditf
+        owner: "aecid"
+        group: "aecid"
+      tags:
+        - playbooks
+
+    - name: make auditf binary executable
+      ansible.builtin.file:
+        path: /home/aecid/auditf  # Replace with the actual path to your knock-cli binary
+        mode: '+x'
+      tags:
+        - playbooks
+
+
+    - name: make knock-cli binary executable
+      ansible.builtin.file:
+        path: /home/aecid/knock-cli  # Replace with the actual path to your knock-cli binary
+        mode: '+x'
+      tags:
+        - playbooks
+
+    - name: Create tar archive auditf with knock files
+      ansible.builtin.archive:
+        path:
+          - /home/aecid/auditf
+          - /home/aecid/config.yaml
+        dest: /home/aecid/auditf.tar.gz
+        format: gz
+      tags:
+        - playbooks
+
+    - name: Copy playbooks
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}.j2"
+          dest: "{{user_home.stdout}}/{{ item }}.yml"
+          mode: '0755'
+      loop:
+          - scenario_4
+      tags:
+         - playbooks
+
+    - name: "Run Scenario 4"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "/usr/local/bin/attackmate-tmux scenario_4.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_4
+         - metasploit
+         - attackmate
+         - exploit
+
+
+
+  

