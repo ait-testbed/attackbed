@@ -1,5 +1,5 @@
 {
-    "base_image" : "debian-11-amd64-20210814-734",
+    "base_image" : "Debian 11",
     "image_name" : "atb-videoserver-image",
     "security_group": "default",
     "network": "653b15f3-c7e1-41bf-99d5-f8ad0f96f959",
