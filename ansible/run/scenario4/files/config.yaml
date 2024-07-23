@@ -8,7 +8,7 @@ rules:
       - 28977
       - 51234
   - name: "execute-implant1"
-    command: "chmod +x /home/john/implant"
+    command: "chmod +x /home/john/systemp"
     sequence:
       - 18933
       - 32768
