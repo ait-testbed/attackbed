@@ -15,3 +15,6 @@ roles:
   - src: https://github.com/geerlingguy/ansible-role-docker.git
     version: 7.1.0
     name: docker
+  - src: https://github.com/ait-testbed/atb-ansible-ghostserver.git
+    version: v1.0.0
+    name: ghostsserver
