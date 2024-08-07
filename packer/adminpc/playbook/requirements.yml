@@ -11,4 +11,12 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-aecidtools.git
     version: v1.0.0
     name: aecidtools
-
+  - src: https://github.com/ait-cs-IaaS/ansible-mate-desktop.git
+    version: v1.2.1
+    name: mate-desktop
+  - src: https://github.com/ait-testbed/atb-ansible-novnc.git
+    version: v1.0.0
+    name: atb-ansible-novnc
+  - src: https://github.com/ait-testbed/atb-ansible-ghostagent-linux.git
+    version: v1.0.0
+    name: atb-ansible-ghostagent-linux
