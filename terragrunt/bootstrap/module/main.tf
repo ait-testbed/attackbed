@@ -130,6 +130,33 @@ resource "openstack_networking_subnet_v2" "dmz_subnet" {
   }
 }
 
+###################################################################
+#
+# CREATE NETWORK "ADMIN"
+#
+resource "openstack_networking_network_v2" "admin" {
+  name           = "admin"
+  port_security_enabled = "false"
+  admin_state_up = "true"
+}
+
+resource "openstack_networking_subnet_v2" "admin_subnet" {
+  name       = "admin_subnet"
+  network_id = "${openstack_networking_network_v2.admin.id}"
+  cidr       = var.admin_cidr
+  ip_version = 4
+  gateway_ip = cidrhost(var.admin_cidr,254)
+  dns_nameservers = [cidrhost(var.admin_cidr,254)]
+
+
+  # make the allocation_pool smaller for gateway_ip
+  allocation_pool {
+    start = cidrhost(var.admin_cidr,20)
+    end   = cidrhost(var.admin_cidr,200)
+  }
+}
+
+
 ####################################################################
 #
 # CREATE INSTANCE for "Internet-Firewall"
@@ -180,11 +207,17 @@ resource "openstack_compute_instance_v2" "inet-fw" {
     fixed_ip_v4 = cidrhost(var.dmz_cidr,254)
   }
 
+  network {
+    name = "admin"
+    fixed_ip_v4 = cidrhost(var.admin_cidr,254)
+  }
+
   depends_on = [
      openstack_compute_instance_v2.inet-dns,
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
-     openstack_networking_network_v2.lan
+     openstack_networking_network_v2.lan,
+     openstack_networking_network_v2.admin
   ]
 }
 
@@ -218,6 +251,7 @@ locals {
   mgmt_internet_ip = cidrhost(var.inet_cidr, 201)  # Static IP for mgmt host in internet network
   mgmt_lan_ip = cidrhost(var.lan_cidr, 201)  # Static IP for mgmt host in lan network
   mgmt_dmz_ip = cidrhost(var.dmz_cidr, 201)  # Static IP for mgmt host in dmz network
+  mgmt_admin_ip = cidrhost(var.dmz_cidr, 201)  # Static IP for mgmt host in admin network
 }
 
 resource "openstack_compute_instance_v2" "mgmt" {
@@ -242,10 +276,16 @@ resource "openstack_compute_instance_v2" "mgmt" {
     fixed_ip_v4 = local.mgmt_dmz_ip
   }
 
+  network {
+    name = "admin"
+    fixed_ip_v4 = local.mgmt_admin_ip
+  }
+
   depends_on = [
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
      openstack_networking_network_v2.lan
+     openstack_networking_network_v2.admin 
   ]
 
 }
