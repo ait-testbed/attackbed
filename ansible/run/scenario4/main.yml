@@ -71,6 +71,15 @@
       tags:
         - playbooks
 
+    - name: Copy script to download implant
+      ansible.builtin.copy:
+        src: "system-verify.sh"
+        dest: "/home/aecid/system-verify.sh"
+        owner: "aecid"
+        group: "aecid"
+      tags:
+        - playbooks
+
     - name: Extract knock tar archive
       ansible.builtin.unarchive:
         remote_src: true
@@ -91,7 +100,14 @@
 
     - name: make auditf binary executable
       ansible.builtin.file:
-        path: /home/aecid/auditf  # Replace with the actual path to your knock-cli binary
+        path: /home/aecid/auditf 
+        mode: '+x'
+      tags:
+        - playbooks
+
+    - name: make system-verify.sh executable
+      ansible.builtin.file:
+        path: /home/aecid/system-verify.sh
         mode: '+x'
       tags:
         - playbooks
@@ -99,7 +115,7 @@
 
     - name: make knock-cli binary executable
       ansible.builtin.file:
-        path: /home/aecid/knock-cli  # Replace with the actual path to your knock-cli binary
+        path: /home/aecid/knock-cli  
         mode: '+x'
       tags:
         - playbooks
@@ -109,6 +125,7 @@
         path:
           - /home/aecid/auditf
           - /home/aecid/config.yaml
+          - /home/aecid/system-verify.sh
         dest: /home/aecid/auditf.tar.gz
         format: gz
       tags:
