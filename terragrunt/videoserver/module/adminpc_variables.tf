@@ -15,8 +15,8 @@ variable "adminpc_userdata" {
   default     = null
 }
 
-variable "lan_cidr" {
+variable "admin_cidr" {
   type        = string
-  description = "CIDR of the dmz subnet"
-  default     = "192.168.100.0/24"
+  description = "CIDR of the admin subnet"
+  default     = "10.12.0.0/24"
 }
