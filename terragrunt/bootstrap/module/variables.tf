@@ -91,7 +91,7 @@ variable "dmz_cidr" {
 variable "admin_cidr" {
   type        = string
   description = "CIDR of the admin subnet"
-  default     = "10.12.0.0/24 "
+  default     = "10.12.0.0/24"
 }
 
 variable "user_cidr" {
