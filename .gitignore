@@ -11,6 +11,9 @@ docs/build/
 .mypy_cache/
 *.tfstate
 
+# temporary packer-key(debug)
+os_builder.pem
+
 # ignore gathered logs
 gather/
 gather_scenario_*/
