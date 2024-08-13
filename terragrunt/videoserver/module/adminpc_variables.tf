@@ -14,9 +14,3 @@ variable "adminpc_userdata" {
   description = "Userdata for the adminpc virtual machine"
   default     = null
 }
-
-variable "admin_cidr" {
-  type        = string
-  description = "CIDR of the admin subnet"
-  default     = "10.12.0.0/24"
-}

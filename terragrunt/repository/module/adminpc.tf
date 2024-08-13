@@ -38,8 +38,8 @@ resource "openstack_compute_instance_v2" "adminpc2" {
   user_data    = local.ext_adminpc_userdata_file == null ? null : data.template_cloudinit_config.cloudinitadminpc[0].rendered
 
   network {
-    name = "admin"
-    fixed_ip_v4 = cidrhost(var.admin_cidr,223)
+    name = "lan"
+    fixed_ip_v4 = cidrhost(var.lan_cidr,223)
   }
 
 }
