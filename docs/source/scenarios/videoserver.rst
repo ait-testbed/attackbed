@@ -2,7 +2,7 @@
 Videoserver(Scenario1)
 ======================
 
-.. image:: ../../images/AECID-Testbed-Videoserver.png
+.. image:: ../../images/AttackBed-Videoserver.png
 
 Attacker Steps:
 ---------------
