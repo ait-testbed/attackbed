@@ -1,4 +1,4 @@
-# Welcome to AttackBed!
+# Welcome to AttackBed! <img alt="Logo" src="/images/AttackBed_logo.svg" align="right" height="90">
 
 The AttackBed is a simulated enterprise network packed with numerous vulnerabilities. This testbed can be applied to automatically launch several attack scenarios (using <a href="https://github.com/ait-testbed/attackmate">AttackMate</a>) and collect log data (apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc.) as well as network traffic for forensic or live analysis and IDS evaluation. The attack scenarios are designed to cover as many tactics and techniques of the MITRE enterprise framework as possible. This repository contains all scripts required to setup such a testbed and launch the attack scenarios within a virtualized environment.
  
