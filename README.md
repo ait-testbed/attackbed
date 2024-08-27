@@ -1,4 +1,4 @@
-# Welcome to AIT AECID Testbed!
+# Welcome to AttackBed!
 
 The AECID Testbed is a simulated enterprise network packed with numerous vulnerabilities. The testbed can be used to automatically launch several attack scenarios and collect log data (apache access logs, DNS logs, syslog, authentication logs, audit logs, suricata logs, exim/mail logs, monitoring logs, etc.) as well as network traffic for forensic or live analysis and IDS evaluation. The attack scenarios are designed to cover as many tactics and techniques of the MITRE enterprise framework as possible. This repository contains all scripts required to setup such a testbed and launch the attack scenarios within a virtualized environment.
  
