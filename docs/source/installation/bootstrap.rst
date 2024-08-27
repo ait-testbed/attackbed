@@ -4,7 +4,7 @@
 Deploy bootstrap
 ================
 
-.. image:: ../../images/AECID-Testbed-Bootstrap.png
+.. image:: ../../images/AttackBed-Bootstrap.png
 
 The bootstrap is a basic network infrastructure with all the network components that are required for all the scenarios. This bootstrap can be deployed with terragrunt.
 The terragrunt/bootstrap/terragrunt.hcl stores variables like "image-names":

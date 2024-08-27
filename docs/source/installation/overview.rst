@@ -2,7 +2,7 @@
 Overview
 ========
 
-The following steps are required to install the AECID Testbed:
+The following steps are required to install the AttackBed:
 
 1. :ref:`requirements`
 2. :ref:`prepare_repository`

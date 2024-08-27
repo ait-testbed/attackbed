@@ -13,4 +13,4 @@ A scenario can be installed similar to the bootstrap. The following steps are re
 3. Run **terragrunt apply**
 
 
-.. image:: ../../images/AECID-Testbed-Videoserver.png
+.. image:: ../../images/AttackBed-Videoserver.png

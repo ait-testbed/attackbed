@@ -10,7 +10,7 @@ The testbed comprises three segments connected via a firewall: Internet (contain
 
 In the video server scenario, an attacker first scans the network for vulnerabilities. After disclosing a vulnerable CCTV software on a video server, the attacker gains access to the DMZ through unauthenticated remote code execution. Subsequently, one of several vulnerabilities is used by the attacker to escalate privileges. Finally, using root permissions, the attacker is able to pause the CCTV image momentarily, potentially allowing intruders to physically invade the enterprise without being recorded.
 
-<img src="/docs/images/AECID-Testbed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
+<img src="/docs/images/AttackBed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
 
 ### Linux Malware Scenario
 
@@ -20,7 +20,7 @@ The Linux malware scenario uses the same network components as the video server 
 
 In the lateral movement scenario, the attacker gains access to a repository server in the DMZ through various remote services. By sniffing network connections, they obtain access credentials that provide administrator permissions. Next, the malicious actor gains access to a linux share in the local network through various vulnerabilities. Finally, the attacker executes various malicious payloads (such as a ransomware attack) on the target system. 
 
-<img src="/docs/images/AECID-Testbed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
+<img src="/docs/images/AttackBed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
 
 ### MITRE Navigator
 
@@ -38,8 +38,8 @@ The following figure shows which tactics and techniques are currently covered by
 
 ## Documentation
 
-* [Installation](https://aeciddocs.ait.ac.at/atb-aecid-testbed/current/installation/overview.html)
-* [Documentation](https://aeciddocs.ait.ac.at/atb-aecid-testbed/current/)
+* [Installation](https://aeciddocs.ait.ac.at/attackbed/current/installation/overview.html)
+* [Documentation](https://aeciddocs.ait.ac.at/attackbed/current/)
 
 ## Publications
 

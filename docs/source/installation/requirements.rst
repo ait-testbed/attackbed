@@ -4,7 +4,7 @@
 Requirements
 ============
 
-To setup the AECID Testbed it is necessary to have the following requirements prepared:
+To setup the AttackBed it is necessary to have the following requirements prepared:
 
 1. Access to a working `OpenStack <https://www.openstack.org/>`_ is required
 2. Install `OpenTofu <https://opentofu.org/>`_
