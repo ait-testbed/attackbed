@@ -35,8 +35,8 @@ resource "openstack_compute_instance_v2" "ghostsserver" {
   user_data    = local.ext_ghostsserver_userdata_file == null ? null : data.template_cloudinit_config.cloudinitghostsserver[0].rendered
 
   network {
-    name = "dmz"
-    fixed_ip_v4 = cidrhost(var.dmz_cidr,122)
+    name = "lan"
+    fixed_ip_v4 = cidrhost(var.lan_cidr,122)
   }
 
 }
