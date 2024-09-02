@@ -2,7 +2,7 @@
 Lateral Movement (Scenario 3)
 =============================
 
-.. image:: ../../images/AECID-Testbed-LateralMovement.png
+.. image:: ../../images/AttackBed-LateralMovement.png
 
 Attacker Steps:
 ---------------

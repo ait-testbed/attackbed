@@ -1,7 +1,7 @@
 void setBuildStatus(String message, String state) {
     step([
         $class: "GitHubCommitStatusSetter",
-        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/ait-aecid/atb-aecid-testbed"],
+        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/ait-aecid/attackbed"],
         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
         errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
         statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
@@ -42,7 +42,7 @@ pipeline {
         	        }
         	}
                 steps {
-       	                sh "scripts/deploydocs.sh ${env.BRANCH_NAME} docs/build/html /var/www/aeciddocs/atb-aecid-testbed"
+       	                sh "scripts/deploydocs.sh ${env.BRANCH_NAME} docs/build/html /var/www/aeciddocs/attackbed"
                 }
         }
     }
