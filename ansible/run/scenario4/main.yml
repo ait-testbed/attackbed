@@ -24,15 +24,16 @@
       register: user_home
       tags:
         - playbooks
+        - scenario_4
 
-    - name: Install dependencies
-      ansible.builtin.apt:
-        pkg:
-          - xz-utils
-          - coreutils
-          - sshpass
+    - name: Start the sliver service with sudo
+      ansible.builtin.systemd:
+        name: sliver
+        state: started
+        enabled: yes
+      become: true
       tags:
-        - playbooks
+        - sliver
 
     - name: Configure public DNS
       ansible.builtin.copy:
@@ -138,6 +139,7 @@
           src: "{{ item }}.j2"
           dest: "{{user_home.stdout}}/{{ item }}.yml"
           mode: '0755'
+      notify: restart sliver
       loop:
           - scenario_4
       tags:
@@ -151,7 +153,6 @@
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_4
-         - metasploit
          - attackmate
          - exploit
 
