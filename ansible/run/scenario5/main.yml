@@ -1,0 +1,76 @@
+- name: Install Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.168.100.27
+  tasks:
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+      tags:
+        - playbooks
+
+- name: Setup Admin PC and user simulation
+  hosts: adminpc1
+  become: true
+  vars:
+    ghostsagent_user: "aecid"
+    ghostagent_path: "/home/{{ ghostsagent_user }}"
+  tasks:
+
+    - name: Copy ghostagent config files
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "{{ghostagent_path}}/ghosts/config/{{ item }}.json"
+        mode: '0755'
+      loop:
+        - application
+        - timeline
+
+    - name: Run ghost client on adminpc and administer its process id
+      ansible.builtin.shell: "/home/aecid/ghosts/ghosts.client.linux > /home/aecid/ghosts-client.log 2>&1 & echo $! > /tmp/ghosts_client.pid"
+      # updated folder will be: "/home/aecid/ghosts-client-linux-v8.0.0/ghosts.client.linux"
+      async: 3600  # maximum timeout (arbitrarily high to allow for long execution)
+      poll: 0      # run in background without waiting
+      register: ghost_client_task
+      tags:
+        - run-ghosts-client
+
+- name: Run Attacker Tasks
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_home: "/home/{{ attacker_user }}"
+  tasks:
+    - name: Copy entire folder to attacker
+      ansible.builtin.copy:
+        src: "files/"
+        dest: "{{ attacker_home }}/scenario5/"
+        mode: '0755'
+        owner: "{{ attacker_user }}"
+        group: "{{ attacker_user }}"
+        remote_src: no
+      tags:
+        - attacker-tasks
+
+    - name: Run final playbook on attacker with activated environment
+      ansible.builtin.shell: |
+        source /usr/local/share/attackmate/venv/bin/activate && attackmate {{ attacker_home }}/scenario5/playbook.yml
+      args:
+        executable: /bin/bash  # run command in a bash shell
+      tags:
+        - attacker-tasks
+
+- name: Stop Ghosts Client on Admin PC
+  hosts: adminpc1
+  become: true
+  tasks:
+    - name: Stop Ghosts Client
+      ansible.builtin.shell: "kill $(cat /tmp/ghosts_client.pid)"
+      ignore_errors: true  # ignore errors in case the process has already stopped
+      tags:
+        - stop-ghosts-client
