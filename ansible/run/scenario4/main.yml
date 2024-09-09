@@ -34,6 +34,7 @@
       become: true
       tags:
         - sliver
+        - playbooks
 
     - name: Configure public DNS
       ansible.builtin.copy:
@@ -139,7 +140,6 @@
           src: "{{ item }}.j2"
           dest: "{{user_home.stdout}}/{{ item }}.yml"
           mode: '0755'
-      notify: restart sliver
       loop:
           - scenario_4
       tags:
