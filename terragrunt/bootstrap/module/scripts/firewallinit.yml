@@ -43,6 +43,12 @@ write_files:
    owner: root:root     
    path: /root/ifsetup.sh     
    permissions: '0700'
+
+# Ensure password authentication is enabled in SSH
+write_files:
+  - path: /etc/ssh/sshd_config.d/55-password-yes.conf
+    content: |
+      PasswordAuthentication yes
  
 bootcmd:
   - echo "nameserver ${dns_server_address}" > /etc/resolv.conf

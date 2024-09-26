@@ -30,3 +30,4 @@ AttackBed Documenation
    scenarios/videoserver
    scenarios/linuxmalware
    scenarios/lateralmovement
+   scenarios/network
