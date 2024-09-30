@@ -1,4 +1,4 @@
-- hosts: corpdns, inetfw
+- hosts: inetdns, inetfw-int
   roles:
     - kyoushi-gather
   vars:
@@ -40,13 +40,13 @@
   vars:
     kyoushi_gather_ignore_errors: yes
     kyoushi_gather_logs:
-      - /home/aecid/attackmate.log
-      - /home/aecid/output.log
+      - /home/aecid/scenario5/attackmate.log
+      - /home/aecid/scenario5/output.log
       - src: /var/log
         recursive: true
 
     kyoushi_gather_configs:
-      - src: /home/aecid/scenario*.yml
+      - src: /home/aecid/scenario5/
       - src: /etc
         recursive: true
         exclude:
