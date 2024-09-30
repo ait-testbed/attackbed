@@ -7,5 +7,5 @@ collections:
 roles:
   - name: l50.sliver
   - name: kyoushi-gather
-    src: https://github.com/ait-cs-IaaS/ansible-kyoushi-gather.git
-    version: master
+    src: https://github.com/ait-testbed/atb-kyoushi-gather.git
+    version: v0.9.0
