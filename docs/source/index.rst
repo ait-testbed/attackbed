@@ -30,3 +30,4 @@ AECID Testbed Documenation
    scenarios/videoserver
    scenarios/linuxmalware
    scenarios/lateralmovement
+   scenarios/lanturtle
