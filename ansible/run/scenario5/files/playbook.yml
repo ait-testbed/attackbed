@@ -23,6 +23,9 @@ commands:
   - type: shell
     cmd: sudo pkill -9 -f "bettercap -caplet bettercap.cap"
 
+  - type: sleep
+    seconds: 5
+
   - type: http-client
     cmd: GET
     url: http://172.17.100.121/zm/?view=options
