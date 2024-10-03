@@ -1,41 +1,24 @@
-- name: Install Attacker Host
-  hosts: attacker
-  become: true
-  vars:
-    attacker_user: aecid
-    attacker_ip: 192.168.100.27
-  tasks:
-    - name: get user home directory
-      ansible.builtin.shell: >
-             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
-      changed_when: false
-      register: user_home
-      tags:
-        - playbooks
-
-- name: Setup Admin PC and user simulation
+- name: Start Ghosts Client on Admin PC
   hosts: adminpc1
   become: true
   vars:
     ghostsagent_user: "aecid"
-    ghostagent_path: "/home/{{ ghostsagent_user }}"
+    ghostagent_path: "/home/{{ ghostsagent_user }}/ghosts-client-linux-v8.0.0"
   tasks:
 
     - name: Copy ghostagent config files
       ansible.builtin.template:
         src: "{{ item }}.j2"
-        dest: "{{ghostagent_path}}/ghosts/config/{{ item }}.json"
+        dest: "{{ghostagent_path}}/config/{{ item }}.json"
         mode: '0755'
       loop:
         - application
         - timeline
 
     - name: Run ghost client on adminpc and administer its process id
-      ansible.builtin.shell: "/home/aecid/ghosts/ghosts.client.linux > /home/aecid/ghosts-client.log 2>&1 & echo $! > /tmp/ghosts_client.pid"
-      # updated folder will be: "/home/aecid/ghosts-client-linux-v8.0.0/ghosts.client.linux"
-      async: 3600  # maximum timeout (arbitrarily high to allow for long execution)
-      poll: 0      # run in background without waiting
-      register: ghost_client_task
+      ansible.builtin.shell: "{{ghostagent_path}}/ghosts.client.linux > /home/{{ ghostsagent_user }}/ghosts-client.log 2>&1 & echo $! > /tmp/ghosts_client.pid"
+      async: 3600
+      poll: 0
       tags:
         - run-ghosts-client
 
