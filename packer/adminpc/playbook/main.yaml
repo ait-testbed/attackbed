@@ -29,5 +29,7 @@
           - role: atb-ansible-novnc
           - role: atb-ansible-ghostagent-linux
             vars:
-                  ghostsserver_url: "http://172.17.100.122:5000/api"
+                  ghostsserver_url: "http://192.168.100.122:5000/api"
+                  ghostagent_autostart: false
+
 
