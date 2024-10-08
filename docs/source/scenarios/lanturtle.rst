@@ -85,13 +85,21 @@ Attackmate is utilized to recreate the http request, passing the stolen session 
 along with the cookies (see ``ansible/run/scenario5/files/playbook.yml``).
 
 
+Verification of Attack Success
+==============================
+To verify if the attack was successful, the fastest way is to check the output of Attackmate, which can be found in
+the ``output.log`` file. This file contains the HTML output of the attack. If you were not redirected to the login page,
+you know that the session stealing was successful.
 
+.. note::
 
+    The success of the ARP spoofing and obtaining the correct session ID depends on several factors, including:
+        - The time taken for the ghostagent to fully boot and start the user simulation. In this scenario, the user
+          simulation is started with ghostserver, where the user first logs in. Even though there is a sleep in place
+          before the attack starts, if the ghostagent takes too long to boot, it is possible that the correct session
+          ID is missed.
+        - The network's ARP cache refresh rate, i.e. how long it takes until the connection between the firewall and
+          AdminPC is reset before sending the HTTP request from the attacker machine.
 
-
-
-
-
-
-
-
+    If the attack was not successful and you have been redirected to the login page, try adjusting the timings between
+    starting the ghostagent and starting the spoofing, and between stopping the ARP spoofing and sending the HTTP request from the attacker.
