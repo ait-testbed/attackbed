@@ -2,6 +2,11 @@
   hosts: all
   remote_user: ubuntu
   become: true
+  post_tasks:
+    - name: Remove default cloud ssh config
+      ansible.builtin.file:
+        path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+        state: absent
   tasks:
     - name: Install Reposerver Packages
       ansible.builtin.apt:
@@ -11,7 +16,7 @@
           update_cache: yes
     - name: Allow password login
       ansible.builtin.copy:
-        dest: /etc/ssh/sshd_config.d/password.conf
+        dest: /etc/ssh/sshd_config.d/99-password.conf
         content: 'PasswordAuthentication yes'
 
   roles:

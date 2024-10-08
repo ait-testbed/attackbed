@@ -6,7 +6,7 @@ variable "linuxshare_image" {
 variable "linuxshare_flavor" {
   type        = string
   description = "flavor of the linuxshare host"
-  default     = "m1.medium"
+  default     = "d2-4"
 }
 
 variable "linuxshare_userdata" {

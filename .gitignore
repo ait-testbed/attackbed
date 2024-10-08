@@ -1,5 +1,7 @@
 roles/
 venv/
+.venv/
+.venv/*
 .env
 .terragrunt-cache/
 .terraform.lock.hcl
@@ -8,6 +10,9 @@ docs/build/
 *.qcow2
 .mypy_cache/
 *.tfstate
+
+# temporary packer-key(debug)
+os_builder.pem
 
 # ignore gathered logs
 gather/
