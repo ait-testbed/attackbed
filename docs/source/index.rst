@@ -27,7 +27,9 @@ AttackBed Documenation
 
    scenarios/overview
    scenarios/attacks
+   scenarios/gather
    scenarios/videoserver
    scenarios/linuxmalware
    scenarios/lateralmovement
    scenarios/network
+   scenarios/lanturtle

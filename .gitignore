@@ -24,3 +24,6 @@ default.json
 # ignore terraform variables file
 terraform.tfvars
 terraform.tfvars.json
+
+# ignore hosts file
+ansible/hosts
