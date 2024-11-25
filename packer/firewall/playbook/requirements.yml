@@ -9,7 +9,7 @@ roles:
     version: v1.1.6
     name: suricata
   - src: https://github.com/whotwagner/ansible-role-shorewall.git
-    version: v2.0.2
+    version: v2.0.3
     name: shorewall
   - src: https://github.com/ait-testbed/atb-ansible-aeciduser.git
     version: v1.0.0
