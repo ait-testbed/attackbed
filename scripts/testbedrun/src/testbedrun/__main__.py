@@ -3,6 +3,8 @@ import subprocess
 import inquirer
 from pprint import pprint
 import yaml
+import argparse
+from typing import Dict, List, Optional
 
 def load_vm_map(yaml_file: str) -> Dict[str, str]:
     try:
@@ -54,7 +56,14 @@ def restart_instance(instance: str, rootpath: str, vm_map: Dict[str, str]) -> No
 
 
 def main():
-    yaml_file = "vm_map.yaml"
+    parser = argparse.ArgumentParser(description="Redeploy OpenStack Instances")
+    parser.add_argument(
+        "yaml_file", 
+        type=str, 
+        help="Path to the YAML file containing the VM map."
+    )
+    args = parser.parse_args()
+    
     vm_map = load_vm_map(yaml_file)
     rootpath = get_rootpath()
     if not rootpath:
