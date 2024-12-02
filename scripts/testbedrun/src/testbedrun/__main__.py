@@ -7,6 +7,12 @@ import argparse
 from typing import Dict, List, Optional
 
 def load_vm_map(yaml_file: str) -> Dict[str, str]:
+    """
+    Load the VM map from a YAML file.
+    
+    :param yaml_file: Path to the YAML file.
+    :return: A dictionary containing the VM map.
+    """
     try:
         with open(yaml_file, 'r') as file:
             return yaml.safe_load(file)
@@ -18,6 +24,11 @@ def load_vm_map(yaml_file: str) -> Dict[str, str]:
         exit(1)
 
 def get_rootpath() -> Optional[str]:
+    """
+    Find the root path containing the "terragrunt" directory.
+    
+    :return: The root path as a string or None if not found.
+    """
     current = os.getcwd()
     for dirfile in os.listdir(current):
         if dirfile == "terragrunt" and os.path.isdir(os.path.join(current, dirfile)):
@@ -32,6 +43,12 @@ def get_rootpath() -> Optional[str]:
     return None
 
 def choose_machines(vm_map: Dict[str, str]) -> List[str]:
+    """
+    Prompt the user to select machines for redeployment.
+    
+    :param vm_map: The VM map containing machine names.
+    :return: A list of selected machine names.
+    """
     machines = vm_map.keys()
     questions = [
                  inquirer.Checkbox(
@@ -44,6 +61,13 @@ def choose_machines(vm_map: Dict[str, str]) -> List[str]:
     return answers['vms']
 
 def restart_instance(instance: str, rootpath: str, vm_map: Dict[str, str]) -> None:
+    """
+    Restart a specified instance using Terragrunt.
+    
+    :param instance: The instance name.
+    :param rootpath: The root path containing the "terragrunt" directory.
+    :param vm_map: The VM map containing instance-to-subdirectory mappings.
+    """
     subdir = vm_map[instance]
     print(f"Resource: openstack_compute_instance_v2.{instance}")
     print(f"Path: {rootpath}/terragrunt/{subdir}")
@@ -63,7 +87,7 @@ def main():
         help="Path to the YAML file containing the VM map."
     )
     args = parser.parse_args()
-    
+
     vm_map = load_vm_map(yaml_file)
     rootpath = get_rootpath()
     if not rootpath:
