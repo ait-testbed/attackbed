@@ -30,16 +30,10 @@ def get_rootpath() -> Optional[str]:
     :return: The root path as a string or None if not found.
     """
     current = os.getcwd()
-    for dirfile in os.listdir(current):
-        if dirfile == "terragrunt" and os.path.isdir(os.path.join(current, dirfile)):
+    while current:
+        if "terragrunt" in os.listdir(current) and os.path.isdir(os.path.join(current, "terragrunt")):
             return current
-    head = current
-    tail = True
-    while tail:
-        (head, tail) = os.path.split(head)
-        for dirfile in os.listdir(head):
-            if dirfile == "terragrunt" and os.path.isdir(os.path.join(head, dirfile)):
-                return head
+        current = os.path.dirname(current)  # Move one level up
     return None
 
 def choose_machines(vm_map: Dict[str, str]) -> List[str]:
