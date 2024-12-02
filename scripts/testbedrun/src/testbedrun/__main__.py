@@ -2,20 +2,20 @@ import os
 import subprocess
 import inquirer
 from pprint import pprint
+import yaml
 
-VM_MAP = { "reposerver": "repository", 
-           "linuxshare": "repository",
-           "videoserver": "videoserver",
-           "adminpc": "videoserver",
-           "webcam": "videoserver",
-           "corpdns": "videoserver",
-           "attacker": "attacker",
-           "inet-dns": "bootstrap",
-           "inet-fw": "bootstrap",
-           "mgmt": "bootstrap"
-         }
+def load_vm_map(yaml_file: str) -> Dict[str, str]:
+    try:
+        with open(yaml_file, 'r') as file:
+            return yaml.safe_load(file)
+    except FileNotFoundError:
+        print(f"Error: File {yaml_file} not found.")
+        exit(1)
+    except yaml.YAMLError as e:
+        print(f"Error parsing YAML file: {e}")
+        exit(1)
 
-def get_rootpath():
+def get_rootpath() -> Optional[str]:
     current = os.getcwd()
     for dirfile in os.listdir(current):
         if dirfile == "terragrunt" and os.path.isdir(os.path.join(current, dirfile)):
@@ -29,8 +29,8 @@ def get_rootpath():
                 return head
     return None
 
-def choose_machines():
-    machines = VM_MAP.keys()
+def choose_machines(vm_map: Dict[str, str]) -> List[str]:
+    machines = vm_map.keys()
     questions = [
                  inquirer.Checkbox(
                      "vms",
@@ -41,8 +41,8 @@ def choose_machines():
     answers = inquirer.prompt(questions)
     return answers['vms']
 
-def restart_instance(instance, rootpath):
-    subdir = VM_MAP[instance]
+def restart_instance(instance: str, rootpath: str, vm_map: Dict[str, str]) -> None:
+    subdir = vm_map[instance]
     print(f"Resource: openstack_compute_instance_v2.{instance}")
     print(f"Path: {rootpath}/terragrunt/{subdir}")
     os.chdir(os.path.join(rootpath, "terragrunt", subdir))
@@ -54,12 +54,14 @@ def restart_instance(instance, rootpath):
 
 
 def main():
+    yaml_file = "vm_map.yaml"
+    vm_map = load_vm_map(yaml_file)
     rootpath = get_rootpath()
     if not rootpath:
         print("Testbed directory not found!")
         return 1
     print(rootpath)
-    for instance in choose_machines():
+    for instance in choose_machines(vm_map):
         restart_instance(instance, rootpath)
 
 
