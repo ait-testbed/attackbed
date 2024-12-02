@@ -88,14 +88,14 @@ def main():
     )
     args = parser.parse_args()
 
-    vm_map = load_vm_map(yaml_file)
+    vm_map = load_vm_map(args.yaml_file)
     rootpath = get_rootpath()
     if not rootpath:
         print("Testbed directory not found!")
         return 1
     print(rootpath)
     for instance in choose_machines(vm_map):
-        restart_instance(instance, rootpath)
+        restart_instance(instance, rootpath, vm_map)
 
 
 
