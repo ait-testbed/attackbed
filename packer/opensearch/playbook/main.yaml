@@ -42,6 +42,12 @@
               hostname_fqdn: search.aecid-testbed.local
           - role: opensearch
           - role: opensearch-dashboards
+  post_tasks:
+        - name: Download root-ca.key to local machine
+          ansible.builtin.fetch:
+            src: /usr/share/opensearch/config/root-ca.pem
+            dest: ../ca.pem
+            flat: yes
 
 - name: Fix IP-adresses
   hosts: all
