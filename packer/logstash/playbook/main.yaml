@@ -1,0 +1,62 @@
+- name: Install Logstash Host
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  vars:
+    logstash_elasticsearch_hosts:
+      - http://192.168.100.11:9200
+    logstash_remove_plugins:
+      - logstash-input-s3
+      - logstash-input-sqs
+      - logstash-output-s3
+      - logstash-output-sns
+      - logstash-output-sqs
+      - logstash-output-cloudwatch
+      - logstash-integration-aws
+    logstash_install_plugins:
+      - logstash-input-kafka
+      - logstash-input-beats
+      - logstash-filter-multiline
+      - logstash-output-opensearch
+    logstash_opensearch_hosts: [ "https://192.168.100.11:9200" ]
+    # ca.pem from the opensearch-config
+    logstash_opensearch_ca: "/opt/ca.pem"
+    logstash_opensearch_user: "admin"
+    logstash_opensearch_password: "myStrongPassword@123!"
+    logstash_opensearch_sslverify: true
+    logstash_setup_default_config: True
+    logstash_setup_files:
+      - 01-beats-input.conf
+      - 31-opensearch-output.conf
+    logstash_monitor_local_syslog: False
+    logstash_kafka_enable: true
+    logstash_kafka_server: "kafka.aecid-testbed.local:9092"
+    logstash_kafka_topics: [ "sometopic" ]
+
+  pre_tasks:
+    - name: Install OpenJDK 11
+      ansible.builtin.apt:
+        pkg:
+          - openjdk-11-jdk
+        state: present
+        update_cache: yes
+    - name: copy opensearch_ca
+      ansible.builtin.copy:
+        src: "../../opensearch/ca.pem"
+        dest: "/opt/ca.pem"
+
+  roles:
+    - role: aeciduser
+      vars:
+        # pass: aecid
+        aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+      vars:
+        aecidtools_user: "aecid"
+    - role: manage_unattended_upgrades
+    - role: hostname
+      vars:
+        hostname: logstash
+        hostname_ip: 192.168.10.78
+        hostname_fqdn: logstash.aecid-testbed.local
+    - role: logstash

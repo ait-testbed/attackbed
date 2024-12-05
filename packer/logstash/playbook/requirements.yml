@@ -1,0 +1,16 @@
+roles:
+  - src: https://github.com/ait-cs-IaaS/ansible-manage_unattended_upgrades.git
+    version: v1.0.0
+    name: manage_unattended_upgrades
+  - src: https://github.com/ait-testbed/atb-ansible-logstash.git
+    version: v0.9.0
+    name: logstash
+  - src: https://github.com/ait-testbed/atb-ansible-aeciduser.git
+    version: v1.0.0
+    name: aeciduser
+  - src: https://github.com/ait-testbed/atb-ansible-aecidtools.git
+    version: v1.0.0
+    name: aecidtools
+  - src: https://github.com/ait-testbed/atb-ansible-hostname.git
+    version: v1.0.0
+    name: hostname
