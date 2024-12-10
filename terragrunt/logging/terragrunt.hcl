@@ -9,8 +9,10 @@ terraform {
 
 inputs = {
   sshkey = "testbed-key"
-  attacker_image = "atb-attacker-image-2023-08-24T12-53-52Z"
-} 
+  opensearch_image = "atb-opensearch-image-2024-11-18T17-51-20Z"
+  kafka_image = "atb-kafka-image-2024-11-19T14-15-49Z"
+  logstash_image = "atb-logstash-image-2024-12-05T12-51-50Z"
+}
 
 
 include {
