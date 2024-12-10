@@ -57,6 +57,6 @@
     - role: hostname
       vars:
         hostname: logstash
-        hostname_ip: 192.168.10.78
+        hostname_ip: 192.168.100.12
         hostname_fqdn: logstash.aecid-testbed.local
     - role: logstash
