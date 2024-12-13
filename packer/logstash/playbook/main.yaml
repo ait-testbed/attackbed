@@ -42,6 +42,14 @@
       ansible.builtin.copy:
         src: "ca.pem"
         dest: "/opt/ca.pem"
+    - name: Add opensearch to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "192.168.100.11 search.aecid-testbed.local"
+    - name: Add kafka to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "192.168.100.10 kafka.aecid-testbed.local"
 
   roles:
     - role: aeciduser
