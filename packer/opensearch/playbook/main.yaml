@@ -18,6 +18,8 @@
     opensearch_hosts:
             search.aecid-testbed.local: 
               ip: 127.0.0.1
+    iac_enable: true
+
   tasks:
     - name: Install Reposerver Packages
       ansible.builtin.apt:
