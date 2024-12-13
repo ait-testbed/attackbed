@@ -3,8 +3,6 @@
   remote_user: ubuntu
   become: true
   vars:
-    logstash_elasticsearch_hosts:
-      - http://192.168.100.11:9200
     logstash_remove_plugins:
       - logstash-input-s3
       - logstash-input-sqs
@@ -18,7 +16,7 @@
       - logstash-input-beats
       - logstash-filter-multiline
       - logstash-output-opensearch
-    logstash_opensearch_hosts: [ "https://192.168.100.11:9200" ]
+    logstash_opensearch_hosts: [ "https://search.aecid-testbed.local:9200" ]
     # ca.pem from the opensearch-config
     logstash_opensearch_ca: "/opt/ca.pem"
     logstash_opensearch_user: "admin"
@@ -42,7 +40,7 @@
         update_cache: yes
     - name: copy opensearch_ca
       ansible.builtin.copy:
-        src: "../../opensearch/ca.pem"
+        src: "ca.pem"
         dest: "/opt/ca.pem"
 
   roles:

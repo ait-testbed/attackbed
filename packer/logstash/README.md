@@ -4,7 +4,7 @@ This image installs/configures logstash and connects it with opensearch.
 
 > **Note:** Logstash need the `ca.pem` certificate file from opensearch to make the connection.
 > Therefore, it is **important to build the opensearch image first!** The file is then located in the 
-> `packer/opensearch` directory, which logstash automatically takes.
+> `packer/logstash/playbook/files` directory, which logstash automatically takes.
 
 # Prebuild
 

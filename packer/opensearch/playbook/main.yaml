@@ -45,8 +45,8 @@
   post_tasks:
         - name: Download root-ca.key to local machine
           ansible.builtin.fetch:
-            src: /usr/share/opensearch/config/root-ca.pem
-            dest: ../ca.pem
+            src: /usr/share/opensearch/config/search.aecid-testbed.local_http.pem
+            dest: ../../logstash/playbook/files/ca.pem
             flat: yes
 
 - name: Fix IP-adresses
