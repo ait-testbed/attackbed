@@ -40,3 +40,9 @@
         filebeat_modules:
           - tpl: "suricata.yml"
 
+  tasks:
+    - name: Add kafka host entry in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "192.42.0.254 kafka.aecid-testbed.local"
+        state: present
