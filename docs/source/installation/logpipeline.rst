@@ -119,7 +119,14 @@ we have to use port forwarding via our jump host. Open a terminal and run the fo
   ssh -D 9999 aecid@<your_mgmt_ip>
 
 Next, open a browser and in the settings enable a SOCKS Host proxy on port ``9999``. Now the Dashboard is available
-under `http://192.168.100.11:5601 <http://192.168.100.11:5601>`_. Default login credentials are:
+under `http://192.168.100.11:5601 <http://192.168.100.11:5601>`_.
+
+Default admin login credentials are:
+
+- Username: ``admin``
+- Password: ``myStrongPassword@123!``
+
+User login credentials are (this user doesn't have permissions for reading indices by default):
 
 - Username: ``kibanaserver``
 - Password: ``Test@6789``
