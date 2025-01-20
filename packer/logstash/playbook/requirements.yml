@@ -3,7 +3,7 @@ roles:
     version: v1.0.0
     name: manage_unattended_upgrades
   - src: https://github.com/ait-testbed/atb-ansible-logstash.git
-    version: v0.9.0
+    version: v0.9.1
     name: logstash
   - src: https://github.com/ait-testbed/atb-ansible-aeciduser.git
     version: v1.0.0
