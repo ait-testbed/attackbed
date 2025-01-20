@@ -29,7 +29,7 @@
     logstash_monitor_local_syslog: False
     logstash_kafka_enable: true
     logstash_kafka_server: "kafka.aecid-testbed.local:9092"
-    logstash_kafka_topics: [ "sometopic" ]
+    logstash_kafka_topics: [ "logs" ]
 
   pre_tasks:
     - name: Install OpenJDK 11
