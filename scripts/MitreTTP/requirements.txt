@@ -1,0 +1,2 @@
+mitreattack-python
+setuptools
