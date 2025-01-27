@@ -80,12 +80,11 @@
               filebeat_inputs:
                 - type: log
                   paths:
-                    - "/var/log/*.log"
+                    - "/var/log/*.log"  # includes auth.log
                     - "/var/log/syslog"
-                    - "/var/www/default/log/*.log"
-                    - "/var/log/audit/*.log"
               filebeat_output_logstash_enabled: false
               filebeat_modules:
                 - tpl: "apache2.yml"
-                  paths: ["/var/log/apache2/access.log"]
+                  paths: ["/var/www/default/log/access.log", "/var/www/default/log/error.log"]
                 - tpl: "auditd.yml"
+                  paths: ["/var/log/audit/audit.log"]

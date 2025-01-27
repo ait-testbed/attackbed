@@ -35,10 +35,11 @@
         filebeat_inputs:
           - type: filestream
             paths:
-              - "/var/log/*.log"
+              - "/var/log/*.log"  # includes auth.log
               - "/var/log/syslog"
         filebeat_modules:
           - tpl: "suricata.yml"
+            paths: ["/var/log/suricata/eve.json"]
 
   tasks:
     - name: Add kafka host entry in /etc/hosts
