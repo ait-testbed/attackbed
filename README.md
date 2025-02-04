@@ -26,7 +26,7 @@ In the lateral movement scenario, the attacker gains access to a repository serv
 
 In this network scenario, the attacker starts with access to a repository server in the DMZ. By reusing stolen credentials, they gain SSH access to the firewall and install malware with port knocking to establish persistence and evade detection. A knock sequence triggers a script that downloads and runs Sliver malware, allowing the attacker to remotely control the firewall. They then modify iptables rules, enabling the DMZ host to connect to the internal network. Using the DMZ host as a pivot, the attacker gains access to a Linux fileshare server in the LAN through credential reuse. 
 
-<img src="/docs/images/AttackBed-Network.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
+<img src="/docs/images/AttackBed-Network.png" alt="Network Scenario" style="width:600pt;"/>
 
 ### MITRE Navigator
 
