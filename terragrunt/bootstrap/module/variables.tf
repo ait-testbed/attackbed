@@ -26,12 +26,6 @@ variable "ext_router" {
   description = "name of the external router"
 }
 
-variable "inet_cidr" {
-  type        = string
-  description = "CIDR of the internet subnet"
-  default     = "192.42.0.0/16"
-}
-
 variable "inetdns_flavor" {
   type        = string
   description = "flavor of the internet dns server"
@@ -76,15 +70,13 @@ variable "inet_dns" {
   default     = ["1.1.1.1","8.8.8.8"] 
 }
 
-variable "lan_cidr" {
-  type        = string
-  description = "CIDR of the lan subnet"
-  default     = "192.168.100.0/24"
+variable "subnet_cidrs" {
+  type        = map(string)
+  description = "CIDRs for various subnets"
+  default = {
+    inet = "192.42.0.0/16"
+    lan   = "192.168.100.0/24"
+    dmz   = "172.17.100.0/24"
+    admin = "10.12.100.0/24"
+  }
 }
-
-variable "dmz_cidr" {
-  type        = string
-  description = "CIDR of the dmz subnet"
-  default     = "172.17.100.0/24"
-}
-
