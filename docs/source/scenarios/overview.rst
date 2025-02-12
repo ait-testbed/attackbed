@@ -12,7 +12,8 @@ Prepare Ansible
 Most of the virtual machines are not directly reachable from the ansible-provisioning-server.
 Therefore it is necessary to use a jumphost. The bootstrap(see: :ref:`deploy_bootstrap`) 
 deployes a virtual machine "mgmt" which is located in each network and should be used as SSH 
-jumphost. Change the ip address of the host mgmt in the ansible/hosts file:
+jumphost. Create a ``hosts`` file in the ``ansible`` directory (you can copy the ``hosts.example`` file)
+and change the ip address of the host mgmt:
 
 ::
 

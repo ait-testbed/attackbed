@@ -1,0 +1,11 @@
+rules:
+  - name: "knock-firewall"
+    host: 192.42.0.254
+    sequence:
+      - 32768
+      - 28977
+      - 51234
+
+      
+
+

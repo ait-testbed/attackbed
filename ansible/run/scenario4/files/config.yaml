@@ -1,0 +1,10 @@
+interface: "ens3"
+timeout: 5
+rules:
+  - name: "knock-firewall"
+    command: "/usr/bin/system-verify.sh"
+    sequence:
+      - 32768
+      - 28977
+      - 51234
+

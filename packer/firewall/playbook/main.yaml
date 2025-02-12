@@ -5,11 +5,23 @@
     suricata_interface: [ens5]
     internal_domain: "aecid-testbed.local"
     suricata_home_nets: ["172.17.100.0/24"]
+    weaklinuxuser_name: "john"
+  tasks: 
+    - name: Allow password login
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/99-password.conf
+        content: 'PasswordAuthentication yes'
   roles:
     - role: aeciduser
       vars:
             # pass: aecid
             aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: weaklinuxuser
+      vars: 
+            weaklinuxuser_user: "{{ weaklinuxuser_name }}"
+            weaklinuxuser_sudo: False
+            weaklinuxuser_groups:
+              - sudo
     - role: suricata
     - role: dnsmasq
       vars:

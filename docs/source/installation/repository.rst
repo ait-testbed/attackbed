@@ -9,5 +9,5 @@ Clone the git-branch main of the project:
 ::
 
   cd <to the parent of your repository>
-  git clone https://github.com/ait-aecid/atb-aecid-testbed.git
-  cd atb-aecid-testbed
+  git clone https://github.com/ait-testbed/attackbed.git
+  cd attackbed

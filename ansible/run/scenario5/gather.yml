@@ -1,0 +1,55 @@
+- hosts: inetdns, inetfw-int
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_configs:
+      - src: /var/lib/suricata
+        recursive: true
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+
+    kyoushi_gather_logs:
+      - src: /var/log
+        recursive: true
+
+
+- hosts: videoserver
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - /var/www/default/log/
+      - src: /var/log
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+
+- hosts: attacker
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - /home/aecid/scenario5/attackmate.log
+      - /home/aecid/scenario5/output.log
+      - src: /var/log
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /home/aecid/scenario5/
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+

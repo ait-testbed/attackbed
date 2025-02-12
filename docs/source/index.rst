@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-AECID Testbed Documenation
+AttackBed Documenation
 ==========================
 
 .. toctree::
@@ -27,6 +27,9 @@ AECID Testbed Documenation
 
    scenarios/overview
    scenarios/attacks
+   scenarios/gather
    scenarios/videoserver
    scenarios/linuxmalware
    scenarios/lateralmovement
+   scenarios/network
+   scenarios/lanturtle
