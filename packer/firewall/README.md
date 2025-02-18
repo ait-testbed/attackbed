@@ -14,6 +14,12 @@ to change these settings I would recommend to do this using cloud-init in terraf
 
 Please note that shorewall is stopped! You need to enable and restart it manualle. This can also be done with cloud-init
 
+# Install requirements
+
+```
+ansible-galaxy install -r playbook/requirements.yml
+```
+
 # Build
 
 ```

@@ -23,6 +23,13 @@ Create a default.json:
 }
 ```
 
+# Install requirements
+
+```
+ansible-galaxy install -r playbook/requirements.yml
+```
+
+
 # Build
 
 ```

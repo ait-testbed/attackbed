@@ -6,7 +6,7 @@ roles:
     version: v1.1
     name: auditd
   - src: https://github.com/ait-testbed/atb-ansible-opensearch.git
-    version: v1.0.1
+    version: v1.0.2
     name: opensearch
   - src: https://github.com/ait-testbed/atb-ansible-opensearch-dashboards.git
     version: v1.0.2
@@ -17,3 +17,6 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-aecidtools.git
     version: v1.0.0
     name: aecidtools
+  - src: https://github.com/ait-testbed/atb-ansible-hostname.git
+    version: v1.0.0
+    name: hostname
