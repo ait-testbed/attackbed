@@ -156,6 +156,33 @@ resource "openstack_networking_subnet_v2" "admin_subnet" {
   }
 }
 
+###################################################################
+#
+# CREATE NETWORK "USER"
+#
+resource "openstack_networking_network_v2" "user" {
+  name           = "user"
+  port_security_enabled = "false"
+  user_state_up = "true"
+}
+
+resource "openstack_networking_subnet_v2" "user_subnet" {
+  name       = "user_subnet"
+  network_id = "${openstack_networking_network_v2.user.id}"
+  cidr       = var.subnet_cidrs["user"]
+  ip_version = 4
+  gateway_ip = cidrhost(var.subnet_cidrs["user"],254)
+  dns_nameservers = [cidrhost(var.subnet_cidrs["user"],254)]
+
+
+  # make the allocation_pool smaller for gateway_ip
+  allocation_pool {
+    start = cidrhost(var.subnet_cidrs["user"],20)
+    end   = cidrhost(var.subnet_cidrs["user"],200)
+  }
+}
+
+
 
 ####################################################################
 #
@@ -212,12 +239,18 @@ resource "openstack_compute_instance_v2" "inet-fw" {
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["admin"],254)
   }
 
+  network {
+    name = "user"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["user"],254)
+  }
+
   depends_on = [
      openstack_compute_instance_v2.inet-dns,
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
      openstack_networking_network_v2.lan,
      openstack_networking_network_v2.admin
+     openstack_networking_network_v2.user
   ]
 }
 
@@ -253,6 +286,7 @@ locals {
     lan      = cidrhost(var.subnet_cidrs["lan"], 201)
     dmz      = cidrhost(var.subnet_cidrs["dmz"], 201)
     admin    = cidrhost(var.subnet_cidrs["admin"], 201)
+    user    = cidrhost(var.subnet_cidrs["user"], 201)
   }
 }
 
@@ -283,11 +317,17 @@ resource "openstack_compute_instance_v2" "mgmt" {
     fixed_ip_v4 = local.mgmt_ips.admin
   }
 
+  network {
+    name = "user"
+    fixed_ip_v4 = local.mgmt_ips.user
+  }
+
   depends_on = [
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
      openstack_networking_network_v2.lan,
      openstack_networking_network_v2.admin,
+     openstack_networking_network_v2.user,
 
   ]
 }
