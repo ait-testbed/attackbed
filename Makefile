@@ -4,22 +4,42 @@
 # ================================
 # This Makefile automates the execution of Packer and Terragrunt commands 
 # for different components of the ATB-AECID testbed.
-#
+
+# PREPARATION:
+# to have make find this file from anywhere in the project you have 3 possibilities:
+
+# 1) create a shell alias in your shell configuration file (.bashrc, .zshrc)
+# alias make="make -f ~/atb-aecid-testbed/Makefile"
+
+# 2) use MAKEFILES Environment variable in your shell configuration file (.bashrc, .zshrc)
+# export MAKEFILES=~/atb-aecid-testbed/Makefile
+
+# 3) create a wrapper in /usr/local/bin/<your-make-command>
+
+# #!/bin/bash
+# make -f ~/atb-aecid-testbed/Makefile "$@"
+
+# script needs to be executable: chmod +x /usr/local/bin/<your-make-command>
+
+# Now you can run <your-make-command> instead of "make":
+# <your-make-command> packer-firewall
+
+
 # USAGE:
 # - Run Packer for a specific component:
 #   make packer-firewall
 #   make packer-repository
-#
+
 # - Run Packer in debug mode:
 #   make packer-firewall debug=1
-#
+
 # - Run Terragrunt for a specific target:
 #   make terragrunt-bootstrap
 #   make terragrunt-logging
-#
+
 # - Run Terragrunt in debug mode:
 #   make terragrunt-bootstrap debug=1
-#
+
 # NOTE:
 # - If your project directory is different, update PACKER_ROOT and TERRAGRUNT_ROOT accordingly.
 # - Ensure that Packer and Terragrunt are installed and configured properly before using this Makefile.
