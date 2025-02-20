@@ -26,6 +26,7 @@ can import all prebuild images to the openstack-project:
   $ . myproject-openrc.sh
   $ testbedimage import_images
 
+.. _packer-manual-build:
 Build server images manually
 ============================
 

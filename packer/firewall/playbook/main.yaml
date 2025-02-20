@@ -78,7 +78,8 @@
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111,2049 }
             - Kafka Ports
-            - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
+            - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
+            - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }
@@ -105,6 +106,25 @@
             - { name: KAFKA, value: 192.168.100.10}
  
     - role: auditd
+    - role: filebeat
+      vars:
+        filebeat_service_enabled: false
+        filebeat_output_kafka_enabled: true
+        filebeat_output_kafka_hosts:
+          - "kafka.aecid-testbed.local:9092"
+        filebeat_output_kafka_topic: "logs"
+        filebeat_template: "filebeatkafka.yml.j2"
+        filebeat_inputs:
+          - type: log
+            paths:
+              - "/var/log/*.log"  # includes auth.log
+              - "/var/log/syslog"
+        filebeat_output_logstash_enabled: false
+        filebeat_modules:
+          - tpl: "suricata.yml"
+            paths: ["/var/log/suricata/eve.json"]
+          - tpl: "auditd.yml"
+            paths: ["/var/log/audit/audit.log"]
   tasks:
     - name: Start Shorewall on startup
       lineinfile: >
@@ -112,3 +132,8 @@
         line="startup=1"
         regexp="^startup="
         state=present
+    - name: Add kafka host entry in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "192.168.100.10 kafka.aecid-testbed.local"
+        state: present
