@@ -36,7 +36,7 @@ resource "openstack_compute_instance_v2" "userpc" {
 
   network {
     name = "user"
-    fixed_ip_v4 = cidrhost(var.user_cidr,222)
+    fixed_ip_v4 = cidrhost(var.user_cidr,21)
   }
 
 }

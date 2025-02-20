@@ -18,5 +18,5 @@ variable "userpc_userdata" {
 variable "user_cidr" {
   type        = string
   description = "CIDR of the user subnet"
-  default     = TODO
+  default     = "192.168.50.0/24"
 }
