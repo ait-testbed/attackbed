@@ -1,0 +1,714 @@
+{
+  "description": "Pipeline for parsing Suricata EVE logs",
+  "processors": [
+    {
+      "set": {
+        "field": "event.ingested",
+        "value": "{{_ingest.timestamp}}"
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.ether.dest_mac",
+        "target_field": "destination.mac",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.ether.src_mac",
+        "target_field": "source.mac",
+        "ignore_missing": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "suricata.eve.event_type",
+        "ignore_missing": true
+      }
+    },
+    {
+      "script": {
+        "tag": "suricata_ecs_categorize",
+        "lang": "painless",
+        "ignore_failure": true,
+        "params": {
+          "alert": {
+            "kind": "alert",
+            "category": [
+              "network",
+              "intrusion_detection"
+            ]
+          },
+          "dns": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "dns"
+          },
+          "flow": {
+            "type": [
+              "connection"
+            ]
+          },
+          "ftp": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "ftp"
+          },
+          "ftp_data": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "ftp"
+          },
+          "http": {
+            "category": [
+              "network",
+              "web"
+            ],
+            "type": [
+              "access",
+              "protocol"
+            ],
+            "network_protocol": "http"
+          },
+          "http2": {
+            "category": [
+              "network",
+              "web"
+            ],
+            "type": [
+              "access",
+              "protocol"
+            ],
+            "network_protocol": "http"
+          },
+          "mqtt": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "mqtt"
+          },
+          "smb": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "smb"
+          },
+          "ssh": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "ssh"
+          },
+          "stats": {
+            "kind": "metric"
+          },
+          "tftp": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "tftp"
+          },
+          "tls": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "tls"
+          },
+          "rdp": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "rdp"
+          },
+          "rfb": {
+            "type": [
+              "protocol"
+            ],
+            "network_protocol": "rdp"
+          }
+        },
+        "source": "ctx.event.kind = 'event';\nctx.event.category = ['network'];\ndef type_params = params.get(ctx?.suricata?.eve?.event_type);\nif (type_params == null) {\n    return;\n}\ntype_params.forEach((k, v) -> {\n    if ('network_protocol' == k) {\n        if (ctx.network == null) {\n            ctx.network = ['protocol': v];\n        } else {\n            ctx.network.protocol = v;\n        }\n    } else if (v instanceof List) {\n        ctx.event[k] = new ArrayList(v);\n    } else {\n        ctx.event[k] = v;\n    }\n});"
+      }
+    },
+    {
+      "lowercase": {
+        "field": "suricata.eve.app_proto",
+        "ignore_missing": true
+      }
+    },
+    {
+      "set": {
+        "if": "ctx?.suricata?.eve?.app_proto == \"ftp-data\"",
+        "field": "network.protocol",
+        "value": "ftp"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx?.suricata?.eve?.app_proto != \"failed\" && ctx?.suricata?.eve?.app_proto != \"template\" && ctx?.suricata?.eve?.app_proto != \"template-rust\"",
+        "field": "network.protocol",
+        "value": "{{suricata.eve.app_proto}}",
+        "ignore_empty_value": true
+      }
+    },
+    {
+      "set": {
+        "if": "ctx?.suricata?.eve?.event_type == \"http\" && ctx?.suricata?.eve?.http?.status != null && ctx?.suricata?.eve?.http?.status < 400",
+        "field": "event.outcome",
+        "value": "success"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx?.suricata?.eve?.event_type == \"http\" && ctx?.suricata?.eve?.http?.status != null && ctx?.suricata?.eve?.http?.status >= 400",
+        "field": "event.outcome",
+        "value": "failure"
+      }
+    },
+    {
+      "pipeline": {
+        "if": "ctx?.network?.protocol == \"dns\"",
+        "name": "{< IngestPipeline \"dns\" >}"
+      }
+    },
+    {
+      "pipeline": {
+        "if": "ctx?.network?.protocol == \"tls\"",
+        "name": "{< IngestPipeline \"tls\" >}"
+      }
+    },
+    {
+      "pipeline": {
+        "if": "ctx?.network?.protocol == \"http\"",
+        "name": "{< IngestPipeline \"http\" >}"
+      }
+    },
+    {
+      "append": {
+        "if": "ctx?.suricata?.eve?.flow?.state == \"new\"",
+        "field": "event.type",
+        "value": [
+          "start"
+        ]
+      }
+    },
+    {
+      "append": {
+        "if": "ctx?.suricata?.eve?.flow?.state == \"closed\"",
+        "field": "event.type",
+        "value": [
+          "end"
+        ]
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "tag": "suricata_deduplicate_dest_domain",
+        "source": "def domain = ctx.destination?.domain;\nif (domain instanceof Collection) {\n  domain = domain.stream().distinct().collect(Collectors.toList());\n  if (domain.length == 1) {\n    domain = domain[0];\n  }\n  ctx.destination.domain = domain;\n}",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.fileinfo.filename",
+        "target_field": "file.path",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.fileinfo.size",
+        "target_field": "file.size",
+        "ignore_missing": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "network.transport",
+        "ignore_missing": true
+      }
+    },
+    {
+      "convert": {
+        "field": "suricata.eve.alert.category",
+        "target_field": "message",
+        "type": "string",
+        "ignore_missing": true
+      }
+    },
+    {
+      "set": {
+        "field": "rule.category",
+        "value": "{{suricata.eve.alert.category}}",
+        "ignore_empty_value": true
+      }
+    },
+    {
+      "set": {
+        "field": "rule.id",
+        "value": "{{suricata.eve.alert.signature_id}}",
+        "ignore_empty_value": true
+      }
+    },
+    {
+      "set": {
+        "field": "rule.name",
+        "value": "{{suricata.eve.alert.signature}}",
+        "ignore_empty_value": true
+      }
+    },
+    {
+      "set": {
+        "if": "ctx?.suricata?.eve?.alert?.action == 'blocked'",
+        "field": "suricata.eve.alert.action",
+        "value": "denied"
+      }
+    },
+    {
+      "append": {
+        "if": "ctx?.suricata?.eve?.alert?.action != null",
+        "field": "event.type",
+        "value": "{{suricata.eve.alert.action}}"
+      }
+    },
+    {
+      "remove": {
+        "field": "suricata.eve.alert.action",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.severity",
+        "target_field": "event.severity",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.protocols",
+        "target_field": "suricata.eve.alert.protocols",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.attack_target",
+        "target_field": "suricata.eve.alert.attack_target",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.capec_id",
+        "target_field": "suricata.eve.alert.capec_id",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.cwe_id",
+        "target_field": "suricata.eve.alert.cwe_id",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.malware",
+        "target_field": "suricata.eve.alert.malware",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.cve",
+        "target_field": "suricata.eve.alert.cve",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.cvss_v2_base",
+        "target_field": "suricata.eve.alert.cvss_v2_base",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.cvss_v2_temporal",
+        "target_field": "suricata.eve.alert.cvss_v2_temporal",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.cvss_v3_base",
+        "target_field": "suricata.eve.alert.cvss_v3_base",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.cvss_v3_temporal",
+        "target_field": "suricata.eve.alert.cvss_v3_temporal",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.priority",
+        "target_field": "suricata.eve.alert.priority",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.hostile",
+        "target_field": "suricata.eve.alert.hostile",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.infected",
+        "target_field": "suricata.eve.alert.infected",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.created_at",
+        "target_field": "_tmp_.created_at",
+        "ignore_missing": true
+      }
+    },
+    {
+      "join": {
+        "field": "_tmp_.created_at",
+        "description": "Converts date field to string",
+        "separator": ",",
+        "if": "ctx._tmp_?.created_at != null"
+      }
+    },
+    {
+      "date": {
+        "field": "_tmp_.created_at",
+        "target_field": "suricata.eve.alert.created_at",
+        "formats": [
+          "yyyy-MM-dd",
+          "yyyy_MM_dd"
+        ],
+        "if": "ctx._tmp_?.created_at != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.updated_at",
+        "target_field": "_tmp_.updated_at",
+        "ignore_missing": true
+      }
+    },
+    {
+      "join": {
+        "field": "_tmp_.updated_at",
+        "description": "Converts date field to string",
+        "separator": ",",
+        "if": "ctx._tmp_?.updated_at != null"
+      }
+    },
+    {
+      "date": {
+        "field": "_tmp_.updated_at",
+        "target_field": "suricata.eve.alert.updated_at",
+        "formats": [
+          "yyyy-MM-dd",
+          "yyyy_MM_dd"
+        ],
+        "if": "ctx._tmp_?.updated_at != null",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.filename",
+        "target_field": "file.name",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.classtype",
+        "target_field": "suricata.eve.alert.classtype",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.rule_source",
+        "target_field": "suricata.eve.alert.rule_source",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.sid",
+        "target_field": "suricata.eve.alert.sid",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.mitre_attack",
+        "target_field": "threat.tactic.id",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.mitre_tactic_id",
+        "target_field": "threat.tactic.id",
+        "ignore_missing": true,
+        "if": "ctx.threat?.tactic?.id == null"
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.mitre_tactic_name",
+        "target_field": "threat.tactic.name",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.mitre_technique_id",
+        "target_field": "threat.technique.id",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.alert.metadata.mitre_technique_id",
+        "target_field": "threat.technique.name",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.flow.pkts_toclient",
+        "target_field": "destination.packets",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.flow.pkts_toserver",
+        "target_field": "source.packets",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.flow.bytes_toclient",
+        "target_field": "destination.bytes",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "suricata.eve.flow.bytes_toserver",
+        "target_field": "source.bytes",
+        "ignore_missing": true
+      }
+    },
+    {
+      "script": {
+        "tag": "suricata_network_bytes_packets",
+        "lang": "painless",
+        "source": "long getOrZero(def map, def key) {\n  if (map!=null && map[key]!=null) {\n    return map[key];\n  }\n  return 0;\n}\ndef network=ctx['network'], source=ctx['source'], dest=ctx['destination'];\ndef sp=getOrZero(source,'packets'), sb=getOrZero(source,'bytes'), dp=getOrZero(dest,'packets'), db=getOrZero(dest,'bytes');\nif (sb+db+sp+dp > 0) {\n  if (network == null) {\n    network=new HashMap();\n    ctx['network']=network;\n  }\n  if (sb+db > 0) {\n    network['bytes'] = sb+db;\n  }\n  if(sp+dp>0) {\n    network['packets'] = sp+dp;\n  }\n}"
+      }
+    },
+    {
+      "date": {
+        "field": "suricata.eve.flow.start",
+        "target_field": "event.start",
+        "formats": [
+          "ISO8601"
+        ],
+        "ignore_failure": true
+      }
+    },
+    {
+      "date": {
+        "field": "suricata.eve.flow.end",
+        "target_field": "event.end",
+        "formats": [
+          "ISO8601"
+        ],
+        "ignore_failure": true
+      }
+    },
+    {
+      "script": {
+        "tag": "suricata_event_duration",
+        "lang": "painless",
+        "source": "Instant ins(def d) {\n  try {\n    return Instant.parse(d);\n  } catch(Exception e) {\n    return null;\n  }\n}\ndef ev = ctx['event'];\nif (ev != null) {\n  def start = ins(ev['start']);\n  def end = ins(ev['end']);\n  if (start != null && end != null && !start.isAfter(end)) {\n    ev['duration'] = Duration.between(start,end).toNanos();\n  }\n}"
+      }
+    },
+    {
+      "lowercase": {
+        "field": "suricata.eve.proto",
+        "target_field": "network.transport",
+        "ignore_missing": true
+      }
+    },
+    {
+      "geoip": {
+        "if": "ctx?.source?.geo == null",
+        "field": "source.ip",
+        "target_field": "source.geo",
+        "ignore_missing": true
+      }
+    },
+    {
+      "geoip": {
+        "if": "ctx?.destination?.geo == null",
+        "field": "destination.ip",
+        "target_field": "destination.geo",
+        "ignore_missing": true
+      }
+    },
+    {
+      "geoip": {
+        "database_file": "GeoLite2-ASN.mmdb",
+        "field": "source.ip",
+        "target_field": "source.as",
+        "properties": [
+          "asn",
+          "organization_name"
+        ],
+        "ignore_missing": true
+      }
+    },
+    {
+      "geoip": {
+        "database_file": "GeoLite2-ASN.mmdb",
+        "field": "destination.ip",
+        "target_field": "destination.as",
+        "properties": [
+          "asn",
+          "organization_name"
+        ],
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "source.as.asn",
+        "target_field": "source.as.number",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "source.as.organization_name",
+        "target_field": "source.as.organization.name",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "destination.as.asn",
+        "target_field": "destination.as.number",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "destination.as.organization_name",
+        "target_field": "destination.as.organization.name",
+        "ignore_missing": true
+      }
+    },
+    {
+      "append": {
+        "if": "ctx?.url?.domain != null && ctx.url.domain != ''",
+        "field": "related.hosts",
+        "value": "{{url.domain}}",
+        "allow_duplicates": false
+      }
+    },
+    {
+      "append": {
+        "if": "ctx?.source?.ip != null",
+        "field": "related.ip",
+        "value": "{{source.ip}}",
+        "allow_duplicates": false
+      }
+    },
+    {
+      "append": {
+        "if": "ctx?.destination?.ip != null",
+        "field": "related.ip",
+        "value": "{{destination.ip}}",
+        "allow_duplicates": false
+      }
+    },
+    {
+      "remove": {
+        "field": [
+          "suricata.eve.app_proto",
+          "suricata.eve.flow.end",
+          "suricata.eve.flow.start",
+          "suricata.eve.http.http_method",
+          "suricata.eve.http.http_user_agent",
+          "_tmp_"
+        ],
+        "ignore_missing": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "append": {
+        "field": "error.message",
+        "value": "error in [{{_ingest.on_failure_processor_type}}] processor{{#_ingest.on_failure_processor_tag}}\nwith tag [{{_ingest.on_failure_processor_tag }}]{{/_ingest.on_failure_processor_tag}}\n{{ _ingest.on_failure_message }}"
+      }
+    },
+    {
+      "remove": {
+        "field": [
+          "suricata.eve.alert.action",
+          "suricata.eve.alert.severity",
+          "suricata.eve.app_proto",
+          "suricata.eve.dest_ip",
+          "suricata.eve.dest_port",
+          "suricata.eve.fileinfo.filename",
+          "suricata.eve.fileinfo.size",
+          "suricata.eve.flow.bytes_toclient",
+          "suricata.eve.flow.bytes_toserver",
+          "suricata.eve.flow.pkts_toclient",
+          "suricata.eve.flow.pkts_toserver",
+          "suricata.eve.flow.start",
+          "suricata.eve.http.hostname",
+          "suricata.eve.http.http_method",
+          "suricata.eve.http.http_refer",
+          "suricata.eve.http.http_user_agent",
+          "suricata.eve.http.length",
+          "suricata.eve.http.status",
+          "suricata.eve.http.url",
+          "suricata.eve.proto",
+          "suricata.eve.src_ip",
+          "suricata.eve.src_port",
+          "_tmp_"
+        ],
+        "ignore_missing": true
+      }
+    }
+  ]
+}

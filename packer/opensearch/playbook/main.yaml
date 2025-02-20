@@ -9,6 +9,7 @@
     os_dashboards_user: opensearch-dashboards
     os_download_url: https://artifacts.opensearch.org/releases/bundle/opensearch
     os_user: opensearch
+    os_admin: "admin"
     os_cluster_name: os-cluster
     admin_password: "myStrongPassword@123!"
     kibanaserver_password: "Test@6789"
@@ -50,6 +51,31 @@
             src: /usr/share/opensearch/config/search.aecid-testbed.local_http.pem
             dest: ../../logstash/playbook/files/ca.pem
             flat: yes
+        # Manually upload ingest pipelines to OpenSearch
+        - name: Copy local pipeline JSONs to remote
+          copy:
+            src: "{{ item }}"
+            dest: "/tmp/pipelines/"
+            mode: '0644'
+            owner: root
+            group: root
+          with_fileglob:
+            - "files/pipelines/*.json"
+        - name: Find and register pipeline JSON files on remote
+          find:
+            paths: "/tmp/pipelines"
+            patterns: "*.json"
+          register: pipeline_files
+        - name: Upload ingest pipelines to OpenSearch
+          command: >
+            curl -u {{ os_admin }}:{{ admin_password }}
+            --cacert /usr/share/opensearch/config/search.aecid-testbed.local_http.pem
+            -X PUT "https://search.aecid-testbed.local:9200/_ingest/pipeline/{{ item.path | basename | regex_replace('.json$', '') }}"
+            -H 'Content-Type: application/json'
+            --data-binary "@{{ item.path }}"
+          loop: "{{ pipeline_files.files }}"
+          loop_control:
+            label: "{{ item.path | basename }}"
 
 - name: Fix IP-adresses
   hosts: all
