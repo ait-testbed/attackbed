@@ -12,6 +12,11 @@
         dest: /etc/ssh/sshd_config.d/99-password.conf
         content: 'PasswordAuthentication yes'
   roles:
+    - role: squidproxy
+      vars:
+        squid_networks:
+          - { name: "usernet", cidr: "192.168.50.0/24" }
+        squid_logfile: "/var/log/squid/access.log"
     - role: aeciduser
       vars:
             # pass: aecid
@@ -35,7 +40,6 @@
       vars:
         shorewall_startup: 0
         shorewall_ipforward: "On"
-    
         shorewall_configs:
           zones:
             - { name: inet,
