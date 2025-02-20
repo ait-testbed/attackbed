@@ -59,6 +59,9 @@ write_files:
  
 bootcmd:
   - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
+  - ip route del default via 192.42.0.1 dev ens3 proto dhcp src 192.42.0.254 metric 100
+  - ip route add default via 192.42.0.1 dev ens3 proto dhcp src 192.42.0.254 metric 50
+
 
 runcmd:
   -  [ /root/ifsetup.sh ]
