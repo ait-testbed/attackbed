@@ -46,11 +46,12 @@ These configurations can be set in each of their corresponding ansible role when
 
 .. note::
 
-   These settings are pre-configured in the `AttackBed <https://github.com/ait-testbed/attackbed>`_, and should
-   work out of the box after the steps in the :ref:`deployment-section` section.
+   These settings are pre-configured in the `AttackBed <https://github.com/ait-testbed/attackbed>`_, and the pipeline
+   should work out of the box after enabling :ref:`filebeat` and following the steps in the :ref:`deployment-section` section.
    The purpose of this section is to give information about how the tools are integrated together.
 
 
+.. _filebeat:
 Filebeat
 --------
 
@@ -104,8 +105,26 @@ by setting the following role variable:
     vars:
       logstash_kafka_topics: [ "logs" ]
 
-**Output Configuration**:
+**Output Configuration:**
 Logs are then sent to OpenSearch. The output configuration is defined in the role's ``templates/31-opensearch-output.conf.j2`` file.
+
+**Manual inspection:**
+To check the logstash configuration manually, we can ssh into the logstash machine using the jump host:
+
+::
+
+  ssh -J aecid@<your_mgmt_ip> ubuntu@192.168.100.12
+
+On the machine, the input and output config files are found in the ``/etc/logstash/conf.d/`` directory.
+For debugging purposes, we can tail the logstash logs with ``tail -f /var/log/logstash/logstash-plain.log``.
+
+To check if the connection to OpenSearch is working, we can use curl to send a request to the OpenSearch cluster:
+
+::
+
+  curl -u admin:myStrongPassword@123! -X GET "https://search.aecid-testbed.local:9200" --cacert /opt/ca.pem
+
+If a json is returned with opensearch cluster information, the connection was successfully established.
 
 
 OpenSearch
@@ -136,7 +155,15 @@ User login credentials are (this user doesn't have permissions for reading indic
 Deployment
 ==========
 
-After building the images with packer, create a ``terraform.tfvars`` file in the ``terragrunt/logging`` folder
+Build the images with packer, as described in the :ref:`packer-manual-build` section.
+
+.. warning::
+    Always **build the OpenSearch image before building the Logstash image!** Logstash requires the CA certificate from OpenSearch
+    to function properly. However, you don't need to worry about handling this manually because the provided playbooks take care of
+    it. The ``ca.pem`` file is automatically saved in the ``packer/logstash/playbook/files`` directory during the process and is copied
+    to the Logstash image.
+
+After building the images, create a ``terraform.tfvars`` file in the ``terragrunt/logging`` folder
 with the following variables:
 
 ::
