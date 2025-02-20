@@ -163,7 +163,7 @@ resource "openstack_networking_subnet_v2" "admin_subnet" {
 resource "openstack_networking_network_v2" "user" {
   name           = "user"
   port_security_enabled = "false"
-  user_state_up = "true"
+  admin_state_up = "true"
 }
 
 resource "openstack_networking_subnet_v2" "user_subnet" {
@@ -249,7 +249,7 @@ resource "openstack_compute_instance_v2" "inet-fw" {
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
      openstack_networking_network_v2.lan,
-     openstack_networking_network_v2.admin
+     openstack_networking_network_v2.admin,
      openstack_networking_network_v2.user
   ]
 }
@@ -327,8 +327,7 @@ resource "openstack_compute_instance_v2" "mgmt" {
      openstack_networking_network_v2.internet,
      openstack_networking_network_v2.lan,
      openstack_networking_network_v2.admin,
-     openstack_networking_network_v2.user,
-
+     openstack_networking_network_v2.user
   ]
 }
 
