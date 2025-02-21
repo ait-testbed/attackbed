@@ -6,7 +6,8 @@ system_info:
     lock_passwd: False
 
 write_files: 
--  content: |
+  - path: /root/ifsetup.sh  
+    content: |
      #!/bin/bash
   
      NETPLAN="/etc/netplan/50-cloud-init.yaml"
@@ -16,8 +17,8 @@ write_files:
      
      function printnetconfig()
      {
-        echo "            match:"
-        echo "                macaddress: '$1'"
+      echo "            match:"
+      echo "                macaddress: '$1'"
      	echo "            dhcp4: true"
      	echo "            dhcp4-overrides:"
      	echo "                use-routes: false"
@@ -29,10 +30,6 @@ write_files:
      echo "            dhcp4: true" >> $NETPLAN
      echo "            match:" >> $NETPLAN
      echo "                macaddress: '$MAINMAC'" >> $NETPLAN
-     echo "            routes:" >> $NETPLAN
-     echo "                - to: 0.0.0.0/0" >> $NETPLAN
-     echo "                  via: 192.42.0.1" >> $NETPLAN
-     echo "                  metric: 50" >> $NETPLAN
      for IF in `ip link show | grep UP | tail -n +3 | awk '{print $2}' | rev | cut -c 2- | rev`
      do
      echo "        $IF:" >> $NETPLAN
@@ -44,12 +41,10 @@ write_files:
      
      /usr/sbin/netplan apply
 
-   owner: root:root     
-   path: /root/ifsetup.sh     
-   permissions: '0700'
+    owner: root:root       
+    permissions: '0700'
 
 # Ensure password authentication is enabled in SSH
-write_files:
   - path: /etc/ssh/sshd_config.d/55-password-yes.conf
     content: |
       PasswordAuthentication yes
