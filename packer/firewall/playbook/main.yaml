@@ -12,6 +12,11 @@
         dest: /etc/ssh/sshd_config.d/99-password.conf
         content: 'PasswordAuthentication yes'
   roles:
+    - role: squidproxy
+      vars:
+        squid_networks:
+          - { name: "usernet", cidr: "192.168.50.0/24" }
+        squid_logfile: "/var/log/squid/access.log"
     - role: aeciduser
       vars:
             # pass: aecid
@@ -35,7 +40,6 @@
       vars:
         shorewall_startup: 0
         shorewall_ipforward: "On"
-    
         shorewall_configs:
           zones:
             - { name: inet,
@@ -57,12 +61,18 @@
                 type: ipv4,
                 interface: { name: $ADMINIF, broadcast: detect, options: "routeback,bridge,nosmurfs" }
               }
+            - {
+                name: user,
+                type: ipv4,
+                interface: { name: $USERIF, broadcast: detect, options: "routeback,bridge,nosmurfs" }
+              }
           policy:
             - { source: fw,    dest: all,   policy: ACCEPT }
             - { source: admin,    dest: all,   policy: ACCEPT }
             - { source: lan,   dest: inet,  policy: ACCEPT }
             - { source: lan,   dest: dmz,  policy: ACCEPT }
             - { source: dmz,   dest: inet,  policy: ACCEPT }
+            - { source: user,   dest: all,   policy: REJECT, log: info }
             - THIS POLICY HAS TO BE THE LAST
             - { source: all,   dest: all,   policy: REJECT, log: info }
           rules:
@@ -78,8 +88,10 @@
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111,2049 }
             - Kafka Ports
-            - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
+            - Usernet access to Squid proxy (3128/tcp) on the firewall
+            - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }
@@ -88,18 +100,21 @@
             - { action: DNS/ACCEPT,  source: lan, dest: fw }
             - { action: DNS/ACCEPT,  source: dmz, dest: fw }
             - { action: DNS/ACCEPT,  source: admin, dest: fw }
+            - { action: DNS/ACCEPT,  source: user, dest: fw }
             # - { action: ACCEPT,      source: inet, dest: fw, proto: tcp, dest_port: "443,8006" }
             - PING Rules
             - { action: Ping/ACCEPT, source: all, dest: all }
           snat:
             - { dest: $INETIF, source: 192.168.100.0/24 }
             - { dest: $INETIF, source: 172.17.100.0/24 }
+            - { dest: $INETIF, source: 192.168.50.0/24 }
           params:
             - Interfaces
             - { name: INETIF, value: ens3 }
             - { name: LANIF, value: ens4 }
             - { name: DMZIF, value: ens5 }
             - { name: ADMINIF, value: ens6 }
+            - { name: USERIF, value: ens7 }
             - { name: REPOSERVER, value: 172.17.100.122}
             - { name: LINUXSHARE, value: 192.168.100.23}
             - { name: VIDEOSERVER, value: 172.17.100.121}

@@ -17,6 +17,9 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-weaklinuxuser.git
     version: v1.0.2
     name: weaklinuxuser
+  - src: https://github.com/ait-testbed/atb-ansible-squidproxy.git
+    version: main
+    name: v1.0.1
   - src: https://github.com/ait-testbed/atb-ansible-filebeat.git
     version: v0.9.2
     name: filebeat
