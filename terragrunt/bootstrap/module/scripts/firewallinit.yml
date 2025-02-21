@@ -29,6 +29,10 @@ write_files:
      echo "            dhcp4: true" >> $NETPLAN
      echo "            match:" >> $NETPLAN
      echo "                macaddress: '$MAINMAC'" >> $NETPLAN
+     echo "            routes:" >> $NETPLAN
+     echo "                - to: 0.0.0.0/0" >> $NETPLAN
+     echo "                  via: 192.42.0.1" >> $NETPLAN
+     echo "                  metric: 50" >> $NETPLAN
      for IF in `ip link show | grep UP | tail -n +3 | awk '{print $2}' | rev | cut -c 2- | rev`
      do
      echo "        $IF:" >> $NETPLAN
@@ -59,8 +63,6 @@ write_files:
  
 bootcmd:
   - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
-  - ip route del default via 192.42.0.1 dev ens3 proto dhcp src 192.42.0.254 metric 100
-  - ip route add default via 192.42.0.1 dev ens3 proto dhcp src 192.42.0.254 metric 50
 
 
 runcmd:
