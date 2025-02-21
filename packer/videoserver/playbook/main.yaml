@@ -54,7 +54,7 @@
               apache2_vhosts:
                 - name: default
                   http: true
-                  vhost_template: "redir.j2"            
+                  vhost_template: "redir.j2"
           - role: zoneminder
             vars:
               zoneminder_debrelease: bullseye
@@ -69,3 +69,22 @@
           - role: acct
           - role: collectd
           - role: rootkeys
+          - role: filebeat
+            vars:
+              filebeat_service_enabled: false
+              filebeat_output_kafka_enabled: true
+              filebeat_output_kafka_hosts:
+                - "kafka.aecid-testbed.local:9092"
+              filebeat_output_kafka_topic: "logs"
+              filebeat_template: "filebeatkafka.yml.j2"
+              filebeat_inputs:
+                - type: log
+                  paths:
+                    - "/var/log/*.log"  # includes auth.log
+                    - "/var/log/syslog"
+              filebeat_output_logstash_enabled: false
+              filebeat_modules:
+                - tpl: "apache2.yml"
+                  paths: ["/var/www/default/log/access.log", "/var/www/default/log/error.log"]
+                - tpl: "auditd.yml"
+                  paths: ["/var/log/audit/audit.log"]
