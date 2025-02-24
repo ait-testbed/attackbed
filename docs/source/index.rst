@@ -18,6 +18,7 @@ AttackBed Documenation
    installation/virtualenv
    installation/images
    installation/bootstrap
+   installation/logpipeline
    installation/scenario
 
 

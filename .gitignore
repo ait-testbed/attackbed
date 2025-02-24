@@ -27,3 +27,6 @@ terraform.tfvars.json
 
 # ignore hosts file
 ansible/hosts
+
+# ignore opensearch certificate file
+ca.pem

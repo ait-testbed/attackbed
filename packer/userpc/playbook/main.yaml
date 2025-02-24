@@ -1,0 +1,21 @@
+- name: Install UserPC
+  hosts: all
+  become: true
+  tasks:
+          - name: Allow password login
+            ansible.builtin.copy:
+              dest: /etc/ssh/sshd_config.d/password.conf
+              content: 'PasswordAuthentication yes'
+  roles:
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: mate-desktop
+          - role: atb-ansible-novnc
+
+
+

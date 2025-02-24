@@ -6,7 +6,8 @@ system_info:
     lock_passwd: False
 
 write_files: 
--  content: |
+  - path: /root/ifsetup.sh  
+    content: |
      #!/bin/bash
   
      NETPLAN="/etc/netplan/50-cloud-init.yaml"
@@ -16,8 +17,8 @@ write_files:
      
      function printnetconfig()
      {
-        echo "            match:"
-        echo "                macaddress: '$1'"
+      echo "            match:"
+      echo "                macaddress: '$1'"
      	echo "            dhcp4: true"
      	echo "            dhcp4-overrides:"
      	echo "                use-routes: false"
@@ -40,25 +41,31 @@ write_files:
      
      /usr/sbin/netplan apply
 
-   owner: root:root     
-   path: /root/ifsetup.sh     
-   permissions: '0700'
+    owner: root:root       
+    permissions: '0700'
 
 # Ensure password authentication is enabled in SSH
-write_files:
   - path: /etc/ssh/sshd_config.d/55-password-yes.conf
     content: |
       PasswordAuthentication yes
+
+  - path: /etc/hosts
+    content: |
+      # Added by cloud-config
+      192.168.50.254 inetfw
+    owner: root:root
+    permissions: '0644'
  
 bootcmd:
   - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
+
 
 runcmd:
   -  [ /root/ifsetup.sh ]
   -  [apt-get, update]
   -  [apt-get, install, -y, python3]
-  - [systemctl, enable, shorewall ]
-  - [systemctl, restart, shorewall]
+  -  [systemctl, enable, shorewall ]
+  -  [systemctl, restart, shorewall]
     #  -  [iptables, -P, FORWARD, ACCEPT]
     #  -  [iptables, -t, nat, -A, POSTROUTING, -o, ens3, -j, MASQUERADE]
     #  -  "echo 1 > /proc/sys/net/ipv4/ip_forward"

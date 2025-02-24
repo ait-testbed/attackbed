@@ -26,7 +26,7 @@ resource "openstack_networking_network_v2" "internet" {
 resource "openstack_networking_subnet_v2" "internet_subnet" {
   name       = "internet_subnet"
   network_id = "${openstack_networking_network_v2.internet.id}"
-  cidr       = var.inet_cidr
+  cidr       = var.subnet_cidrs["inet"]
   dns_nameservers = var.inet_dns
   ip_version = 4
 }
@@ -69,8 +69,8 @@ resource "openstack_compute_instance_v2" "inet-dns" {
   user_data    = local.ext_dns_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdns[0].rendered
 
   network {
-    uuid = "${openstack_networking_network_v2.internet.id}"
-    fixed_ip_v4 = cidrhost(var.inet_cidr,514)
+    name = "internet"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],514)
   }
 
   depends_on = [
@@ -92,15 +92,15 @@ resource "openstack_networking_network_v2" "lan" {
 resource "openstack_networking_subnet_v2" "lan_subnet" {
   name       = "lan_subnet"
   network_id = "${openstack_networking_network_v2.lan.id}"
-  cidr       = var.lan_cidr
+  cidr       = var.subnet_cidrs["lan"]
   ip_version = 4
-  gateway_ip = cidrhost(var.lan_cidr,254)
-  dns_nameservers = [cidrhost(var.lan_cidr,254)]
+  gateway_ip = cidrhost(var.subnet_cidrs["lan"],254)
+  dns_nameservers = [cidrhost(var.subnet_cidrs["lan"],254)]
 
   # make the allocation_pool smaller for gateway_ip
   allocation_pool {
-    start = cidrhost(var.lan_cidr,20)
-    end   = cidrhost(var.lan_cidr,200)
+    start = cidrhost(var.subnet_cidrs["lan"],20)
+    end   = cidrhost(var.subnet_cidrs["lan"],200)
   }
 }
 
@@ -117,18 +117,72 @@ resource "openstack_networking_network_v2" "dmz" {
 resource "openstack_networking_subnet_v2" "dmz_subnet" {
   name       = "dmz_subnet"
   network_id = "${openstack_networking_network_v2.dmz.id}"
-  cidr       = var.dmz_cidr
+  cidr       = var.subnet_cidrs["dmz"]
   ip_version = 4
-  gateway_ip = cidrhost(var.dmz_cidr,254)
-  dns_nameservers = [cidrhost(var.dmz_cidr,254)]
+  gateway_ip = cidrhost(var.subnet_cidrs["dmz"],254)
+  dns_nameservers = [cidrhost(var.subnet_cidrs["dmz"],254)]
 
 
   # make the allocation_pool smaller for gateway_ip
   allocation_pool {
-    start = cidrhost(var.dmz_cidr,20)
-    end   = cidrhost(var.dmz_cidr,200)
+    start = cidrhost(var.subnet_cidrs["dmz"],20)
+    end   = cidrhost(var.subnet_cidrs["dmz"],200)
   }
 }
+
+###################################################################
+#
+# CREATE NETWORK "ADMIN"
+#
+resource "openstack_networking_network_v2" "admin" {
+  name           = "admin"
+  port_security_enabled = "false"
+  admin_state_up = "true"
+}
+
+resource "openstack_networking_subnet_v2" "admin_subnet" {
+  name       = "admin_subnet"
+  network_id = "${openstack_networking_network_v2.admin.id}"
+  cidr       = var.subnet_cidrs["admin"]
+  ip_version = 4
+  gateway_ip = cidrhost(var.subnet_cidrs["admin"],254)
+  dns_nameservers = [cidrhost(var.subnet_cidrs["admin"],254)]
+
+
+  # make the allocation_pool smaller for gateway_ip
+  allocation_pool {
+    start = cidrhost(var.subnet_cidrs["admin"],20)
+    end   = cidrhost(var.subnet_cidrs["admin"],200)
+  }
+}
+
+###################################################################
+#
+# CREATE NETWORK "USER"
+#
+resource "openstack_networking_network_v2" "user" {
+  name           = "user"
+  port_security_enabled = "false"
+  admin_state_up = "true"
+}
+
+resource "openstack_networking_subnet_v2" "user_subnet" {
+  name       = "user_subnet"
+  network_id = "${openstack_networking_network_v2.user.id}"
+  cidr       = var.subnet_cidrs["user"]
+  ip_version = 4
+  gateway_ip = cidrhost(var.subnet_cidrs["user"],254)
+  dns_nameservers = [cidrhost(var.subnet_cidrs["user"],254)]
+
+
+  # make the allocation_pool smaller for gateway_ip
+  allocation_pool {
+    start = cidrhost(var.subnet_cidrs["user"],20)
+    end   = cidrhost(var.subnet_cidrs["user"],200)
+  }
+}
+
+
 
 ####################################################################
 #
@@ -166,25 +220,37 @@ resource "openstack_compute_instance_v2" "inet-fw" {
   user_data    = local.fw_userdata_file == null ? null : data.template_cloudinit_config.cloudinitinetfw[0].rendered
 
   network {
-    uuid = "${openstack_networking_network_v2.internet.id}"
-    fixed_ip_v4 = cidrhost(var.inet_cidr,254)
+    name = "internet"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],254)
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.lan.id}"
-    fixed_ip_v4 = cidrhost(var.lan_cidr,254)
+    name = "lan"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["lan"],254)
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.dmz.id}"
-    fixed_ip_v4 = cidrhost(var.dmz_cidr,254)
+    name = "dmz"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["dmz"],254)
+  }
+
+  network {
+    name = "admin"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["admin"],254)
+  }
+
+  network {
+    name = "user"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["user"],254)
   }
 
   depends_on = [
      openstack_compute_instance_v2.inet-dns,
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
-     openstack_networking_network_v2.lan
+     openstack_networking_network_v2.lan,
+     openstack_networking_network_v2.admin,
+     openstack_networking_network_v2.user
   ]
 }
 
@@ -215,9 +281,13 @@ data "openstack_images_image_v2" "mgmt-image" {
 }
 
 locals {
-  mgmt_internet_ip = cidrhost(var.inet_cidr, 201)  # Static IP for mgmt host in internet network
-  mgmt_lan_ip = cidrhost(var.lan_cidr, 201)  # Static IP for mgmt host in lan network
-  mgmt_dmz_ip = cidrhost(var.dmz_cidr, 201)  # Static IP for mgmt host in dmz network
+  mgmt_ips = {
+    internet = cidrhost(var.subnet_cidrs["inet"], 201)
+    lan      = cidrhost(var.subnet_cidrs["lan"], 201)
+    dmz      = cidrhost(var.subnet_cidrs["dmz"], 201)
+    admin    = cidrhost(var.subnet_cidrs["admin"], 201)
+    user    = cidrhost(var.subnet_cidrs["user"], 201)
+  }
 }
 
 resource "openstack_compute_instance_v2" "mgmt" {
@@ -228,30 +298,41 @@ resource "openstack_compute_instance_v2" "mgmt" {
   user_data    = local.mgmt_userdata_file == null ? null : data.template_cloudinit_config.cloudinitmgmt[0].rendered
 
   network {
-    uuid = "${openstack_networking_network_v2.internet.id}"
-    fixed_ip_v4 = local.mgmt_internet_ip
+    name = "internet"
+    fixed_ip_v4 = local.mgmt_ips.internet
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.lan.id}"
-    fixed_ip_v4 = local.mgmt_lan_ip
+    name = "lan"
+    fixed_ip_v4 = local.mgmt_ips.lan
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.dmz.id}"
-    fixed_ip_v4 = local.mgmt_dmz_ip
+    name = "dmz"
+    fixed_ip_v4 = local.mgmt_ips.dmz
+  }
+
+  network {
+    name = "admin"
+    fixed_ip_v4 = local.mgmt_ips.admin
+  }
+
+  network {
+    name = "user"
+    fixed_ip_v4 = local.mgmt_ips.user
   }
 
   depends_on = [
      openstack_networking_network_v2.dmz,
      openstack_networking_network_v2.internet,
-     openstack_networking_network_v2.lan
+     openstack_networking_network_v2.lan,
+     openstack_networking_network_v2.admin,
+     openstack_networking_network_v2.user
   ]
-
 }
 
 data "openstack_networking_port_v2" "mgmt"{
-  fixed_ip = local.mgmt_internet_ip
+  fixed_ip =  local.mgmt_ips.internet
     depends_on = [
       openstack_compute_instance_v2.mgmt  
   ]

@@ -1,0 +1,3743 @@
+{
+  "description": "Pipeline for parsing Linux auditd logs",
+  "processors": [
+    {
+      "set": {
+        "field": "event.ingested",
+        "value": "{{_ingest.timestamp}}"
+      }
+    },
+    {
+      "grok": {
+        "field": "message",
+        "pattern_definitions": {
+          "AUDIT_KEY_VALUES": "%{WORD}=%{GREEDYDATA}",
+          "ANY": ".*",
+          "AUDIT_TYPE": "type=%{NOTSPACE:auditd.log.record_type}",
+          "AUDIT_NODE": "node=%{IPORHOST:auditd.log.node} ",
+          "AUDIT_PREFIX": "^(?:%{AUDIT_NODE})?%{AUDIT_TYPE} msg=audit\\(%{NUMBER:auditd.log.epoch}:%{NUMBER:auditd.log.sequence}\\):(%{DATA})?"
+        },
+        "patterns": [
+          "%{AUDIT_PREFIX} %{AUDIT_KEY_VALUES:auditd.log.kv} old auid=%{NUMBER:auditd.log.old_auid} new auid=%{NUMBER:auditd.log.new_auid} old ses=%{NUMBER:auditd.log.old_ses} new ses=%{NUMBER:auditd.log.new_ses}",
+          "%{AUDIT_PREFIX} %{AUDIT_KEY_VALUES:auditd.log.kv} msg=['\"]([^=]*\\s)?%{ANY:auditd.log.sub_kv}['\"]",
+          "%{AUDIT_PREFIX} %{AUDIT_KEY_VALUES:auditd.log.kv}",
+          "%{AUDIT_PREFIX}",
+          "%{AUDIT_TYPE} %{AUDIT_KEY_VALUES:auditd.log.kv}"
+        ]
+      }
+    },
+    {
+      "kv": {
+        "target_field": "auditd.log",
+        "field": "auditd.log.kv",
+        "field_split": "\\s(?![\\w\\\"]+?(\\s+|$))",
+        "value_split": "(?<!\\\\)="
+      }
+    },
+    {
+      "kv": {
+        "field": "auditd.log.sub_kv",
+        "field_split": "\\s+(?=[^\\s]+=)",
+        "value_split": "=",
+        "target_field": "auditd.log",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "message",
+        "target_field": "event.original"
+      }
+    },
+    {
+      "date": {
+        "target_field": "@timestamp",
+        "formats": [
+          "UNIX"
+        ],
+        "ignore_failure": true,
+        "field": "auditd.log.epoch"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.old-auid",
+        "target_field": "auditd.log.old_auid"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.old-ses",
+        "target_field": "auditd.log.old_ses"
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "source": "String trimQuotes(def singleQuote, def doubleQuote, def v) {\n    if (v.startsWith(singleQuote) || v.startsWith(doubleQuote)) {\n        v = v.substring(1, v.length());\n    }\n    if (v.endsWith(singleQuote) || v.endsWith(doubleQuote)) {\n        v = v.substring(0, v.length()-1);\n    }\n    return v;\n}\n\nboolean isHexAscii(String v) {\n    def len = v.length();\n\n    if (len == 0 || len % 2 != 0) {\n        return false;\n    }\n\n    for (int i = 0 ; i < len ; i++) {\n        if (Character.digit(v.charAt(i), 16) == -1) {\n            return false;\n        }\n    }\n    return true;\n}\n\nString convertHexToString(String hex) {\n    StringBuilder sb = new StringBuilder();\n    boolean needed_encoding = false;\n\n    for (int i=0; i < hex.length() - 1; i+=2) {\n        int cp = Integer.parseInt(hex.substring(i, (i +2)), 16);\n        if (cp < 33 || cp == 34 || cp == 127) {\n            needed_encoding = true;\n        }\n        if (cp < 32 || cp == 127) {\n            sb.append('^');\n            cp ^= 64;\n        }\n        sb.append((char)cp);\n    }\n    if (needed_encoding) {\n        return sb.toString();\n    }\n    return hex;\n}\n\ndef possibleHexKeys = [\"exe\", \"cmd\", \"data\", \"path\", \"comm\", \"file\", \"name\", \"watch\", \"cwd\", \"acct\", \"dir\", \"vm\", \"old-chardev\", \"new-chardev\", \"old-disk\", \"new-disk\", \"old-fs\", \"new-fs\", \"old-net\", \"new-net\", \"device\", \"cgroup\", \"apparmor\", \"operation\", \"denied_mask\", \"info\", \"profile\", \"requested_mask\", \"old-rng\", \"new-rng\", \"ocomm\", \"grp\", \"new_group\", \"invalid_context\", \"sw\", \"root_dir\", \"proctitle\"];\ndef audit = ctx.auditd.get(\"log\");\nIterator entries = audit.entrySet().iterator();\n\nwhile (entries.hasNext()) {\n    def e = entries.next();\n    def k = e.getKey();\n    def v = e.getValue();\n\n    // Remove entries whose value is ?\n    if (v == \"?\" || v == \"(null)\" || v == \"\") {\n        entries.remove();\n        continue;\n    }\n\n    // Convert hex values to ASCII.\n    if (possibleHexKeys.contains(k) && isHexAscii(v)) {\n        v = convertHexToString(v);\n        audit.put(k, v);\n    }\n\n    // Trim quotes.\n    if (v instanceof String) {\n        v = trimQuotes(params.single_quote, params.double_quote, v);\n        audit.put(k, v);\n    }\n\n    // Convert arch.\n    if (k == \"arch\" && v == \"c000003e\") {\n        audit.put(k, \"x86_64\");\n    }\n}\n",
+        "params": {
+          "single_quote": "'",
+          "double_quote": "\""
+        }
+      }
+    },
+    {
+      "convert": {
+        "ignore_missing": true,
+        "field": "auditd.log.sequence",
+        "type": "long"
+      }
+    },
+    {
+      "convert": {
+        "field": "auditd.log.lport",
+        "type": "long",
+        "ignore_missing": true
+      }
+    },
+    {
+      "convert": {
+        "type": "long",
+        "ignore_missing": true,
+        "field": "auditd.log.rport"
+      }
+    },
+    {
+      "convert": {
+        "ignore_missing": true,
+        "field": "auditd.log.entries",
+        "type": "long"
+      }
+    },
+    {
+      "convert": {
+        "field": "auditd.log.dst_prefixlen",
+        "type": "long",
+        "ignore_missing": true
+      }
+    },
+    {
+      "convert": {
+        "type": "long",
+        "ignore_missing": true,
+        "field": "auditd.log.ksize"
+      }
+    },
+    {
+      "convert": {
+        "field": "auditd.log.size",
+        "type": "long",
+        "ignore_missing": true
+      }
+    },
+    {
+      "convert": {
+        "type": "long",
+        "ignore_missing": true,
+        "field": "auditd.log.src_prefixlen"
+      }
+    },
+    {
+      "set": {
+        "value": "event",
+        "field": "event.kind"
+      }
+    },
+    {
+      "script": {
+        "lang": "painless",
+        "ignore_failure": true,
+        "params": {
+          "types": {
+            "ADD_GROUP": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  },
+                  {
+                    "to": "group",
+                    "from": [
+                      "id",
+                      "acct"
+                    ]
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "added-group-account-to"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "group",
+                    "creation"
+                  ]
+                }
+              }
+            ],
+            "ROLE_REMOVE": [
+              {
+                "event": {
+                  "action": [
+                    "removed-user-role-from"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_ERR": [
+              {
+                "event": {
+                  "action": [
+                    "audit-error"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "TEST": [
+              {
+                "event": {
+                  "action": [
+                    "sent-test"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "VIRT_CONTROL": [
+              {
+                "event": {
+                  "action": [
+                    "issued-vm-control"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_END": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "stop"
+                  ],
+                  "action": [
+                    "shutdown-audit"
+                  ]
+                }
+              }
+            ],
+            "GRP_AUTH": [
+              {
+                "event": {
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "authenticated-to-group"
+                  ]
+                },
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ]
+              }
+            ],
+            "DAEMON_CONFIG": [
+              {
+                "event": {
+                  "action": [
+                    "changed-auditd-configuration"
+                  ],
+                  "category": [
+                    "process",
+                    "configuration"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "ANOM_PROMISCUOUS": [
+              {
+                "event": {
+                  "action": [
+                    "changed-promiscuous-mode-on-device"
+                  ]
+                }
+              }
+            ],
+            "ANOM_LOGIN_SESSIONS": [
+              {
+                "event": {
+                  "action": [
+                    "opened-too-many-sessions-to"
+                  ]
+                }
+              }
+            ],
+            "USER_TTY": [
+              {
+                "event": {
+                  "action": [
+                    "typed"
+                  ]
+                }
+              }
+            ],
+            "USYS_CONFIG": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-configuration"
+                  ],
+                  "category": [
+                    "configuration"
+                  ]
+                }
+              }
+            ],
+            "SERVICE_START": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "started-service"
+                  ]
+                }
+              }
+            ],
+            "CRED_ACQ": [
+              {
+                "copy": [
+                  {
+                    "to": "user",
+                    "from": [
+                      "auid"
+                    ]
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "acquired-credentials"
+                  ],
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "CHUSER_ID": [
+              {
+                "event": {
+                  "action": [
+                    "changed-user-id"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "KERN_MODULE": [
+              {
+                "event": {
+                  "action": [
+                    "loaded-kernel-module"
+                  ],
+                  "category": [
+                    "driver"
+                  ],
+                  "type": [
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "ANOM_LOGIN_LOCATION": [
+              {
+                "event": {
+                  "action": [
+                    "attempted-log-in-from-unusual-place-to"
+                  ]
+                }
+              }
+            ],
+            "USER_AVC": [
+              {
+                "event": {
+                  "action": [
+                    "access-permission"
+                  ]
+                }
+              }
+            ],
+            "VIRT_CREATE": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "created-vm-image"
+                  ],
+                  "category": [
+                    "host"
+                  ]
+                }
+              }
+            ],
+            "VIRT_DESTROY": [
+              {
+                "event": {
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "deleted-vm-image"
+                  ]
+                }
+              }
+            ],
+            "USER_MAC_CONFIG_CHANGE": [
+              {
+                "event": {
+                  "action": [
+                    "changed-mac-configuration"
+                  ],
+                  "category": [
+                    "configuration"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "USER_MGMT": [
+              {
+                "copy": [
+                  {
+                    "to": "user",
+                    "from": [
+                      "auid"
+                    ]
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.target"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "change"
+                  ],
+                  "action": [
+                    "modified-user-account"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_RECONFIG": [
+              {
+                "event": {
+                  "category": [
+                    "process",
+                    "configuration"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "reconfigured-auditd"
+                  ]
+                }
+              }
+            ],
+            "MAC_CONFIG_CHANGE": [
+              {
+                "event": {
+                  "action": [
+                    "changed-selinux-boolean"
+                  ],
+                  "category": [
+                    "configuration"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "GRP_CHAUTHTOK": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  },
+                  {
+                    "to": "group",
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ]
+                  }
+                ],
+                "event": {
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "group",
+                    "change"
+                  ],
+                  "action": [
+                    "changed-group-password"
+                  ]
+                }
+              }
+            ],
+            "SECCOMP": [
+              {
+                "event": {
+                  "action": [
+                    "violated-seccomp-policy"
+                  ]
+                }
+              }
+            ],
+            "ACCT_UNLOCK": [
+              {
+                "event": {
+                  "action": [
+                    "unlocked-account"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "MAC_STATUS": [
+              {
+                "event": {
+                  "action": [
+                    "changed-selinux-enforcement"
+                  ],
+                  "category": [
+                    "configuration"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "ANOM_ABEND": [
+              {
+                "event": {
+                  "action": [
+                    "crashed-program"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "end"
+                  ]
+                }
+              }
+            ],
+            "TTY": [
+              {
+                "event": {
+                  "action": [
+                    "typed"
+                  ]
+                }
+              }
+            ],
+            "CONFIG_CHANGE": [
+              {
+                "event": {
+                  "action": [
+                    "changed-audit-configuration"
+                  ],
+                  "category": [
+                    "process",
+                    "configuration"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "FEATURE_CHANGE": [
+              {
+                "event": {
+                  "action": [
+                    "changed-audit-feature"
+                  ],
+                  "category": [
+                    "configuration"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "ROLE_ASSIGN": [
+              {
+                "event": {
+                  "action": [
+                    "assigned-user-role-to"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "VIRT_MIGRATE_OUT": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "migrated-vm-to"
+                  ],
+                  "category": [
+                    "host"
+                  ]
+                }
+              }
+            ],
+            "ADD_USER": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  },
+                  {
+                    "to": "user.target",
+                    "from": [
+                      "id",
+                      "acct"
+                    ]
+                  }
+                ],
+                "event": {
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "creation"
+                  ],
+                  "action": [
+                    "added-user-account"
+                  ]
+                }
+              }
+            ],
+            "GRP_MGMT": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "to": "group",
+                    "from": [
+                      "uid"
+                    ]
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "modified-group-account"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "group",
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "DEL_GROUP": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  },
+                  {
+                    "to": "group",
+                    "from": [
+                      "id",
+                      "acct"
+                    ]
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "deleted-group-account-from"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "group",
+                    "deletion"
+                  ]
+                }
+              }
+            ],
+            "SOFTWARE_UPDATE": [
+              {
+                "event": {
+                  "action": [
+                    "package-updated"
+                  ],
+                  "category": [
+                    "package"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_ROTATE": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "rotated-audit-logs"
+                  ]
+                }
+              }
+            ],
+            "SELINUX_ERR": [
+              {
+                "event": {
+                  "action": [
+                    "caused-mac-policy-error"
+                  ]
+                }
+              }
+            ],
+            "VIRT_RESOURCE": [
+              {
+                "event": {
+                  "action": [
+                    "assigned-vm-resource"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "USER_CHAUTHTOK": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  },
+                  {
+                    "to": "user.target",
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ]
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "changed-password"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "USER_ERR": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "error"
+                  ],
+                  "category": [
+                    "authentication"
+                  ]
+                }
+              }
+            ],
+            "DEL_USER": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  },
+                  {
+                    "to": "user.target",
+                    "from": [
+                      "id",
+                      "acct"
+                    ]
+                  }
+                ],
+                "event": {
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "user",
+                    "deletion"
+                  ],
+                  "action": [
+                    "deleted-user-account"
+                  ]
+                }
+              }
+            ],
+            "AVC": [
+              {
+                "event": {
+                  "action": [
+                    "violated-selinux-policy"
+                  ]
+                },
+                "has_fields": [
+                  "seresult"
+                ]
+              },
+              {
+                "event": {
+                  "action": [
+                    "violated-apparmor-policy"
+                  ]
+                },
+                "has_fields": [
+                  "apparmor"
+                ]
+              }
+            ],
+            "LOGIN": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "old_auid",
+                      "old-auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "new-auid",
+                      "new_auid",
+                      "auid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "changed-login-id-to"
+                  ]
+                }
+              }
+            ],
+            "SYSTEM_BOOT": [
+              {
+                "event": {
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "booted-system"
+                  ],
+                  "category": [
+                    "host"
+                  ]
+                }
+              }
+            ],
+            "KERNEL": [
+              {
+                "event": {
+                  "action": [
+                    "initialized-audit-subsystem"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "ROLE_MODIFY": [
+              {
+                "event": {
+                  "action": [
+                    "modified-role"
+                  ],
+                  "category": [
+                    "iam"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "VIRT_INTEGRITY_CHECK": [
+              {
+                "event": {
+                  "action": [
+                    "checked-integrity-of"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "SERVICE_STOP": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "stop"
+                  ],
+                  "action": [
+                    "stopped-service"
+                  ]
+                }
+              }
+            ],
+            "USER_END": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "ended-session"
+                  ],
+                  "category": [
+                    "session"
+                  ],
+                  "type": [
+                    "end"
+                  ]
+                }
+              }
+            ],
+            "USER_SELINUX_ERR": [
+              {
+                "event": {
+                  "action": [
+                    "access-error"
+                  ]
+                }
+              }
+            ],
+            "CHGRP_ID": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-group"
+                  ]
+                }
+              }
+            ],
+            "USER_CMD": [
+              {
+                "event": {
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "ran-command"
+                  ],
+                  "category": [
+                    "process"
+                  ]
+                }
+              }
+            ],
+            "FS_RELABEL": [
+              {
+                "event": {
+                  "action": [
+                    "relabeled-filesystem"
+                  ]
+                }
+              }
+            ],
+            "USER_LOGOUT": [
+              {
+                "event": {
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "end"
+                  ],
+                  "action": [
+                    "logged-out"
+                  ]
+                },
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ]
+              }
+            ],
+            "TRUSTED_APP": [
+              {
+                "event": {
+                  "action": [
+                    "unknown"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "VIRT_MACHINE_ID": [
+              {
+                "event": {
+                  "action": [
+                    "assigned-vm-id"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "CRYPTO_LOGIN": [
+              {
+                "event": {
+                  "action": [
+                    "crypto-officer-logged-in"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_ABORT": [
+              {
+                "event": {
+                  "action": [
+                    "aborted-auditd-startup"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "stop"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_RESUME": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "resumed-audit-logging"
+                  ],
+                  "category": [
+                    "process"
+                  ]
+                }
+              }
+            ],
+            "ANOM_LOGIN_TIME": [
+              {
+                "event": {
+                  "action": [
+                    "attempted-log-in-during-unusual-hour-to"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_CLOSE": [
+              {
+                "event": {
+                  "type": [
+                    "connection",
+                    "start"
+                  ],
+                  "action": [
+                    "remote-audit-disconnected"
+                  ],
+                  "category": [
+                    "network"
+                  ]
+                }
+              }
+            ],
+            "CRYPTO_SESSION": [
+              {
+                "event": {
+                  "action": [
+                    "started-crypto-session"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "ANOM_LOGIN_FAILURES": [
+              {
+                "event": {
+                  "action": [
+                    "failed-log-in-too-many-times-to"
+                  ]
+                }
+              }
+            ],
+            "SYSTEM_RUNLEVEL": [
+              {
+                "event": {
+                  "action": [
+                    "changed-to-runlevel"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "ANOM_LINK": [
+              {
+                "event": {
+                  "action": [
+                    "used-suspicious-link"
+                  ]
+                }
+              }
+            ],
+            "NETFILTER_CFG": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "loaded-firewall-rule-to"
+                  ],
+                  "category": [
+                    "configuration"
+                  ]
+                }
+              }
+            ],
+            "MAC_CHECK": [
+              {
+                "event": {
+                  "action": [
+                    "mac-permission"
+                  ]
+                }
+              }
+            ],
+            "CRED_REFR": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "to": "user.effective",
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ]
+                  }
+                ],
+                "event": {
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "refreshed-credentials"
+                  ]
+                }
+              }
+            ],
+            "USER_MAC_POLICY_LOAD": [
+              {
+                "event": {
+                  "type": [
+                    "access"
+                  ],
+                  "action": [
+                    "loaded-mac-policy"
+                  ],
+                  "category": [
+                    "configuration"
+                  ]
+                }
+              }
+            ],
+            "USER_ACCT": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "to": "user.effective",
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ]
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "was-authorized"
+                  ],
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "LABEL_OVERRIDE": [
+              {
+                "event": {
+                  "action": [
+                    "overrode-label-of"
+                  ]
+                }
+              }
+            ],
+            "ACCT_LOCK": [
+              {
+                "event": {
+                  "type": [
+                    "user",
+                    "info"
+                  ],
+                  "action": [
+                    "locked-account"
+                  ],
+                  "category": [
+                    "iam"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_START": [
+              {
+                "event": {
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "started-audit"
+                  ],
+                  "category": [
+                    "process"
+                  ]
+                }
+              }
+            ],
+            "ANOM_EXEC": [
+              {
+                "event": {
+                  "action": [
+                    "attempted-execution-of-forbidden-program"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "LABEL_LEVEL_CHANGE": [
+              {
+                "event": {
+                  "action": [
+                    "modified-level-of"
+                  ]
+                }
+              }
+            ],
+            "USER_ROLE_CHANGE": [
+              {
+                "event": {
+                  "action": [
+                    "changed-role-to"
+                  ]
+                }
+              }
+            ],
+            "USER_LOGIN": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "logged-in"
+                  ],
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "USER": [
+              {
+                "event": {
+                  "action": [
+                    "sent-message"
+                  ]
+                }
+              }
+            ],
+            "DAEMON_ACCEPT": [
+              {
+                "event": {
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "start"
+                  ],
+                  "action": [
+                    "remote-audit-connected"
+                  ]
+                }
+              }
+            ],
+            "USER_AUTH": [
+              {
+                "event": {
+                  "action": [
+                    "authenticated"
+                  ],
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                },
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ]
+              }
+            ],
+            "CRED_DISP": [
+              {
+                "copy": [
+                  {
+                    "from": [
+                      "auid"
+                    ],
+                    "to": "user"
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "disposed-credentials"
+                  ],
+                  "category": [
+                    "authentication"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "SYSTEM_SHUTDOWN": [
+              {
+                "event": {
+                  "type": [
+                    "end"
+                  ],
+                  "action": [
+                    "shutdown-system"
+                  ],
+                  "category": [
+                    "host"
+                  ]
+                }
+              }
+            ],
+            "ANOM_RBAC_INTEGRITY_FAIL": [
+              {
+                "event": {
+                  "action": [
+                    "tested-file-system-integrity-of"
+                  ]
+                }
+              }
+            ],
+            "CRYPTO_LOGOUT": [
+              {
+                "event": {
+                  "action": [
+                    "crypto-officer-logged-out"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "MAC_POLICY_LOAD": [
+              {
+                "event": {
+                  "action": [
+                    "loaded-selinux-policy"
+                  ],
+                  "category": [
+                    "configuration"
+                  ],
+                  "type": [
+                    "access"
+                  ]
+                }
+              }
+            ],
+            "USER_START": [
+              {
+                "copy": [
+                  {
+                    "to": "user",
+                    "from": [
+                      "auid"
+                    ]
+                  },
+                  {
+                    "from": [
+                      "acct",
+                      "id",
+                      "uid"
+                    ],
+                    "to": "user.effective"
+                  }
+                ],
+                "event": {
+                  "action": [
+                    "started-session"
+                  ],
+                  "category": [
+                    "session"
+                  ],
+                  "type": [
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "VIRT_MIGRATE_IN": [
+              {
+                "event": {
+                  "action": [
+                    "migrated-vm-from"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "DAC_CHECK": [
+              {
+                "event": {
+                  "action": [
+                    "access-result"
+                  ]
+                }
+              }
+            ],
+            "CRYPTO_KEY_USER": [
+              {
+                "event": {
+                  "action": [
+                    "negotiated-crypto-key"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ]
+          },
+          "syscalls": {
+            "creat": [
+              {
+                "event": {
+                  "action": [
+                    "opened-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "creation"
+                  ]
+                }
+              }
+            ],
+            "newfstatat": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "sched_setparam": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "adjusted-scheduling-policy-of"
+                  ]
+                }
+              }
+            ],
+            "utimensat": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "changed-timestamp-of"
+                  ]
+                }
+              }
+            ],
+            "recvmsg": [
+              {
+                "event": {
+                  "action": [
+                    "received-from"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "stime": [
+              {
+                "event": {
+                  "action": [
+                    "changed-system-time"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "kill": [
+              {
+                "event": {
+                  "action": [
+                    "killed-pid"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "end"
+                  ]
+                }
+              }
+            ],
+            "recv": [
+              {
+                "event": {
+                  "action": [
+                    "received-from"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "delete_module": [
+              {
+                "event": {
+                  "action": [
+                    "unloaded-kernel-module"
+                  ],
+                  "category": [
+                    "driver"
+                  ],
+                  "type": [
+                    "end"
+                  ]
+                }
+              }
+            ],
+            "sched_setattr": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "adjusted-scheduling-policy-of"
+                  ]
+                }
+              }
+            ],
+            "sched_setscheduler": [
+              {
+                "event": {
+                  "action": [
+                    "adjusted-scheduling-policy-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "setresgid": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-identity-of"
+                  ]
+                }
+              }
+            ],
+            "mount": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "creation"
+                  ],
+                  "action": [
+                    "mounted"
+                  ]
+                }
+              }
+            ],
+            "fallocate": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "opened-file"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "fchownat": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-ownership-of"
+                  ]
+                }
+              }
+            ],
+            "settimeofday": [
+              {
+                "event": {
+                  "action": [
+                    "changed-system-time"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "setregid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "fsetxattr": [
+              {
+                "event": {
+                  "action": [
+                    "changed-file-attributes-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "setgid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "renameat": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "renamed"
+                  ]
+                }
+              }
+            ],
+            "execveat": [
+              {
+                "event": {
+                  "action": [
+                    "executed"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "fstat": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "lgetxattr": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "symlinkat": [
+              {
+                "event": {
+                  "action": [
+                    "symlinked"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "creation"
+                  ]
+                }
+              }
+            ],
+            "fremovexattr": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-attributes-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "connect": [
+              {
+                "event": {
+                  "action": [
+                    "connected-to"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "faccessat": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "getxattr": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "futimens": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "changed-timestamp-of"
+                  ]
+                }
+              }
+            ],
+            "bind": [
+              {
+                "event": {
+                  "action": [
+                    "bound-socket"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "lsetxattr": [
+              {
+                "event": {
+                  "action": [
+                    "changed-file-attributes-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "accept": [
+              {
+                "event": {
+                  "action": [
+                    "accepted-connection-from"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "futimesat": [
+              {
+                "event": {
+                  "action": [
+                    "changed-timestamp-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "lstat": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "umount2": [
+              {
+                "event": {
+                  "action": [
+                    "unmounted"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "deletion"
+                  ]
+                }
+              }
+            ],
+            "finit_module": [
+              {
+                "event": {
+                  "category": [
+                    "driver"
+                  ],
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "loaded-kernel-module"
+                  ]
+                }
+              }
+            ],
+            "statfs": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "checked-filesystem-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "fchown": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-ownership-of"
+                  ]
+                }
+              }
+            ],
+            "send": [
+              {
+                "event": {
+                  "type": [
+                    "connection",
+                    "info"
+                  ],
+                  "action": [
+                    "sent-to"
+                  ],
+                  "category": [
+                    "network"
+                  ]
+                }
+              }
+            ],
+            "listen": [
+              {
+                "event": {
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "listen-for-connections"
+                  ]
+                }
+              }
+            ],
+            "fgetxattr": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "setdomainname": [
+              {
+                "event": {
+                  "action": [
+                    "changed-system-name"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "ftruncate": [
+              {
+                "event": {
+                  "action": [
+                    "opened-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "setegid": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ]
+                }
+              }
+            ],
+            "fchmod": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-permissions-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "fstatat": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "rename": [
+              {
+                "event": {
+                  "action": [
+                    "renamed"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "*": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "recvmmsg": [
+              {
+                "event": {
+                  "action": [
+                    "received-from"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "mmap2": [
+              {
+                "event": {
+                  "action": [
+                    "allocated-memory"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "setreuid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "removexattr": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-attributes-of"
+                  ]
+                }
+              }
+            ],
+            "execve": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "executed"
+                  ]
+                }
+              }
+            ],
+            "mknod": [
+              {
+                "event": {
+                  "action": [
+                    "make-device"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "creation"
+                  ]
+                }
+              }
+            ],
+            "sendmmsg": [
+              {
+                "event": {
+                  "action": [
+                    "sent-to"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "stat": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "recvfrom": [
+              {
+                "event": {
+                  "type": [
+                    "connection",
+                    "info"
+                  ],
+                  "action": [
+                    "received-from"
+                  ],
+                  "category": [
+                    "network"
+                  ]
+                }
+              }
+            ],
+            "brk": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "allocated-memory"
+                  ]
+                }
+              }
+            ],
+            "mkdir": [
+              {
+                "event": {
+                  "type": [
+                    "creation"
+                  ],
+                  "action": [
+                    "created-directory"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "symlink": [
+              {
+                "event": {
+                  "action": [
+                    "symlinked"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "creation"
+                  ]
+                }
+              }
+            ],
+            "readlinkat": [
+              {
+                "event": {
+                  "action": [
+                    "opened-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "truncate": [
+              {
+                "event": {
+                  "action": [
+                    "opened-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "lchown": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-ownership-of"
+                  ]
+                }
+              }
+            ],
+            "mkdirat": [
+              {
+                "event": {
+                  "action": [
+                    "created-directory"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "creation"
+                  ]
+                }
+              }
+            ],
+            "umount": [
+              {
+                "event": {
+                  "action": [
+                    "unmounted"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "deletion"
+                  ]
+                }
+              }
+            ],
+            "clock_settime": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-system-time"
+                  ],
+                  "category": [
+                    "host"
+                  ]
+                }
+              }
+            ],
+            "seteuid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "unlinkat": [
+              {
+                "event": {
+                  "action": [
+                    "deleted"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "deletion"
+                  ]
+                }
+              }
+            ],
+            "stat64": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "mmap": [
+              {
+                "event": {
+                  "action": [
+                    "allocated-memory"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "tgkill": [
+              {
+                "event": {
+                  "action": [
+                    "killed-pid"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "end"
+                  ]
+                }
+              }
+            ],
+            "setxattr": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-attributes-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "sethostname": [
+              {
+                "event": {
+                  "action": [
+                    "changed-system-name"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "openat": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "opened-file"
+                  ]
+                }
+              }
+            ],
+            "mknodat": [
+              {
+                "event": {
+                  "type": [
+                    "creation"
+                  ],
+                  "action": [
+                    "make-device"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "read": [
+              {
+                "event": {
+                  "action": [
+                    "read-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "sendto": [
+              {
+                "event": {
+                  "action": [
+                    "sent-to"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "utime": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "changed-timestamp-of"
+                  ]
+                }
+              }
+            ],
+            "fstatfs": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "checked-filesystem-metadata-of"
+                  ]
+                }
+              }
+            ],
+            "tkill": [
+              {
+                "event": {
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "end"
+                  ],
+                  "action": [
+                    "killed-pid"
+                  ]
+                }
+              }
+            ],
+            "setresuid": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ]
+                }
+              }
+            ],
+            "open": [
+              {
+                "event": {
+                  "action": [
+                    "opened-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "setfsuid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "unlink": [
+              {
+                "event": {
+                  "type": [
+                    "deletion"
+                  ],
+                  "action": [
+                    "deleted"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "accept4": [
+              {
+                "event": {
+                  "action": [
+                    "accepted-connection-from"
+                  ],
+                  "category": [
+                    "network"
+                  ],
+                  "type": [
+                    "connection",
+                    "start"
+                  ]
+                }
+              }
+            ],
+            "sendmsg": [
+              {
+                "event": {
+                  "type": [
+                    "connection",
+                    "info"
+                  ],
+                  "action": [
+                    "sent-to"
+                  ],
+                  "category": [
+                    "network"
+                  ]
+                }
+              }
+            ],
+            "setuid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "fchmodat": [
+              {
+                "event": {
+                  "action": [
+                    "changed-file-permissions-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "init_module": [
+              {
+                "event": {
+                  "category": [
+                    "driver"
+                  ],
+                  "type": [
+                    "start"
+                  ],
+                  "action": [
+                    "loaded-kernel-module"
+                  ]
+                }
+              }
+            ],
+            "setfsgid": [
+              {
+                "event": {
+                  "action": [
+                    "changed-identity-of"
+                  ],
+                  "category": [
+                    "process"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "chown": [
+              {
+                "event": {
+                  "action": [
+                    "changed-file-ownership-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "access": [
+              {
+                "event": {
+                  "action": [
+                    "checked-metadata-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ]
+                }
+              }
+            ],
+            "write": [
+              {
+                "event": {
+                  "action": [
+                    "wrote-to-file"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "renameat2": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "renamed"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "chmod": [
+              {
+                "event": {
+                  "type": [
+                    "change"
+                  ],
+                  "action": [
+                    "changed-file-permissions-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "readlink": [
+              {
+                "event": {
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "opened-file"
+                  ]
+                }
+              }
+            ],
+            "adjtimex": [
+              {
+                "event": {
+                  "action": [
+                    "changed-system-time"
+                  ],
+                  "category": [
+                    "host"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "lremovexattr": [
+              {
+                "event": {
+                  "action": [
+                    "changed-file-attributes-of"
+                  ],
+                  "category": [
+                    "file"
+                  ],
+                  "type": [
+                    "change"
+                  ]
+                }
+              }
+            ],
+            "rmdir": [
+              {
+                "event": {
+                  "type": [
+                    "deletion"
+                  ],
+                  "action": [
+                    "deleted"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ],
+            "utimes": [
+              {
+                "event": {
+                  "type": [
+                    "info"
+                  ],
+                  "action": [
+                    "changed-timestamp-of"
+                  ],
+                  "category": [
+                    "file"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "source": "boolean hasFields(HashMap base, def list) {\n  if (list == null) return true;\n  for (int i=0; i<list.length; i++)\n    if (base[list[i]] == null) return false;\n  return true;\n}\n\nif (ctx?.auditd?.log?.record_type == null) {\n  return;\n}\n\nHashMap base = ctx.auditd.log;\ndef acts = params.types.get(base.record_type);\n\nif (acts == null && base.syscall != null) {\n  acts = params.syscalls.get(base?.syscall);\n  if (acts == null) acts = params.syscalls.get('*');\n}\n\nif (acts == null) return;\n\ndef act = null;\nfor (int i=0; act == null && i<acts.length; i++) {\n  if (hasFields(base, acts[i][\"has_fields\"])) act = acts[i];\n}\n\nif (act?.event != null) {\n  def hm = new HashMap(act.event);\n  hm.forEach((k, v) -> ctx.event[k] = v);\n}\n\nif (act?.copy != null) {\n  List lst = new ArrayList();\n  for(int i=0; i<act.copy.length; i++) {\n    def value;\n    def srcList = act.copy[i][\"from\"];\n    for (int j=0; value == null && j<srcList.length; j++) {\n      value = base[srcList[j]];\n    }\n    if (value != null && value instanceof String) {\n      String suffix = value ==~ /[0-9]+/? \".id\" : \".name\";\n      lst.add([\n        \"target\": act.copy[i][\"to\"] + suffix,\n        \"value\": value\n      ]);\n    }\n  }\n  if (lst.size() > 0) {\n    ctx.auditd.log[\"copy\"] = lst;\n  }\n}\n"
+      }
+    },
+    {
+      "foreach": {
+        "field": "auditd.log.copy",
+        "ignore_missing": true,
+        "processor": {
+          "set": {
+            "field": "{{_ingest._value.target}}",
+            "value": "{{_ingest._value.value}}"
+          }
+        }
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'SYSTEM_BOOT' || ctx.auditd.log?.record_type == 'SYSTEM_SHUTDOWN'",
+        "field": "event.category",
+        "value": "host"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'SYSTEM_BOOT' || ctx.auditd.log?.record_type == 'SYSTEM_SHUTDOWN'",
+        "field": "event.type",
+        "value": "info"
+      }
+    },
+    {
+      "set": {
+        "field": "event.category",
+        "value": "process",
+        "if": "ctx.auditd.log?.record_type == 'SYSCALL' && ctx.auditd.log?.syscall == 'execve'"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'SYSCALL' && ctx.auditd.log?.syscall == 'execve'",
+        "field": "event.type",
+        "value": "info"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'VIRT_CONTROL' || ctx.auditd.log?.record_type == 'VIRT_MACHINE_ID'",
+        "field": "event.category",
+        "value": "host"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'VIRT_CONTROL' && ctx.auditd.log?.op == 'start'",
+        "field": "event.type",
+        "value": "start"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'VIRT_CONTROL' && ctx.auditd.log?.op == 'stop'",
+        "field": "event.type",
+        "value": "end"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'VIRT_CONTROL' && ctx.auditd.log?.op == 'create'",
+        "field": "event.type",
+        "value": "creation"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'VIRT_CONTROL' && ctx.auditd.log?.op == 'delete'",
+        "field": "event.type",
+        "value": "deletion"
+      }
+    },
+    {
+      "set": {
+        "field": "event.type",
+        "value": "creation",
+        "if": "ctx.auditd.log?.record_type == 'VIRT_MACHINE_ID'"
+      }
+    },
+    {
+      "set": {
+        "ignore_empty_value": true,
+        "if": "ctx.auditd.log?.record_type == 'VIRT_MACHINE_ID'",
+        "field": "container.name",
+        "value": "{{ auditd.log.vm }}"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'VIRT_MACHINE_ID'",
+        "field": "container.runtime",
+        "value": "{{ auditd.log.virt }}",
+        "ignore_empty_value": true
+      }
+    },
+    {
+      "set": {
+        "value": "ingress",
+        "if": "ctx.auditd.log?.record_type == 'SYSCALL' && ( ctx.auditd.log?.syscall == 'accept' || ctx.auditd.log?.syscall == '43' || ctx.auditd.log?.syscall == 'recvfrom' || ctx.auditd.log?.syscall == '45' || ctx.auditd.log?.syscall == 'recvmsg' || ctx.auditd.log?.syscall == '47' || ctx.auditd.log?.syscall == 'accept4' || ctx.auditd.log?.syscall == '288' )",
+        "field": "network.direction"
+      }
+    },
+    {
+      "set": {
+        "if": "ctx.auditd.log?.record_type == 'SYSCALL' && ( ctx.auditd.log?.syscall == 'connect' || ctx.auditd.log?.syscall == '42' || ctx.auditd.log?.syscall == 'sendto' || ctx.auditd.log?.syscall == '44' || ctx.auditd.log?.syscall == 'sendmsg' || ctx.auditd.log?.syscall == '46')",
+        "field": "network.direction",
+        "value": "egress"
+      }
+    },
+    {
+      "rename": {
+        "field": "auditd.log.arch",
+        "target_field": "host.architecture",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.acct",
+        "target_field": "user.name"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.user",
+        "target_field": "user.name"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.uid",
+        "target_field": "user.id"
+      }
+    },
+    {
+      "rename": {
+        "field": "auditd.log.gid",
+        "target_field": "user.group.id",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "target_field": "user.audit.group.id",
+        "ignore_failure": true,
+        "field": "auditd.log.agid"
+      }
+    },
+    {
+      "rename": {
+        "target_field": "user.audit.id",
+        "ignore_failure": true,
+        "field": "auditd.log.auid"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.fsgid",
+        "target_field": "user.filesystem.group.id"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.fsuid",
+        "target_field": "user.filesystem.id"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.egid",
+        "target_field": "user.effective.group.id"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.euid",
+        "target_field": "user.effective.id"
+      }
+    },
+    {
+      "rename": {
+        "target_field": "user.saved.group.id",
+        "ignore_failure": true,
+        "field": "auditd.log.sgid"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.suid",
+        "target_field": "user.saved.id"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.ogid",
+        "target_field": "user.owner.group.id"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.ouid",
+        "target_field": "user.owner.id"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.comm",
+        "target_field": "process.name"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.exe",
+        "target_field": "process.executable"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.pid",
+        "target_field": "process.pid"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.ppid",
+        "target_field": "process.ppid"
+      }
+    },
+    {
+      "convert": {
+        "ignore_missing": true,
+        "field": "process.pid",
+        "type": "long"
+      }
+    },
+    {
+      "convert": {
+        "ignore_missing": true,
+        "field": "process.ppid",
+        "type": "long"
+      }
+    },
+    {
+      "rename": {
+        "field": "auditd.log.cmd",
+        "target_field": "process.args",
+        "ignore_failure": true
+      }
+    },
+    {
+      "split": {
+        "separator": "\\s+",
+        "ignore_failure": true,
+        "field": "process.args"
+      }
+    },
+    {
+      "rename": {
+        "target_field": "process.args_count",
+        "ignore_failure": true,
+        "field": "auditd.log.argc"
+      }
+    },
+    {
+      "script": {
+        "if": "ctx?.process?.args != null",
+        "lang": "painless",
+        "source": "if (ctx.process.args instanceof List) {\n  ctx.process.args_count = ctx.process.args.length;\n}"
+      }
+    },
+    {
+      "convert": {
+        "ignore_missing": true,
+        "field": "process.args_count",
+        "type": "long"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.exit",
+        "target_field": "process.exit_code"
+      }
+    },
+    {
+      "convert": {
+        "ignore_missing": true,
+        "field": "process.exit_code",
+        "type": "long"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.cwd",
+        "target_field": "process.working_directory"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.terminal",
+        "target_field": "user.terminal"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.msg",
+        "target_field": "message"
+      }
+    },
+    {
+      "rename": {
+        "field": "auditd.log.res",
+        "target_field": "event.outcome",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "field": "auditd.log.record_type",
+        "target_field": "event.action",
+        "ignore_failure": true
+      }
+    },
+    {
+      "lowercase": {
+        "field": "event.action",
+        "ignore_failure": true
+      }
+    },
+    {
+      "rename": {
+        "target_field": "source.address",
+        "ignore_failure": true,
+        "field": "auditd.log.src"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.addr",
+        "target_field": "source.address",
+        "if": "ctx?.source?.address == null"
+      }
+    },
+    {
+      "rename": {
+        "ignore_failure": true,
+        "field": "auditd.log.dst",
+        "target_field": "destination.address"
+      }
+    },
+    {
+      "grok": {
+        "field": "source.address",
+        "patterns": [
+          "^%{IP:source.ip}$"
+        ],
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "field": "source.ip",
+        "target_field": "source.geo",
+        "ignore_failure": true
+      }
+    },
+    {
+      "geoip": {
+        "database_file": "GeoLite2-ASN.mmdb",
+        "field": "source.ip",
+        "target_field": "source.as",
+        "properties": [
+          "asn",
+          "organization_name"
+        ],
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "source.as.asn",
+        "target_field": "source.as.number",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "target_field": "source.as.organization.name",
+        "ignore_missing": true,
+        "field": "source.as.organization_name"
+      }
+    },
+    {
+      "remove": {
+        "field": [
+          "auditd.log.kv",
+          "auditd.log.sub_kv",
+          "auditd.log.epoch",
+          "auditd.log.copy"
+        ],
+        "ignore_failure": true,
+        "ignore_missing": true
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "field": "error.message",
+        "value": "{{ _ingest.on_failure_message }}"
+      }
+    }
+  ]
+}
