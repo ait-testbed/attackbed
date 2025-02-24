@@ -6,6 +6,15 @@ locals {
 #
 # CREATE INSTANCE for "ADMINPC"
 #
+
+data "external" "lan_uuid" {
+  program = ["bash", "./fetch_network_uuid.sh"]
+
+  query = {
+    network_name = "lan"
+  }
+}
+
 data "template_file" "userdata_adminpc" {
   template = "${file("${local.ext_adminpc_userdata_file}")}"
 }
