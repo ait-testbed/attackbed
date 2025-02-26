@@ -11,7 +11,7 @@ data "external" "lan_uuid" {
   program = ["bash", "./fetch_network_uuid.sh"]
 
   query = {
-    network_name = "lan"
+    network_name = "admin"
   }
 }
 
