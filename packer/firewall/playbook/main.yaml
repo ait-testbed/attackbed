@@ -83,6 +83,7 @@
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER:22", proto: tcp, dest_port: 10022 }
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 3389 }
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 4501 }
+            - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 5901 }
             - Reposerver to Linux-Share
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 1881 }
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
