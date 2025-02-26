@@ -50,18 +50,18 @@
          - install
          - playbooks
 
-    # - name: "Run Scenario 3 a a"
-    #   become: True
-    #   become_user: "{{attacker_user}}"
-    #   ansible.builtin.shell:
-    #       cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml"
-    #       chdir: "{{user_home.stdout}}"
-    #   tags:
-    #      - scenario_3_a_a
-    #      - metasploit
-    #      - attackmate
-    #      - exploit
-    
+    - name: "Run Scenario 3 a a"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_a_a
+         - metasploit
+         - attackmate
+         - exploit
+
     - name: "Run Scenario 3 a b"
       become: True
       become_user: "{{attacker_user}}"
@@ -74,39 +74,39 @@
          - attackmate
          - exploit
 
-    # - name: "Run Scenario 3 b"
-    #   become: True
-    #   become_user: "{{attacker_user}}"
-    #   ansible.builtin.shell:
-    #       cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml"
-    #       chdir: "{{user_home.stdout}}"
-    #   tags:
-    #      - scenario_3_b
-    #      - metasploit
-    #      - attackmate
-    #      - exploit
-          
-    # - name: "Run Scenario 3 c"
-    #   become: True
-    #   become_user: "{{attacker_user}}"
-    #   ansible.builtin.shell:
-    #       cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml"
-    #       chdir: "{{user_home.stdout}}"
-    #   tags:
-    #      - scenario_3_c
-    #      - metasploit
-    #      - attackmate
-    #      - exploit
-
-    # - name: "Run Scenario 3 d"
-    #   become: True
-    #   become_user: "{{attacker_user}}"
-    #   ansible.builtin.shell:
-    #       cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml"
-    #       chdir: "{{user_home.stdout}}"
-    #   tags:
-    #      - scenario_3_d
-    #      - metasploit
-    #      - attackmate
-    #      - exploit
+    - name: "Run Scenario 3 b"
+      become: True
+     become_user: "{{attacker_user}}"
+     ansible.builtin.shell:
+         cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml"
+         chdir: "{{user_home.stdout}}"
+     tags:
+        - scenario_3_b
+        - metasploit
+        - attackmate
+        - exploit
+         
+    - name: "Run Scenario 3 c"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_c
+         - metasploit
+         - attackmate
+         - exploit
+         
+    - name: "Run Scenario 3 d"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_d
+         - metasploit
+         - attackmate
+         - exploit
 
