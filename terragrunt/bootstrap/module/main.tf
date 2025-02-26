@@ -69,7 +69,7 @@ resource "openstack_compute_instance_v2" "inet-dns" {
   user_data    = local.ext_dns_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdns[0].rendered
 
   network {
-    name = "internet"
+    uuid = "${openstack_networking_network_v2.internet.id}"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],514)
   }
 
@@ -220,27 +220,27 @@ resource "openstack_compute_instance_v2" "inet-fw" {
   user_data    = local.fw_userdata_file == null ? null : data.template_cloudinit_config.cloudinitinetfw[0].rendered
 
   network {
-    name = "internet"
+    uuid = "${openstack_networking_network_v2.internet.id}"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],254)
   }
 
   network {
-    name = "lan"
+    uuid = "${openstack_networking_network_v2.lan.id}"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["lan"],254)
   }
 
   network {
-    name = "dmz"
+    uuid = "${openstack_networking_network_v2.dmz.id}"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["dmz"],254)
   }
 
   network {
-    name = "admin"
+    uuid = "${openstack_networking_network_v2.admin.id}"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["admin"],254)
   }
 
   network {
-    name = "user"
+    uuid = "${openstack_networking_network_v2.user.id}"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["user"],254)
   }
 
@@ -298,29 +298,31 @@ resource "openstack_compute_instance_v2" "mgmt" {
   user_data    = local.mgmt_userdata_file == null ? null : data.template_cloudinit_config.cloudinitmgmt[0].rendered
 
   network {
-    name = "internet"
+    uuid = "${openstack_networking_network_v2.internet.id}"
     fixed_ip_v4 = local.mgmt_ips.internet
   }
 
   network {
-    name = "lan"
+    uuid = "${openstack_networking_network_v2.lan.id}"
     fixed_ip_v4 = local.mgmt_ips.lan
   }
 
   network {
-    name = "dmz"
+    uuid = "${openstack_networking_network_v2.dmz.id}"
     fixed_ip_v4 = local.mgmt_ips.dmz
   }
 
+
   network {
-    name = "admin"
+    uuid = "${openstack_networking_network_v2.admin.id}"
     fixed_ip_v4 = local.mgmt_ips.admin
   }
 
   network {
-    name = "user"
+    uuid = "${openstack_networking_network_v2.user.id}"
     fixed_ip_v4 = local.mgmt_ips.user
   }
+
 
   depends_on = [
      openstack_networking_network_v2.dmz,
