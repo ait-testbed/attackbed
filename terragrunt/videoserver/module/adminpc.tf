@@ -7,7 +7,7 @@ locals {
 # CREATE INSTANCE for "ADMINPC"
 #
 
-data "external" "lan_uuid" {
+data "external" "admin_uuid" {
   program = ["bash", "./fetch_network_uuid.sh"]
 
   query = {
@@ -44,7 +44,7 @@ resource "openstack_compute_instance_v2" "adminpc" {
   user_data    = local.ext_adminpc_userdata_file == null ? null : data.template_cloudinit_config.cloudinitadminpc[0].rendered
 
   network {
-    name = "admin"
+    uuid = "${data.external.admin_uuid.result.uuid}"
     fixed_ip_v4 = cidrhost(var.admin_cidr,222)
   }
 
