@@ -18,6 +18,7 @@ We also need the Gitlab-user and Gitlab-token to store the OpenTofu state. We st
     echo "" >> .env
     echo "export CR_GITLAB_ACCESS_TOKEN=YOURTOKEN" >> .env
     echo "export GITLAB_USERNAME=YOURUSERNAME" >> .env
+    echo "export GITLAB_STATE_REPOSITORY=YOURSTATEREPO" >> .env
 
 Finally we also need a remote username for ansible:
 
