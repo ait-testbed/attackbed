@@ -9,7 +9,9 @@ terraform {
 
 inputs = {
   sshkey = "testbed-key"
-  reposerver_image = "atb-repository-image-2023-10-11T12-22-24Z"
+  reposerver_image = "atb-repository-2025-02-24T13-16-52Z"
+  adminpc_iamge = "atb-adminpc-image-2025-02-06T12-22-47Z"
+  linuxshare_image = "image atb-linuxshare-2025-02-24T14-36-42Z"
 } 
 
 
