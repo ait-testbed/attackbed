@@ -11,4 +11,3 @@ remote_state {
     retry_wait_min = "5"
   }
 }
-
