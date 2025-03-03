@@ -1,11 +1,19 @@
 - name: Install ClientPC
   hosts: all
   become: true
+  vars:
+    linux_user: "judy"
   tasks:
           - name: Allow password login
             ansible.builtin.copy:
               dest: /etc/ssh/sshd_config.d/password.conf
               content: 'PasswordAuthentication yes'
+          - name: Copy ODT document to the host
+            ansible.builtin.copy:
+              src: Nutzungshinweise.odt  
+              dest: /home/{{ linux_user }}/Documents/Nutzungshinweise.odt
+              mode: '0644'
+
   roles:
           - role: aeciduser
             vars:
@@ -16,13 +24,20 @@
                   aecidtools_user: "aecid"
           - role: weaklinuxuser
             vars: 
-                  weaklinuxuser_user: "judy"
+                  weaklinuxuser_user: "{{ linux_user}}"
                   weaklinuxuser_pass: "garland"
-                  weaklinuxuser_sudo: False
+                  weaklinuxuser_sudo: True
           - role: thunderbird
             vars:
-                  thunderbird_user: "judy"
+                  thunderbird_user: "{{ linux_user}}"
                   populate_emails: true
+          - role: firefox-home
+            vars:
+                  install_user: "{{ linux user }}"
+          - role: libreoffice
+            vars:
+                  disable_macros_execution: false
+                  macro_security_level: 'low'
           - role: mate-desktop
           - role: novnc
 
