@@ -10,7 +10,12 @@ write_files:
       owner: root:root
       path: /root/ifsetup.sh
       permissions: '0700'
+bootcmd:
+  - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
 runcmd:
-  - [ /root/ifsetup.sh ]
+  -  [echo, "nameserver ${dns_server_address}", >, /etc/resolv.conf]
+  -  [ /root/ifsetup.sh ]
   -  [apt-get, update]
   -  [apt-get, install, -y, python]
+
+

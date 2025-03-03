@@ -18,7 +18,12 @@ data "openstack_networking_router_v2" "router" {
 #
 data "template_file" "userdata_client" {
   template = "${file("${local.client_userdata_file}")}"
+  vars = {
+      dns_server_address = "${openstack_compute_instance_v2.inet-dns.access_ip_v4}"
+  }
 }
+
+
 
 data "template_cloudinit_config" "cloudinitclient" {
   count         = local.client_userdata_file == null ? 0 : 1
