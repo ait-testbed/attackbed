@@ -11,7 +11,7 @@
           - name: Copy ODT document to the host
             ansible.builtin.copy:
               src: Nutzungshinweise.odt  
-              dest: /home/{{ linux_user }}/Documents/Nutzungshinweise.odt
+              dest: "/home/{{ linux_user }}/Nutzungshinweise.odt"
               mode: '0644'
 
   roles:
@@ -27,19 +27,27 @@
                   weaklinuxuser_user: "{{ linux_user}}"
                   weaklinuxuser_pass: "garland"
                   weaklinuxuser_sudo: True
+          - role: firefox-home
+            vars:
+            vars:
+                  install_user: "{{ linux_user }}"
           - role: thunderbird
             vars:
                   thunderbird_user: "{{ linux_user}}"
                   populate_emails: true
-          - role: firefox-home
-            vars:
-                  install_user: "{{ linux user }}"
           - role: libreoffice
             vars:
                   disable_macros_execution: false
                   macro_security_level: 'low'
           - role: mate-desktop
           - role: novnc
+          - role: tightvnc
+            vars:
+                  vnc_user: "judy"
+                  vnc_password: "garland"
+                  vnc_display: ":1"
+                  vnc_port: 5901
+
 
 
 

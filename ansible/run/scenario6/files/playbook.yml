@@ -36,7 +36,7 @@
 
     - name: Configure public DNS
       ansible.builtin.copy:
-        content: "address=/faaacebook.com/{{ attacker_ip }}\n"
+        content: "address=/facebock.com/{{ attacker_ip }}\n"
         owner: root
         dest: /etc/dnsmasq.d/attacker.conf
       delegate_to: inetdns

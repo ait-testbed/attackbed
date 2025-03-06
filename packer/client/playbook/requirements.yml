@@ -23,5 +23,8 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-firefox-home.git
     version: main
     name: firefox-home
+  - src: https://github.com/ait-testbed/atb-ansible-tightvnc.git
+    version: v1.0.0
+    name: tightvnc
 
 
