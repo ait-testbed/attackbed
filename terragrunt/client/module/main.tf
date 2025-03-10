@@ -3,7 +3,8 @@ terraform {
 }
 
 locals {
-  client_userdata_file = var.client_userdata == null ? "${path.module}/scripts/default.yml" : var.client_userdata
+  client_userdata_file    = var.client_userdata == null ? "${path.module}/scripts/clientinit.yml" : var.client_userdata
+
 }
 
 

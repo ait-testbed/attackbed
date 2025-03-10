@@ -50,3 +50,10 @@ variable "subnet_cidrs" {
     user = "192.168.50.0/24"
   }
 }
+
+variable "fw_proxy_port" {
+  description = "The proxy server address"
+  type        = string
+  default     = "192.168.50.254:3128"
+}
+
