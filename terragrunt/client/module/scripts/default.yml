@@ -14,8 +14,8 @@ write_files:
   # Configure APT Proxy
   - path: /etc/apt/apt.conf.d/95proxy
     content: |
-      Acquire::http::Proxy "http://${attacker_proxy_port}/";
-      Acquire::https::Proxy "http://${attacker_proxy_port}/";
+      Acquire::http::Proxy "http://${fw_proxy_port}/";
+      Acquire::https::Proxy "http://${fw_proxy_port}/";
     owner: root:root
     permissions: '0644'
 

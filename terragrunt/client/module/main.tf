@@ -20,7 +20,7 @@ data "template_file" "userdata_client" {
   template = "${file("${local.client_userdata_file}")}"
   vars = {
       dns_server_address = cidrhost(var.subnet_cidrs["user"], var.client_dns)
-      attacker_proxy_port = "192.42.1.174:3128"
+      fw_proxy_port = "192.168.50.254:3128"
   }
 }
 
