@@ -25,6 +25,12 @@ variable "client_image" {
   description = "image of the client"
 }
 
+variable "client_dns" {
+  type        = string
+  description = "DNS-Server to use. Only the last ip-segment"
+  default     = "254"
+}
+
 variable "sshkey" {
   type        = string
   description = "ssh-key for administration"

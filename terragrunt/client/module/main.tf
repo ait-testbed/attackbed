@@ -19,7 +19,8 @@ data "openstack_networking_router_v2" "router" {
 data "template_file" "userdata_client" {
   template = "${file("${local.client_userdata_file}")}"
   vars = {
-      dns_server_address = "${openstack_compute_instance_v2.inet-dns.access_ip_v4}"
+      dns_server_address = cidrhost(var.subnet_cidrs["user"], var.client_dns)
+      attacker_proxy_port = "192.42.1.174:3128"
   }
 }
 
@@ -51,8 +52,8 @@ resource "openstack_compute_instance_v2" "client" {
 
 
   network {
-    name = "dmz"
-    fixed_ip_v4 = cidrhost(var.subnet_cidrs["dmz"],100)
+    name = "user"
+    fixed_ip_v4 = cidrhost(var.subnet_cidrs["user"],100)
   }
 
 }

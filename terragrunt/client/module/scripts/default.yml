@@ -10,6 +10,15 @@ write_files:
       owner: root:root
       path: /root/ifsetup.sh
       permissions: '0700'
+
+  # Configure APT Proxy
+  - path: /etc/apt/apt.conf.d/95proxy
+    content: |
+      Acquire::http::Proxy "http://${attacker_proxy_port}/";
+      Acquire::https::Proxy "http://${attacker_proxy_port}/";
+    owner: root:root
+    permissions: '0644'
+
 bootcmd:
   - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
 runcmd:
@@ -17,5 +26,6 @@ runcmd:
   -  [ /root/ifsetup.sh ]
   -  [apt-get, update]
   -  [apt-get, install, -y, python]
+  -  [apt-get, install, -y, dnsmasq]
 
 

@@ -29,7 +29,7 @@ variable "ext_router" {
 variable "inetdns_flavor" {
   type        = string
   description = "flavor of the internet dns server"
-  default     = "m1.small"
+  default     = "d2-2"
 }
 
 variable "inetdns_image" {
@@ -50,7 +50,7 @@ variable "inetfw_image" {
 variable "inetfw_flavor" {
   type        = string
   description = "flavor of the internet firewall"
-  default     = "m1.small"
+  default     = "d2-2"
 }
 
 variable "mgmt_image" {
@@ -61,7 +61,7 @@ variable "mgmt_image" {
 variable "mgmt_flavor" {
   type        = string
   description = "flavor of the management host"
-  default     = "m1.small"
+  default     = "d2-2"
 }
 
 variable "inet_dns" {
