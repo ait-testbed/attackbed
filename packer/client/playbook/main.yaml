@@ -29,7 +29,6 @@
                   weaklinuxuser_sudo: True
           - role: firefox-home
             vars:
-            vars:
                   install_user: "{{ linux_user }}"
           - role: thunderbird
             vars:
