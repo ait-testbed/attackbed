@@ -40,7 +40,6 @@
       tags:
         - playbooks
 
-
     - name: Install clipboard utilities on client
       ansible.builtin.apt:
         pkg:
@@ -60,9 +59,11 @@
       tags:
         - clipboard
 
-    - name: Configure public DNS
+    - name: Configure public DNS for redirection
       ansible.builtin.copy:
-        content: "address=/facebock.com/{{ attacker_ip }}\n"
+        content: |
+          address=/facebook.com/{{ attacker_ip }}
+          address=/suspicious-website.com/{{ attacker_ip }}
         owner: root
         dest: /etc/dnsmasq.d/attacker.conf
       delegate_to: inetdns
@@ -70,15 +71,6 @@
       tags:
         - playbooks
 
-    - name: Configure public DNS
-      ansible.builtin.copy:
-        content: "address=/suspicious-website.com/{{ attacker_ip }}\n"
-        owner: root
-        dest: /etc/dnsmasq.d/attacker.conf
-      delegate_to: inetdns
-      notify: restart dnsmasq
-      tags:
-        - playbooks
 
     - name: Copy serverscript
       become: True
