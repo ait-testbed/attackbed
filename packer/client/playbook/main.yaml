@@ -3,16 +3,76 @@
   become: true
   vars:
     linux_user: "judy"
+    proxy_address: "192.168.50.254"
+    proxy_port: "3128"
+  
   tasks:
-          - name: Allow password login
-            ansible.builtin.copy:
-              dest: /etc/ssh/sshd_config.d/password.conf
-              content: 'PasswordAuthentication yes'
-          - name: Copy ODT document to the host
-            ansible.builtin.copy:
-              src: Nutzungshinweise.odt  
-              dest: "/home/{{ linux_user }}/Nutzungshinweise.odt"
-              mode: '0644'
+    - name: Allow password login
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/password.conf
+        content: 'PasswordAuthentication yes'
+
+    - name: Copy ODT document to the host
+      ansible.builtin.copy:
+        src: Nutzungshinweise.odt  
+        dest: "/home/{{ linux_user }}/Nutzungshinweise.odt"
+        mode: '0644'
+
+    # Add proxy to /etc/environment
+    - name: Add HTTP proxy to /etc/environment
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        line: 'HTTP_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+    - name: Add HTTPS proxy to /etc/environment
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        line: 'HTTPS_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.bashrc
+    - name: Add HTTP proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export HTTP_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    - name: Add HTTPS proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export HTTPS_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    # Add proxy to /etc/apt/apt.conf.d/95proxy
+    - name: Add HTTP proxy to APT config
+      ansible.builtin.lineinfile:
+        path: /etc/apt/apt.conf.d/95proxy
+        line: 'Acquire::http::Proxy "http://{{ proxy_address }}:{{ proxy_port }}/";'
+        create: yes
+        state: present
+
+    - name: Add HTTPS proxy to APT config
+      ansible.builtin.lineinfile:
+        path: /etc/apt/apt.conf.d/95proxy
+        line: 'Acquire::https::Proxy "http://{{ proxy_address }}:{{ proxy_port }}/";'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.curlrc
+    - name: Add proxy to ~/.curlrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.curlrc"
+        line: 'proxy = "http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
 
   roles:
           - role: aeciduser
@@ -28,8 +88,11 @@
                   weaklinuxuser_pass: "garland"
                   weaklinuxuser_sudo: True
           - role: firefox-home
-            vars:
+            vars: 
+                  firefox_proxy_address: "{{ proxy_address }}"
+                  firefox_proxy_port: "{{ proxy_port }}"
                   install_user: "{{ linux_user }}"
+                  allow_unsigned_extensions: true
           - role: thunderbird
             vars:
                   thunderbird_user: "{{ linux_user}}"
