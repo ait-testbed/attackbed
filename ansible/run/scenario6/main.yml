@@ -3,7 +3,9 @@
   become: true
   vars:
     attacker_user: aecid
+    client_user: judy
     attacker_ip: 192.42.1.174
+    ansible_ssh_private_key_file: ~/.ssh/testbed
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -40,7 +42,22 @@
       tags:
         - playbooks
 
+
+    - name: Add attacker IP to DNS
+      ansible.builtin.copy:
+        content: |
+          address=/facebook.com/{{ attacker_ip }}
+          address=/suspicious-website.com/{{ attacker_ip }}
+        owner: root
+        dest: /etc/dnsmasq.d/attacker.conf
+      notify: restart dnsmasq
+      delegate_to: inetdns
+      tags:
+        - playbooks
+
+
     - name: Install clipboard utilities on client
+      become_user: "{{ client_user }}"
       ansible.builtin.apt:
         pkg:
           - xclip
@@ -48,45 +65,25 @@
         state: present
       delegate_to: client
       tags:
-        - clipboard
-
-    - name: Copy dummy data to clipboard on client
-      ansible.builtin.shell: |
-        echo "This is some dummy clipboard data" | xclip -selection clipboard
-      args:
-        executable: /bin/bash
-      delegate_to: client
-      tags:
-        - clipboard
-
-    - name: Configure public DNS for redirection
-      ansible.builtin.copy:
-        content: |
-          address=/facebook.com/{{ attacker_ip }}
-          address=/suspicious-website.com/{{ attacker_ip }}
-        owner: root
-        dest: /etc/dnsmasq.d/attacker.conf
-      delegate_to: inetdns
-      notify: restart dnsmasq
-      tags:
         - playbooks
+        - clipboard
+
+
 
 
     - name: Copy serverscript
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.template:
-          src: "server.py"
-          dest: "{{user_home.stdout}}/server.py.yml"
+          src: "http_server.py"
+          dest: "{{user_home.stdout}}/http_server.py"
           mode: '0755'
-      loop:
-          - scenario_6
       tags:
          - playbooks
 
     - name: Run server.py with Python
       ansible.builtin.shell: >
-        nohup python3 {{ user_home.stdout }}/server.py &
+        nohup python3 {{ user_home.stdout }}/http_server.py &
       args:
         executable: /bin/bash
       tags:
@@ -100,7 +97,7 @@
           dest: "{{user_home.stdout}}/{{ item }}.yml"
           mode: '0755'
       loop:
-          - scenario_6
+          - scenario_6_a
       tags:
          - playbooks
 
