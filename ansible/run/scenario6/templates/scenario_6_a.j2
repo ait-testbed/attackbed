@@ -31,18 +31,20 @@ commands:
     background: true
     kill_on_exit: true
 
-  - type: sleep
-    min_sec: 2
-    seconds: 5
-    random: True
-
   - type: debug
     cmd: Open Office-Document now!
+
+  - type: sleep
+    seconds: 120
+
+
 
   # run commands via reverse shell
   - type: msf-session
     stdapi: true
     session: revshell
     cmd: sysinfo
+
+
 
   
