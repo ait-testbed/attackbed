@@ -92,6 +92,8 @@
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
             - Usernet access to Squid proxy (3128/tcp) on the firewall
             - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
+            - Usernet access for reverse tcp (4443/tcp) to the attacker machine 
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 4443 }
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }
