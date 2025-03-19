@@ -42,10 +42,27 @@
         state: present
         insertafter: EOF
 
+    # Add proxy to ~/.bashrc
+    - name: Add HTTP proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export http_proxy="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
     - name: Add HTTPS proxy to ~/.bashrc
       ansible.builtin.lineinfile:
         path: "/home/{{ linux_user }}/.bashrc"
         line: 'export HTTPS_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    - name: Add HTTPS proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export https_proxy="http://{{ proxy_address }}:{{ proxy_port }}"'
         create: yes
         state: present
         insertafter: EOF
