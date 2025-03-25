@@ -6,6 +6,7 @@
     client_user: judy
     attacker_ip: 192.42.1.174
     ansible_ssh_private_key_file: ~/.ssh/testbed
+    attacker_user: aecid
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -46,7 +47,7 @@
     - name: Add attacker IP to DNS
       ansible.builtin.copy:
         content: |
-          address=/facebook.com/{{ attacker_ip }}
+          address=/facebock.com/{{ attacker_ip }}
           address=/suspicious-website.com/{{ attacker_ip }}
         owner: root
         dest: /etc/dnsmasq.d/attacker.conf
@@ -55,8 +56,38 @@
       tags:
         - playbooks
 
+    - name: Generate SSH key pair for attacker
+      ansible.builtin.openssh_keypair:
+        path: "{{ user_home.stdout }}/.ssh/attacker"
+        type: rsa
+        size: 4096
+        owner: "{{ attacker_user }}"
+        group: "{{ attacker_user }}"
+        mode: '0600'
+      tags:
+        - ssh
 
+    - name: Read SSH public key from attacker
+      become: yes
+      ansible.builtin.slurp:
+        src: "{{ user_home.stdout }}/.ssh/attacker.pub"
+      register: ssh_key
+      tags:
+        - ssh
+    
+    - name: Add public key to mgmt's authorized_keys
+      become: yes
+      ansible.builtin.authorized_key:
+        user: aecid
+        state: present
+        key: "{{ ssh_key.content | b64decode }}"
+      delegate_to: mgmt
+      tags:
+        - ssh
+
+ 
     - name: Install clipboard utilities on client
+      become: true
       become_user: "{{ client_user }}"
       ansible.builtin.apt:
         pkg:
@@ -98,6 +129,7 @@
           mode: '0755'
       loop:
           - scenario_6_a
+          - scenario_6_b
       tags:
          - playbooks
 
@@ -113,3 +145,14 @@
          - attackmate
          - exploit
 
+    - name: "Run Scenario 6 b"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_6_b
+         - metasploit
+         - attackmate
+         - exploit
