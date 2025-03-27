@@ -1,0 +1,33 @@
+- name: Upgrade Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+    ansible_ssh_private_key_file: ~/.ssh/testbed
+  tasks:
+    - name: Ensure LightDM configuration directory exists
+      ansible.builtin.file:
+        path: /etc/lightdm
+        state: directory
+        mode: '0755'
+
+    - name: Enable autologin for LightDM
+      ansible.builtin.copy:
+        dest: /etc/lightdm/lightdm.conf
+        content: |
+          [Seat:*]
+          autologin-user={{ attacker_user }}
+          autologin-user-timeout=0
+        mode: '0644'
+
+    - name: Ensure ownership of .config is aecid:aecid
+      file:
+        path: /home/aecid/.config
+        owner: aecid
+        group: aecid
+        recurse: yes
+
+  roles:
+    - role: mate-desktop
+    - role: novnc

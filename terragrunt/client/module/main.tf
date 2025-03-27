@@ -3,10 +3,9 @@ terraform {
 }
 
 locals {
-  client_userdata_file    = var.client_userdata == null ? "${path.module}/scripts/clientinit.yml" : var.client_userdata
+  client_userdata_file  = var.client_userdata == null ? "${path.module}/scripts/clientinit.yml" : var.client_userdata
 
 }
-
 
 data "openstack_networking_router_v2" "router" {
   name = var.ext_router
@@ -21,7 +20,7 @@ data "template_file" "userdata_client" {
   template = "${file("${local.client_userdata_file}")}"
   vars = {
       dns_server_address = cidrhost(var.subnet_cidrs["user"], var.client_dns)
-      fw_proxy_port = "192.168.50.254:3128"
+      fw_proxy_port = var.fw_proxy_port
   }
 }
 

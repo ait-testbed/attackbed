@@ -27,6 +27,7 @@
       register: user_home
       tags:
         - playbooks
+        - copy
 
     - name: Install dependencies
       ansible.builtin.apt:
@@ -100,8 +101,6 @@
         - clipboard
 
 
-
-
     - name: Copy serverscript
       become: True
       become_user: "{{attacker_user}}"
@@ -130,8 +129,10 @@
       loop:
           - scenario_6_a
           - scenario_6_b
+          - test2
       tags:
          - playbooks
+         - copy
 
     - name: "Run Scenario 6 a"
       become: True

