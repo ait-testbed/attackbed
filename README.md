@@ -28,6 +28,12 @@ In this network scenario, the attacker starts with access to a repository server
 
 <img src="/docs/images/AttackBed-Network.png" alt="Network Scenario" style="width:600pt;"/>
 
+### LAN Turtle Scenario
+
+In the LAN Turtle scenario, an attacker introduces a rogue device into the internal network and performs an ARP spoofing attack to intercept traffic between a client (AdminPC) and the firewall. When the client connects to the VideoServer in the DMZ over HTTP, the attacker launches an SSL stripping attack to hijack the session. By stealing the session cookie, the attacker is able to impersonate the user and gain unauthorized access to the VideoServer's web interface in the DMZ.
+
+<img src="/docs/images/AttackBed-Lanturtle.png" alt="LAN Turtle Scenario" style="width:600pt;"/>
+
 ### MITRE Navigator
 
 The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
