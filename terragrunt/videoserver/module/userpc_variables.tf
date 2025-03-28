@@ -6,7 +6,7 @@ variable "userpc_image" {
 variable "userpc_flavor" {
   type        = string
   description = "flavor of the userpc host"
-  default     = "m1.small"
+  default     = "d2-2"
 }
 
 variable "userpc_userdata" {
