@@ -90,6 +90,46 @@
         create: yes
         state: present
 
+    # Add proxy to ~/.wgetrc
+    - name: Add http proxy to ~/.wgetrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.wgetrc"
+        line: 'http_proxy = "http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+   # Add proxy to ~/.wgetrc
+    - name: Add https proxy to ~/.wgetrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.wgetrc"
+        line: 'https_proxy = "https://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.wgetrc
+    - name: Add use proxy to ~/.wgetrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.wgetrc"
+        line: 'use_proxy = yes'
+        create: yes
+        state: present
+
+    - name: Ensure LightDM configuration directory exists
+      ansible.builtin.file:
+        path: /etc/lightdm
+        state: directory
+        mode: '0755'
+
+    - name: Enable autologin for LightDM
+      ansible.builtin.copy:
+        dest: /etc/lightdm/lightdm.conf
+        content: |
+          [Seat:*]
+          autologin-user={{ linux_user }}
+          autologin-user-timeout=0
+        mode: '0644'
+
+
 
   roles:
           - role: aeciduser
@@ -120,12 +160,6 @@
                   macro_security_level: 'low'
           - role: mate-desktop
           - role: novnc
-          - role: tightvnc
-            vars:
-                  vnc_user: "judy"
-                  vnc_password: "garland"
-                  vnc_display: ":1"
-                  vnc_port: 5901
 
 
 
