@@ -144,6 +144,7 @@
                   weaklinuxuser_user: "{{ linux_user}}"
                   weaklinuxuser_pass: "garland"
                   weaklinuxuser_sudo: True
+          - role: manage_unattended_upgrades
           - role: firefox-home
             vars: 
                   firefox_proxy_address: "{{ proxy_address }}"
