@@ -34,3 +34,4 @@ AttackBed Documenation
    scenarios/lateralmovement
    scenarios/network
    scenarios/lanturtle
+   scenarios/client
