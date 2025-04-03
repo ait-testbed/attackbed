@@ -1,0 +1,22 @@
+#!/bin/bash
+
+project_path="{{ attackmate_dir | default('/home/aecid/attackmate') }}"
+session="{{ attackmate_session | default('aecid') }}"
+window="{{ attackmate_window | default('attackmate') }}"
+
+tmux has-session -t ${session} 2> /dev/null
+if [ $? == "1" ]
+then
+        echo "Starting session..."
+	tmuxinator start ${session} --no-attach
+fi
+
+tmux select-window -t ${window} 2> /dev/null
+if [ $? == "1" ]
+then
+	echo "Create window"
+	tmux new-window -n ${window}
+	tmux send-keys -t "$session" "source ${project_path}/venv/bin/activate" Enter
+fi
+
+tmux send-keys -t "$pane" "attackmate --debug $@" Enter
