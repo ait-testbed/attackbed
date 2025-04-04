@@ -14,6 +14,7 @@
           - xclip
           - xsel
           - python3-pip
+          - golang-go
 
         update_cache: yes
 
