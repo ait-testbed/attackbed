@@ -17,7 +17,11 @@
 
         update_cache: yes
 
-        update_cache: yes
+tasks:
+    - name: Add Dummy Text to Clipboard using xclip
+      ansible.builtin.command:
+        cmd: echo "This is dummy clipboard data from Ansible" | xclip -selection clipboard
+
     - name: Allow password login
       ansible.builtin.copy:
         dest: /etc/ssh/sshd_config.d/password.conf
