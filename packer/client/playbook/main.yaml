@@ -5,8 +5,19 @@
     linux_user: "judy"
     proxy_address: "192.168.50.254"
     proxy_port: "3128"
-  
+
+
   tasks:
+    - name: Install Packages for Client
+      ansible.builtin.apt:
+        pkg:
+          - xclip
+          - xsel
+          - python3-pip
+
+        update_cache: yes
+
+        update_cache: yes
     - name: Allow password login
       ansible.builtin.copy:
         dest: /etc/ssh/sshd_config.d/password.conf
