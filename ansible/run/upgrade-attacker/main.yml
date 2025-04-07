@@ -23,7 +23,7 @@
 
     - name: Ensure ownership of .config is aecid:aecid
       file:
-        path: /home/aecid/.config
+        path: /home/{{ attacker_user }}/.config
         owner: aecid
         group: aecid
         recurse: yes

@@ -95,7 +95,11 @@
             - Usernet access for reverse tcp (4443/tcp) to the attacker machine 
             - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 4443 }
             - Usernet access to inet for rust-desk screen sharing
-            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21114, 21115,21116,21117,21118 }  
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21114} 
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21115 }
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21116 }
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21117 }
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21118 } 
             - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 8000 }  
             - { action: ACCEPT, source: user, dest: inet, proto: udp, dest_port: 21116 } 
             - Permit access to SSH

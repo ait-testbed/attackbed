@@ -1,0 +1,152 @@
+- name: Install veiltransfer server on  Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+    ansible_ssh_private_key_file: ~/.ssh/testbed
+    go_version: "1.22.12"
+    go_tarball: "go{{ go_version }}.linux-amd64.tar.gz"
+    go_url: "https://go.dev/dl/{{ go_tarball }}"
+    server_binary_name: "veiltransfer_server_linux"
+    client_binary_name: "veiltransfer_client_linux"
+    install_bin_dir: "/usr/local/bin" 
+  tasks:
+
+    - name: Set permanent network buffer sizes in sysctl
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-buffer-sizes.conf
+        content: |
+          net.core.rmem_max=7500000
+          net.core.wmem_max=7500000
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload sysctl settings
+      ansible.builtin.command: sysctl --system
+      changed_when: true
+
+    - name: Remove existing Go installation if present
+      ansible.builtin.file:
+        path: /usr/local/go
+        state: absent
+
+    - name: Download Go {{ go_version }}
+      ansible.builtin.get_url:
+        url: "{{ go_url }}"
+        dest: "/tmp/{{ go_tarball }}"
+        mode: '0644'
+        use_proxy: yes
+        validate_certs: yes
+
+    - name: Extract Go to /usr/local
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ go_tarball }}"
+        dest: /usr/local
+        remote_src: yes
+
+    - name: Ensure Go is in the system PATH
+      ansible.builtin.lineinfile:
+        path: /etc/profile.d/go_path.sh
+        line: 'export PATH=$PATH:/usr/local/go/bin'
+        create: yes
+        mode: '0755'
+
+    - name: Apply new PATH for Go
+      ansible.builtin.shell: source /etc/profile.d/go_path.sh
+      args:
+        executable: /bin/bash
+
+    - name: Verify Go version
+      ansible.builtin.command: /usr/local/go/bin/go version
+      register: go_version_output
+
+    - name: Show installed Go version
+      ansible.builtin.debug:
+        var: go_version_output.stdout
+
+    - name: Clone the VeilTransfer repository
+      become_user: "{{ attacker_user }}"
+      ansible.builtin.git:
+        repo: https://github.com/infosecn1nja/VeilTransfer.git
+        dest: /home/{{ attacker_user }}/VeilTransfer
+        version: main
+        update: yes
+
+    - name: Run make server-linux
+      become_user: "{{ attacker_user }}"
+      ansible.builtin.command:
+        cmd: make server-linux
+        chdir: /home/{{ attacker_user }}/VeilTransfer
+      environment:
+        PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+
+    - name: Run make client-linux
+      ansible.builtin.command:
+        cmd: make client-linux
+        chdir: /home/{{ attacker_user }}/VeilTransfer
+      environment:
+        PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+
+    - name: Make the built client binary executable
+      ansible.builtin.file:
+        path: /home/{{ attacker_user }}/VeilTransfer/{{ client_binary_name }}
+        mode: '0755'
+
+    - name: Make the built server binary executable
+      ansible.builtin.file:
+        path: /home/{{ attacker_user }}/VeilTransfer/{{ server_binary_name }}
+        mode: '0755'
+
+    - name: Copy certificates for veiltransfer
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}"
+          dest: "/home/aecid/{{ item }}"
+          mode: '0755'
+      loop:
+          - server.crt
+          - server.key
+          - server.csr
+
+    - name: Move the binary to the system bin directory
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        remote_src: yes
+        src: /home/{{ attacker_user }}/VeilTransfer/{{ server_binary_name }}
+        dest: /usr/bin/{{ server_binary_name }}
+        mode: '0755'
+
+    - name: Create systemd service for veiltransfer server
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/veiltransfer.service
+        content: |
+          [Unit]
+          Description=VeilTransfer QUIC Server
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/veiltransfer_server_linux quic -cert /home/aecid/server.crt -key /home/aecid/server.key -folder /home/aecid/stolen_data.tar.gz
+          WorkingDirectory=/home/aecid
+          Restart=on-failure
+          User=root
+
+          [Install]
+          WantedBy=multi-user.target
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Enable and start veiltransfer service
+      ansible.builtin.systemd:
+        name: veiltransfer
+        enabled: true
+        state: started
+
