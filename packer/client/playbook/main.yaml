@@ -8,6 +8,9 @@
 
 
   tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
     - name: Install Packages for Client
       ansible.builtin.apt:
         pkg:
@@ -18,7 +21,6 @@
 
         update_cache: yes
 
-tasks:
     - name: Add Dummy Text to Clipboard using xclip
       ansible.builtin.command:
         cmd: echo "This is dummy clipboard data from Ansible" | xclip -selection clipboard
@@ -110,7 +112,7 @@ tasks:
     - name: Add http proxy to ~/.wgetrc
       ansible.builtin.lineinfile:
         path: "/home/{{ linux_user }}/.wgetrc"
-        line: 'http_proxy = "http://{{ proxy_address }}:{{ proxy_port }}"'
+        line: 'http_proxy= http://{{ proxy_address }}:{{ proxy_port }}'
         create: yes
         state: present
 
@@ -118,7 +120,7 @@ tasks:
     - name: Add https proxy to ~/.wgetrc
       ansible.builtin.lineinfile:
         path: "/home/{{ linux_user }}/.wgetrc"
-        line: 'https_proxy = "https://{{ proxy_address }}:{{ proxy_port }}"'
+        line: 'https_proxy= http://{{ proxy_address }}:{{ proxy_port }}'
         create: yes
         state: present
 
