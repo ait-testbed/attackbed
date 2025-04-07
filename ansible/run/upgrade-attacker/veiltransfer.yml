@@ -83,6 +83,7 @@
         PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
 
     - name: Run make client-linux
+      become_user: "{{ attacker_user }}"
       ansible.builtin.command:
         cmd: make client-linux
         chdir: /home/{{ attacker_user }}/VeilTransfer
