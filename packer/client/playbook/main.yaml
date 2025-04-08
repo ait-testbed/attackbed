@@ -20,6 +20,7 @@
           - xclip
           - xsel
           - python3-pip
+          - wmctrl
         update_cache: yes
 
     - name: Remove existing Go installation if present
