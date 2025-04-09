@@ -92,6 +92,9 @@
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
             - Usernet access to Squid proxy (3128/tcp) on the firewall
             - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
+            - Allow fw to DMZ for browser traffic (to let client browse videoserver login page)
+            - { action: ACCEPT, source: fw, dest: dmz, proto: tcp, dest_port: 80 }
+            - { action: ACCEPT, source: fw, dest: dmz, proto: tcp, dest_port: 443 }
             - Usernet access for reverse tcp (4443/tcp) to the attacker machine 
             - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 4443 }
             - Usernet access to inet for rust-desk screen sharing
@@ -101,7 +104,9 @@
             - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21117 }
             - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21118 } 
             - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 8000 }  
-            - { action: ACCEPT, source: user, dest: inet, proto: udp, dest_port: 21116 } 
+            - { action: ACCEPT, source: user, dest: inet, proto: udp, dest_port: 21116 }   
+            - Usernet access to inet for veiltransfer udp       
+            - { action: ACCEPT, source: user, dest: inet, proto: udp, dest_port: 443 } 
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }

@@ -57,3 +57,8 @@ variable "fw_proxy_port" {
   default     = "192.168.50.254:3128"
 }
 
+variable "dmz_cidr" {
+  type        = string
+  description = "CIDR of the dmz subnet"
+  default     = "172.17.100.0/24"
+}
