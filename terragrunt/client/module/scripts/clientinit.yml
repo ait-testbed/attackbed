@@ -11,41 +11,6 @@ write_files:
       path: /root/ifsetup.sh
       permissions: '0700'
 
-  # # Configure APT Proxy
-  # - path: /etc/apt/apt.conf.d/95proxy
-  #   content: |
-  #     Acquire::http::Proxy "http://${fw_proxy_port}/";
-  #     Acquire::https::Proxy "http://${fw_proxy_port}/";
-  #   owner: root:root
-  #   permissions: '0644'
-
-  # # Configure curl proxy
-  # - path: /root/.curlrc
-  #   content: |
-  #     proxy = "http://${fw_proxy_port}"
-  #   owner: root:root
-  #   permissions: '0644'
-
-  # - path: /root/.bashrc
-  #   owner: root:root
-  #   permissions: '0644'
-  #   append: true
-  #   content: |
-  #     # Setting up proxy
-  #     export HTTP_PROXY="http://${fw_proxy_port}"
-  #     export HTTPS_PROXY="http://${fw_proxy_port}"
-  #     export http_proxy="http://${fw_proxy_port}"
-  #     export https_proxy="http://${fw_proxy_port}"
-
-  # - path: /etc/environment
-  #   owner: root:root
-  #   permissions: '0644'
-  #   append: true
-  #   content: |
-  #     HTTP_PROXY="http://${fw_proxy_port}"
-  #     HTTPS_PROXY="http://${fw_proxy_port}"
-
-
 
 bootcmd:
   - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
