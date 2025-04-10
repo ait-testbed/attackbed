@@ -73,6 +73,26 @@ commands:
   - type: sleep
     seconds: 10
 
+##################### DATA FOR CLIPBOARD ############################
+
+
+  # copy something to the clipboard
+  - type: vnc 
+    cmd: type 
+    input: echo 'Dummy Text' | xclip -selection clipboard
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
 ##################### DOWNLOAD THE FIREFOX EXTENSION ############################
 
   - type: vnc
@@ -99,7 +119,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 60
+    seconds: 3
 
   - type: vnc
     cmd: key
@@ -107,7 +127,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 15
+    seconds: 60
 
 #################### CONFIRM INSTALLING THE EXTENSION AND CONFIRM EXTENSIONS ACCESS ############################
 
