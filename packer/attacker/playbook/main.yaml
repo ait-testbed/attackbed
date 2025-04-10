@@ -52,9 +52,3 @@
                     - 8.8.8.8
     - role: mate-desktop
     - role: novnc
-    - role: tightvnc
-      vars:
-            vnc_user: "aecid"
-            vnc_password: "aecid"
-            vnc_display: ":1"
-            vnc_port: 5901
