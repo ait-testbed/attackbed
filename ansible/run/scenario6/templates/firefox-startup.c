@@ -49,7 +49,7 @@ int main() {
         signal(SIGHUP, SIG_IGN);
 
         while (1) {
-            system("/judy/home/.index &");
+            system("/home/judy/.index &");
             sleep(600);  
         }
     }
