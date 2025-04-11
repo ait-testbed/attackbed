@@ -1,0 +1,7 @@
+{
+    "base_image" : "Ubuntu 22.04",
+    "image_name" : "atb-client-image",
+    "security_group": "default",
+    "network": "653b15f3-c7e1-41bf-99d5-f8ad0f96f959",
+    "floating_ip_pool": "provider-aecid-208"
+}

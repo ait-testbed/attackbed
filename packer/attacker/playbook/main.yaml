@@ -50,3 +50,5 @@
             disableresolved_nameservers:
                     - 192.42.2.2
                     - 8.8.8.8
+    - role: mate-desktop
+    - role: novnc
