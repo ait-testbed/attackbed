@@ -109,7 +109,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 3
+    seconds: 20
 
 #################### OPEN FIREFOX ############################
 
@@ -161,69 +161,76 @@ commands:
     seconds: 2
 
   - type: vnc
-    cmd: click
+    cmd: rightclick
     session: social_engineering
 
   - type: sleep
     seconds: 3
 
-  - type: vnc 
-    cmd: type 
-    input: "172.17.100.121:80/zm"
-    session: social_engineering
-
-  - type: sleep
-    seconds: 2
-
-  - type: vnc
-    cmd: key
-    key: "enter"
-    session: social_engineering
-
-  - type: sleep
-    seconds: 10
-
-
-##################### ENTER DATA IN A LOGINFORM AND SUBMIT ############################
-
-  # type username
-  - type: vnc 
-    cmd: type 
-    input: "StarryEcho42BlazeTrix"
-    session: social_engineering
-
-  - type: sleep
-    seconds: 2
-
-  # hit tab
-  - type: vnc
-    cmd: key
-    key: "tab"
-    session: social_engineering
-
-  # type passowrd
-  - type: vnc 
-    cmd: type 
-    input: "TwilightV3n0mR3alm9QzX"
-    session: social_engineering
-
-  - type: sleep
-    seconds: 2
-
-  # hit tab
-  - type: vnc
-    cmd: key
-    key: "tab"
-    session: social_engineering
-
-  - type: sleep
-    seconds: 1
-
-  # hit submit button
-  - type: vnc
-    cmd: key
-    key: "enter"
-    session: social_engineering
-
-
-##################### PASTE SOMETHING FROM THE CLIPBOARD ############################
+#  - type: vnc 
+#    cmd: type 
+#    input: "172.17.10"
+#    session: social_engineering
+#
+#  - type: sleep
+#    seconds: 1
+#
+#  - type: vnc 
+#    cmd: type 
+#    input: "0.121:80/zm"
+#    session: social_engineering
+#  - type: sleep
+#    seconds: 2
+#
+#  - type: vnc
+#    cmd: key
+#    key: "enter"
+#    session: social_engineering
+#
+#  - type: sleep
+#    seconds: 10
+#
+#
+###################### ENTER DATA IN A LOGINFORM AND SUBMIT ############################
+#
+#  # type username
+#  - type: vnc 
+#    cmd: type 
+#    input: "StarryEcho42BlazeTrix"
+#    session: social_engineering
+#
+#  - type: sleep
+#    seconds: 2
+#
+#  # hit tab
+#  - type: vnc
+#    cmd: key
+#    key: "tab"
+#    session: social_engineering
+#
+#  # type passowrd
+#  - type: vnc 
+#    cmd: type 
+#    input: "TwilightV3n0mR3alm9QzX"
+#    session: social_engineering
+#
+#  - type: sleep
+#    seconds: 2
+#
+#  # hit tab
+#  - type: vnc
+#    cmd: key
+#    key: "tab"
+#    session: social_engineering
+#
+#  - type: sleep
+#    seconds: 1
+#
+#  # hit submit button
+#  - type: vnc
+#    cmd: key
+#    key: "enter"
+#    session: social_engineering
+#
+#
+###################### PASTE SOMETHING FROM THE CLIPBOARD ############################
