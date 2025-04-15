@@ -132,6 +132,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: "cd /var/www/default"
@@ -230,6 +233,9 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: cat /etc/shadow

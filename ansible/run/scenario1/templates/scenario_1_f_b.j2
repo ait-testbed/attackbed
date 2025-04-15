@@ -52,11 +52,13 @@ commands:
       techniques: "T1190,T1059"
       tactics: "Initial Access"
 
-
   - type: msf-session
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: msf-session
     session: "foothold"
@@ -64,7 +66,6 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-
 
   - type: msf-session
     cmd: shell
@@ -164,22 +165,30 @@ commands:
     cmd: rm /opt/README.txt
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit
     session: "foothold"
     end_str: "PWN >"
 
-
   - type: msf-session
     cmd: rm ./PwnKit
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit

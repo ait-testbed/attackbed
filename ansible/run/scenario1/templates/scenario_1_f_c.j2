@@ -167,22 +167,30 @@ commands:
     cmd: rm /opt/README.txt
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit
     session: "foothold"
     end_str: "PWN >"
 
-
   - type: msf-session
     cmd: rm ./PwnKit
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit

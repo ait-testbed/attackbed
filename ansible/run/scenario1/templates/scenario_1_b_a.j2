@@ -129,6 +129,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: sudo dmesg -H
@@ -148,6 +151,9 @@ commands:
     cmd: id
     session: "foothold"
     end_str: "root@videoserver:/tmp#"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
 
   - type: msf-session
@@ -178,11 +184,18 @@ commands:
     cmd: rm ./PwnKit
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
+
 
   - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: msf-session
     cmd: exit
@@ -198,6 +211,9 @@ commands:
     username: root
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd

