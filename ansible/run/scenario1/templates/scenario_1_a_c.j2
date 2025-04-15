@@ -57,6 +57,9 @@ commands:
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: msf-session
     session: "foothold"
@@ -108,7 +111,7 @@ commands:
   - type: msf-session
     cmd: chmod +x linpeas.sh
     session: "foothold"
-    
+
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
     write: True
