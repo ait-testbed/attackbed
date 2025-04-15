@@ -78,18 +78,30 @@ commands:
   - type: msf-session
     cmd: export SHELL=bash
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
 
   - type: msf-session
     cmd: chmod +x linpeas.sh
