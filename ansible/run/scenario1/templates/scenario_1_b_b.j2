@@ -121,10 +121,15 @@ commands:
     cmd: sudo dmesg -H
     write: True
     session: "foothold"
+    metadata:
+      techniques: "T1548"
+      tactics: "Privilege Escalation"
 
   - type: msf-session
     cmd: "!/bin/bash"
     session: "foothold"
+      techniques: "T1548"
+      tactics: "Privilege Escalation"
 
   - type: msf-session
     cmd: id
