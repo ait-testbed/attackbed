@@ -24,6 +24,9 @@ commands:
     username: root
     key_filename: $SSH_KEY
     creates_session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: mktemp
     cmd: dir
