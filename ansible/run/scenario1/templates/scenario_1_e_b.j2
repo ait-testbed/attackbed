@@ -77,36 +77,36 @@ commands:
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "foothold"
     metadata:
-      techniques: "T1574,T1104"
-      tactics: "Persistence,Privilege Escalation,Defense Evasion"
+      techniques: "T1059"
+      tactics: "Execution"
  
   - type: msf-session
     cmd: export SHELL=bash
     session: "foothold"
     metadata:
-      techniques: "T1574,T1104"
-      tactics: "Persistence,Privilege Escalation,Defense Evasion"
+      techniques: "T1059"
+      tactics: "Execution"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "foothold"
     metadata:
-      techniques: "T1574,T1104"
-      tactics: "Persistence,Privilege Escalation,Defense Evasion"
+      techniques: "T1059"
+      tactics: "Execution"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: "foothold"
     metadata:
-      techniques: "T1574,T1104"
-      tactics: "Persistence,Privilege Escalation,Defense Evasion"
+      techniques: "T1059"
+      tactics: "Execution"
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
     session: "foothold"
     metadata:
-      techniques: "T1574,T1104"
-      tactics: "Persistence,Privilege Escalation,Defense Evasion"
+      techniques: "T1059"
+      tactics: "Execution"
 
   - type: msf-session
     cmd: chmod +x linpeas.sh
@@ -196,14 +196,23 @@ commands:
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "root"
- 
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+
   - type: msf-session
     cmd: export SHELL=bash
     session: "root"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "root"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
