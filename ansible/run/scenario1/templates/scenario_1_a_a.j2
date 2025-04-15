@@ -201,6 +201,9 @@ commands:
     username: root
     key_filename: "/home/aecid/.ssh/attacker_key"
     creates_session: "rootshell"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
 
   - type: ssh
     cmd: pwd
