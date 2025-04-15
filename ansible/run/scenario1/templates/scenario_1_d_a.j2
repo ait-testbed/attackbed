@@ -112,6 +112,9 @@ commands:
   - type: msf-session
     cmd: chmod +x linpeas.sh
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
 
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
