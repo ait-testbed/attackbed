@@ -80,6 +80,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export SHELL=bash
@@ -87,6 +88,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
@@ -94,6 +96,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
@@ -101,6 +104,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
@@ -108,6 +112,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: chmod +x linpeas.sh
@@ -115,6 +120,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
@@ -223,6 +229,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
       
   - type: msf-session
     cmd: export SHELL=bash
@@ -230,6 +237,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
@@ -237,6 +245,7 @@ commands:
     metadata:
       techniques: "T1059"
       tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
