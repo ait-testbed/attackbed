@@ -7,10 +7,10 @@ Videoserver (Scenario1)
 Attacker Steps:
 ---------------
 
-1. Attacker scans DNS-Server of company with dns-brute(T1590,T1591)
-2. Attacker scans Host with nmap(T1595) also with -O (T1592)
+1. Attacker scans DNS-Server of company with dns-brute(T1590.002,T1591)
+2. Attacker scans Host with nmap(T1595) also with -O (T1592.002)
 3. Attacker scans Host with nikto(T1595)
-4. Attacker uses gobuster to crawl webserver(T1594)
+4. Attacker uses ffuf to crawl webserver(T1595.003)
 5. Attacker penetrates zoneminder(T1190, T1059)
 6. Attacker creates a stable reverse-shell(T1574, T1104) and attaches it to a running process(T1055 https://github.com/W3ndige/linux-process-injection) [NO PROCESS ATTACHED]
 7. Attacker uploads linpeas(T1105) and executes it(T1087, T1083, T1201, T1069, T1057, T1518, T1082, T1614, T1016, T1049, T1033, T1007, T1615)

