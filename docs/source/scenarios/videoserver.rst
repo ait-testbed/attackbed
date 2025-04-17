@@ -26,9 +26,9 @@ Attacker Steps:
 9. Attacker gains root
 10. Attacker adds backdoor
 
-   a. Attacker adds new ssh-key to authorized_keys(T1098)
-   b. Attacker creates new account(T1136)
-   c. Attacker modifies pam(T1556)
+   a. Attacker adds new ssh-key to authorized_keys(T1098.004)
+   b. Attacker creates new account(T1136.001)
+   c. Attacker modifies pam(T1556.003)
 
 11. Attacker uses split to proxy command(T1218)
 12. Attacker reads from /etc/shadow(T1555)

