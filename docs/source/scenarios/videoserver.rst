@@ -31,8 +31,8 @@ Attacker Steps:
    c. Attacker modifies pam(T1556.003)
 
 11. Attacker uses split to proxy command(T1218)
-12. Attacker reads from /etc/shadow(T1555)
+12. Attacker reads from /etc/shadow(T1003.008)
 13. Attacker runs nmap(T1046)  [MOVE TO ANOTHER SCENARIO]
 14. Attacker runs lspci and lsusb(T1120)  [lsusb isn't installed]
 15. Attacker runs ntpdate or date(T1124)  [ntpdate isn't installed]
-16. Attacker checks virtualbox-files(T1497)
+16. Attacker checks virtualbox-files(T1497.001)
