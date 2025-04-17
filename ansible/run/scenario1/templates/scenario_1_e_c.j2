@@ -298,8 +298,9 @@ commands:
     cmd: sudo cat /etc/shadow
     session: "rootshell"
     metadata:
-      techniques: "T1555"
+      techniques: "T1003.008"
       tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
   - type: ssh
     cmd: sudo lspci
