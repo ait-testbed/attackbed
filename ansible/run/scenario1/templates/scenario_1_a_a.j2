@@ -239,8 +239,9 @@ commands:
     cmd: cat /etc/shadow
     session: "rootshell"
     metadata:
-      techniques: "T1555"
+      techniques: "T1003.008"
       tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
   - type: ssh
     cmd: lspci
@@ -248,6 +249,7 @@ commands:
     metadata:
       techniques: "T1120"
       tactics: "Discovery"
+      technique_name: "Peripheral Device Discovery"
 
   - type: ssh
     cmd: command -v lsusb
@@ -255,6 +257,7 @@ commands:
     metadata:
       techniques: "T1120"
       tactics: "Discovery"
+      technique_name: "Peripheral Device Discovery"
 
   - type: ssh
     cmd: date
@@ -262,13 +265,15 @@ commands:
     metadata:
       techniques: "T1124"
       tactics: "Discovery"
+      technique_name: "System Time Discovery"
 
   - type: ssh
     cmd: find /usr -name \*virtualbox\*
     session: "rootshell"
     metadata:
-      techniques: "T1497"
+      techniques: "T1497.001"
       tactics: "Defense Evasion, Discovery"
+      technique_name: "Virtualization/Sandbox Evasion: System Checks"
 
 
       #

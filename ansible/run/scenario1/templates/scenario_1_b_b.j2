@@ -156,14 +156,17 @@ commands:
     write: True
     session: "foothold"
     metadata:
-      techniques: "T1548"
+      techniques: "T1548.003"
       tactics: "Privilege Escalation,Defense Evasion"
+      technique_name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
 
   - type: msf-session
     cmd: "!/bin/bash"
     session: "foothold"
-      techniques: "T1548"
+    metadata:
+      techniques: "T1548.003"
       tactics: "Privilege Escalation,Defense Evasion"
+      technique_name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
 
   - type: msf-session
     cmd: id
