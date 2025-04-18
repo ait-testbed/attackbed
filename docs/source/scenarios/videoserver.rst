@@ -1,5 +1,5 @@
 =======================
-Videoserver (Scenario1)
+Videoserver (Scenario 1)
 =======================
 
 .. image:: ../../images/AttackBed-Videoserver.png
