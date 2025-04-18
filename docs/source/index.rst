@@ -20,6 +20,8 @@ AttackBed Documentation
    installation/bootstrap
    installation/logpipeline
    installation/scenario
+   installation/testbedrun
+   installation/mitrecounter
 
 
 .. toctree::
@@ -38,6 +40,6 @@ AttackBed Documentation
 .. toctree::
    :maxdepth: 1
    :caption: Development
-   
+
    development/overview 
    development/attacker
