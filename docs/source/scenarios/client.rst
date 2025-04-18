@@ -13,11 +13,13 @@ Attacker Steps:
    b. Installing screen sharing software (T1219)
 
 2. Attacker persists using icmp-malware(T1095)
+
    a. by swapping binary of browser in $HOME(T1554)(T1546)
    b. by installing cronjob as user(T1053)
 
 
 Alternatively:
+
 1. Client gets exploited
 
    c. Installs malicious browser plugin (T1176)(T1203)
