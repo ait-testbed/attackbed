@@ -11,6 +11,7 @@ Attacker Steps:
 1. Attacker brute-forces (T1078, T1133, T1110):
 
    a) ssh
+   b) vnc
 
 2. Attacker sniffs for credentials (server automatically logs into ftp) (T1040)
 3. Pivilege Escalation via password reuse from point 3(T1078)
@@ -21,9 +22,10 @@ Attacker Steps:
 8. Lateral Movement via
 
    a) share: attacker replaces installation file that is used by another server(T1080)
-   b) apt: attacker replaces debian repository files which gets installed by another server(T1072)
-   c) puppet: attacker deploys backdoor via puppet(T1072)
-   d) exploit: attacker exploits a vulnerable service on another server(T1210)
+   b) exploit: attacker exploits a vulnerable service on another server(T1210)
+   c) apt: attacker replaces debian repository files which gets installed by another server(T1072)
+   d) puppet: attacker deploys backdoor via puppet(T1072)
+
 
 
 On other host: (T1499)

