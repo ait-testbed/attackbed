@@ -28,6 +28,12 @@ In this network scenario, the attacker starts with access to a repository server
 
 <img src="/docs/images/AttackBed-Network.png" alt="Network Scenario" style="width:600pt;"/>
 
+### Client Scenario
+
+This scenario simulates attacks targeting an end-user workstation, focusing on common methods used to gain initial access and establish persistence on a client machine. The attacker gains initial access through social engineering, either by persuading the user to open a malicious Office document containing a harmful macro or by tricking them into installing and granting access via a remote access software (a screen sharing tool). Once access is achieved, the attacker establishes persistence by replacing commonly used application binaries (a web browser), with a malicious version or by scheduling malicious tasks using user-level cron jobs. An alternative vector involves the installation of a malicious browser plugin, which then enables the theft of sensitive user information such as keystrokes, form data from the browser and clipboard contents.
+
+<img src="/docs/images/AttackBed-Client.png" alt="Client Scenario" style="width:600pt;"/>
+
 ### MITRE Navigator
 
 The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
