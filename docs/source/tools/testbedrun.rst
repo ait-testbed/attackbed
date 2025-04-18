@@ -1,7 +1,7 @@
 .. _testbedrun:
 
 =========================
-Helper Tools - Testbedrun
+Testbedrun
 =========================
 
 Using the `testbedrun` Script

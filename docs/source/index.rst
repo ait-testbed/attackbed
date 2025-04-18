@@ -19,9 +19,15 @@ AttackBed Documentation
    installation/images
    installation/bootstrap
    installation/logpipeline
-   installation/scenario
-   installation/testbedrun
-   installation/mitrecounter
+   installation/scenarios
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tools
+
+   tools/testbedrun
+   tools/mitrecounter
 
 
 .. toctree::
