@@ -1,0 +1,10 @@
+reposerver: repository
+linuxshare: repository
+videoserver: videoserver
+adminpc: videoserver
+webcam: videoserver
+corpdns: videoserver
+attacker: attacker
+inet-dns: bootstrap
+inet-fw: bootstrap
+mgmt: bootstrap

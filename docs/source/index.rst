@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-AttackBed Documenation
+AttackBed Documentation
 ==========================
 
 .. toctree::
@@ -19,7 +19,15 @@ AttackBed Documenation
    installation/images
    installation/bootstrap
    installation/logpipeline
-   installation/scenario
+   installation/scenarios
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tools
+
+   tools/testbedrun
+   tools/mitrecounter
 
 
 .. toctree::
@@ -34,3 +42,10 @@ AttackBed Documenation
    scenarios/lateralmovement
    scenarios/network
    scenarios/lanturtle
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development
+
+   development/overview 
+   development/attacker
