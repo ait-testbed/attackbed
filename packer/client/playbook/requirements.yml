@@ -26,4 +26,7 @@ roles:
   - src: https://github.com/ait-cs-IaaS/ansible-manage_unattended_upgrades.git
     version: v1.0.0
     name: manage_unattended_upgrades
+  - src: https://github.com/ait-cs-IaaS/ansible-auditd.git
+    version: v1.1
+    name: auditd
 

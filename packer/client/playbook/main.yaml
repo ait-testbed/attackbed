@@ -3,6 +3,7 @@
   become: true
   vars:
     linux_user: "judy"
+    linux_user_password: "garland"
     proxy_address: "192.168.50.254"
     proxy_port: "3128"
     go_version: "1.22.12"
@@ -194,7 +195,29 @@
           autologin-user-timeout=0
         mode: '0644'
 
+    # --- Dynamic UID Lookup (needs to run *after* weaklinuxuser is created) ---
+    - name: Get UID for user '{{ linux_user }}'
+      ansible.builtin.command: "id -u {{ linux_user }}"
+      register: user_id_result
+      changed_when: false
+      failed_when: user_id_result.rc != 0
+      check_mode: no
 
+    - name: Add specific audit rule for UID {{ user_id_result.stdout }}
+      ansible.builtin.lineinfile:
+        path: /etc/audit/rules.d/99-user.rules 
+        line: "-a always,exit -F arch=b64 -F uid={{ user_id_result.stdout }} -S all -k user_activity" 
+        create: yes 
+        owner: root
+        group: root
+        mode: '0640'
+      notify: Restart auditd 
+
+  handlers:
+    - name: Restart auditd
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
 
   roles:
           - role: aeciduser
@@ -206,8 +229,8 @@
                   aecidtools_user: "aecid"
           - role: weaklinuxuser
             vars: 
-                  weaklinuxuser_user: "{{ linux_user}}"
-                  weaklinuxuser_pass: "garland"
+                  weaklinuxuser_user: "{{ linux_user }}"
+                  weaklinuxuser_pass: "{{ linux_user_password}}"
                   weaklinuxuser_sudo: True
           - role: manage_unattended_upgrades
           - role: firefox-home
@@ -226,6 +249,7 @@
                   macro_security_level: 'low'
           - role: mate-desktop
           - role: novnc
+          - role: auditd
 
 
 
