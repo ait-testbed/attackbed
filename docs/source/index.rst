@@ -19,7 +19,7 @@ AttackBed Documentation
    installation/images
    installation/bootstrap
    installation/logpipeline
-   installation/scenarios
+   installation/scenario
 
 
 .. toctree::
