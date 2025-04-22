@@ -156,6 +156,7 @@
           - scenario_6_b_a
           - scenario_6_b_b
           - scenario_6_c
+          - upgrade
       tags:
          - playbooks
          - copy
