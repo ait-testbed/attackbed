@@ -7,10 +7,10 @@ Videoserver (Scenario 1)
 Attacker Steps:
 ---------------
 
-1. Attacker scans DNS-Server of company with dns-brute(T1590,T1591)
-2. Attacker scans Host with nmap(T1595) also with -O (T1592)
+1. Attacker scans DNS-Server of company with dns-brute(T1590.002,T1591)
+2. Attacker scans Host with nmap(T1595) also with -O (T1592.002)
 3. Attacker scans Host with nikto(T1595)
-4. Attacker uses gobuster to crawl webserver(T1594)
+4. Attacker uses ffuf to crawl webserver(T1595.003)
 5. Attacker penetrates zoneminder(T1190, T1059)
 6. Attacker creates a stable reverse-shell(T1574, T1104) and attaches it to a running process(T1055 https://github.com/W3ndige/linux-process-injection) [NO PROCESS ATTACHED]
 7. Attacker uploads linpeas(T1105) and executes it(T1087, T1083, T1201, T1069, T1057, T1518, T1082, T1614, T1016, T1049, T1033, T1007, T1615)
@@ -26,13 +26,13 @@ Attacker Steps:
 9. Attacker gains root
 10. Attacker adds backdoor
 
-   a. Attacker adds new ssh-key to authorized_keys(T1098)
-   b. Attacker creates new account(T1136)
-   c. Attacker modifies pam(T1556)
+   a. Attacker adds new ssh-key to authorized_keys(T1098.004)
+   b. Attacker creates new account(T1136.001)
+   c. Attacker modifies pam(T1556.003)
 
 11. Attacker uses split to proxy command(T1218)
-12. Attacker reads from /etc/shadow(T1555)
+12. Attacker reads from /etc/shadow(T1003.008)
 13. Attacker runs nmap(T1046)  [MOVE TO ANOTHER SCENARIO]
 14. Attacker runs lspci and lsusb(T1120)  [lsusb isn't installed]
 15. Attacker runs ntpdate or date(T1124)  [ntpdate isn't installed]
-16. Attacker checks virtualbox-files(T1497)
+16. Attacker checks virtualbox-files(T1497.001)

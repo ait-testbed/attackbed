@@ -28,6 +28,12 @@ In this network scenario, the attacker starts with access to a repository server
 
 <img src="/docs/images/AttackBed-Network.png" alt="Network Scenario" style="width:600pt;"/>
 
+### LAN Turtle Scenario
+
+In the LAN Turtle scenario, an attacker introduces a rogue device into the internal network and performs an ARP spoofing attack to intercept traffic between a client (AdminPC) and the firewall. When the client connects to the VideoServer in the DMZ over HTTP, the attacker launches an SSL stripping attack to hijack the session. By stealing the session cookie, the attacker is able to impersonate the user and gain unauthorized access to the VideoServer's web interface in the DMZ.
+
+<img src="/docs/images/AttackBed-Lanturtle.png" alt="LAN Turtle Scenario" style="width:600pt;"/>
+
 ### Client Scenario
 
 This scenario simulates attacks targeting an end-user workstation, focusing on common methods used to gain initial access and establish persistence on a client machine. The attacker gains initial access through social engineering, either by persuading the user to open a malicious Office document containing a harmful macro or by tricking them into installing and granting access via a remote access software (a screen sharing tool). Once access is achieved, the attacker establishes persistence by replacing commonly used application binaries (a web browser), with a malicious version or by scheduling malicious tasks using user-level cron jobs. An alternative vector involves the installation of a malicious browser plugin, which then enables the theft of sensitive user information such as keystrokes, form data from the browser and clipboard contents.
@@ -39,7 +45,6 @@ This scenario simulates attacks targeting an end-user workstation, focusing on c
 The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
 
 <img src="/docs/images/Szenario1_2_3.png" alt="MITRE Navigator" style="width:600pt;"/>
-
 
 ## Requirements
 

