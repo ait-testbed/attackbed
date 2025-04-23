@@ -118,10 +118,19 @@
         mode: '0755'
       with_items:
         - { src: "crontab.j2", dest: "crontab.txt" }
-        - { src: "downloader.j2", dest: "downloader.txt" }
+        - { src: "downloader.j2", dest: "downloader.sh" }
         - { src: "firefox-startup.c", dest: "firefox-startup.c" }
         - { src: "http_server.py", dest: "http_server.py" }
-        - { src: "Nutzungshinweise.odt", dest: "Nutzungshinweise.odt" }
+      tags:
+        - playbooks
+
+    - name: Copy ODT file directly
+      become: true
+      become_user: "{{ attacker_user }}"
+      ansible.builtin.copy:
+        src: "Nutzungshinweise.odt" 
+        dest: "{{ user_home.stdout }}/Nutzungshinweise.odt"
+        mode: '0644'
       tags:
         - playbooks
 
