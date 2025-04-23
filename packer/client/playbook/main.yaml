@@ -78,12 +78,6 @@
         dest: /etc/ssh/sshd_config.d/password.conf
         content: 'PasswordAuthentication yes'
 
-    - name: Copy ODT document to the host
-      ansible.builtin.copy:
-        src: Nutzungshinweise.odt  
-        dest: "/home/{{ linux_user }}/Nutzungshinweise.odt"
-        mode: '0644'
-
     # Add proxy to /etc/environment
     - name: Add HTTP proxy to /etc/environment
       ansible.builtin.lineinfile:

