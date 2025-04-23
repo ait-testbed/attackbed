@@ -174,6 +174,14 @@
         create: yes
         state: present
 
+    # Add default editor to ~/.bashrc
+    - name: default editor to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export EDITOR=vim'
+        create: yes
+        state: present
+
     - name: Ensure LightDM configuration directory exists
       ansible.builtin.file:
         path: /etc/lightdm
