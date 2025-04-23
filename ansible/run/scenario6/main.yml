@@ -1,3 +1,25 @@
+- name: Add attacker IP to DNS
+  hosts: inetdns
+  become: true
+  vars:
+    attacker_ip: 192.42.1.174
+  handlers:
+    - name: restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
+  tasks:
+    - name: Add attacker IP to DNS
+      ansible.builtin.copy:
+        content: |
+          address=/facebock.com/{{ attacker_ip }}
+          address=/dailynews-wire.com/{{ attacker_ip }}
+        owner: root
+        dest: /etc/dnsmasq.d/attacker.conf
+      notify: restart dnsmasq
+      tags:
+        - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
@@ -44,19 +66,6 @@
         state: present
       tags:
         - playbooks
-
-
-    # - name: Add attacker IP to DNS
-    #   ansible.builtin.copy:
-    #     content: |
-    #       address=/facebock.com/{{ attacker_ip }}
-    #       address=/dailynews-wire.com/{{ attacker_ip }}
-    #     owner: root
-    #     dest: /etc/dnsmasq.d/attacker.conf
-    #   notify: restart dnsmasq
-    #   delegate_to: inetdns
-    #   tags:
-    #     - playbooks
 
     - name: Generate SSH key pair for attacker
       ansible.builtin.openssh_keypair:
