@@ -742,7 +742,7 @@ commands:
     key: "enter"
     session: attacker
     metadata:
-      techniques: "T1105,T1219" # Download tool via Remote Access SW
+      techniques: "T1105,T1219" 
       tactics: "Command and Control,Execution"
       technique_name: "Ingress Tool Transfer,Remote Access Software"
 
@@ -754,7 +754,8 @@ commands:
     cmd: type
     input: "chmod +x /home/judy/.local/share/firefox/firefox-startup"
     session: attacker
-      techniques: "T1222.002,T1219" # Modify permissions via Remote Access SW
+    metadata:
+      techniques: "T1222.002,T1219" 
       tactics: "Defense Evasion,Execution"
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
@@ -765,15 +766,15 @@ commands:
     cmd: key
     key: "enter"
     session: attacker
-      techniques: "T1222.002,T1219" # Modify permissions via Remote Access SW
+    metadata:
+      techniques: "T1222.002,T1219"
       tactics: "Defense Evasion,Execution"
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
   - type: sleep
     seconds: 3
 
-## change the symlink in .local/bin from the actual firefox to the fake firefox binary
-
+  # change the symlink in .local/bin from the actual firefox to the fake firefox binary
   - type: vnc
     cmd: type
     input: "ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox"
