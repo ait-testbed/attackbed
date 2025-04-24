@@ -45,9 +45,9 @@
 # - Ensure that Packer and Terragrunt are installed and configured properly before using this Makefile.
 
 .PHONY: packer-firewall packer-repository packer-attacker packer-corpsdns packer-ghostserver packer-kafka \
-        packer-linuxshare packer-opensearch packer-userpc packer-videoserver packer-webcam \
+        packer-linuxshare packer-opensearch packer-userpc packer-videoserver packer-webcam packer-client\
         terragrunt-bootstrap terragrunt-attacker terragrunt-lanturtle terragrunt-logging \
-        terragrunt-repository terragrunt-videoserver
+        terragrunt-repository terragrunt-videoserver terragrunt-client
 
 PACKER_CMD := packer build --var-file=default.json .
 PACKER_ROOT := ~/atb-aecid-testbed/packer
@@ -106,6 +106,9 @@ packer-webcam:
 	@echo "Running Packer for webcam..."
 	cd $(PACKER_ROOT)/webcam && $(PACKER_CMD)
 
+packer-client:
+	@echo "Running Packer for client..."
+	cd $(PACKER_ROOT)/client && $(PACKER_CMD)
 
 #----------------- Terragrunt Targets -----------------
 terragrunt-bootstrap:
@@ -131,6 +134,10 @@ terragrunt-repository:
 terragrunt-videoserver:
 	@echo "Running Terragrunt for videoserver..."
 	cd $(TERRAGRUNT_ROOT)/videoserver && $(TERRAGRUNT_CMD) 
+
+terragrunt-client:
+	@echo "Running Terragrunt for client..."
+	cd $(TERRAGRUNT_ROOT)/client && $(TERRAGRUNT_CMD) 
 
 	
 

@@ -24,6 +24,17 @@
       register: user_home
       tags:
         - playbooks
+        
+    - name: Configure public DNS
+      ansible.builtin.copy:
+        content: "address=/faaacebook.com/{{ attacker_ip }}\n"
+        owner: root
+        dest: /etc/dnsmasq.d/attacker.conf
+      delegate_to: inetdns
+      notify: restart dnsmasq
+      tags:
+        - dns
+        - playbooks
 
     - name: Install dependencies
       ansible.builtin.apt:

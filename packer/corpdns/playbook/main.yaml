@@ -4,6 +4,7 @@
   vars:
     suricata_interface: [ens3]
     suricata_pcap_log: False
+    netflow_enabled: true
   roles:
     - role: aeciduser
       vars:

@@ -42,6 +42,7 @@ AttackBed Documentation
    scenarios/lateralmovement
    scenarios/network
    scenarios/lanturtle
+   scenarios/client
 
 .. toctree::
    :maxdepth: 1
