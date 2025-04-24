@@ -5,6 +5,7 @@
     suricata_interface: [ens5]
     internal_domain: "aecid-testbed.local"
     suricata_home_nets: ["172.17.100.0/24"]
+    netflow_enabled: true
     weaklinuxuser_name: "john"
   tasks: 
     - name: Allow password login

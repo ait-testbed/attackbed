@@ -6,7 +6,7 @@ roles:
     version: v1.1.3
     name: dnsmasq
   - src: https://github.com/ait-testbed/atb-ansible-suricata.git
-    version: v1.1.7
+    version: v1.1.8
     name: suricata
   - src: https://github.com/whotwagner/ansible-role-shorewall.git
     version: v2.0.3
