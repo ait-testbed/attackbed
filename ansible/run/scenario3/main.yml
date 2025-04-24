@@ -37,6 +37,7 @@
           mode: '0755'
       loop:
           - scenario_3_a_a
+          - scenario_3_a_b
           - upgrade
           - scenario_3_b
           - scenario_3_c

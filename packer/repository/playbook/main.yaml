@@ -30,16 +30,22 @@
                   # pass: aecid
                   aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
           - role: aecidtools
-            vars:
-                  aecidtools_user: "aecid"
-          - role: manage_unattended_upgrades
-          - role: auditd
-          - role: mate-desktop
           - role: weaklinuxuser
             vars:
               weaklinuxuser_sudo: False
               weaklinuxuser_groups:
                 - sudo
+            vars:
+                  aecidtools_user: "aecid"
+          - role: manage_unattended_upgrades
+          - role: auditd
+          - role: mate-desktop
+          - role: tightvnc
+            vars:
+                  vnc_user: "john"
+                  vnc_password: "12345678"
+                  vnc_display: ":1"
+                  vnc_port: 5901
           - role: puppetserver
           - role: disableresolved
           - role: acct
