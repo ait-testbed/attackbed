@@ -299,10 +299,10 @@ Scenario 5: Lan Turtle
 This scenario uses ARP spoofing within the `lan` zone to capture a session cookie and reuse it.
 
 *   **ARP Spoofing Traffic (if Attacker in `lan` zone):**
-        ``admin (Attacker) <-> admin (adminpc1)`` | ARP | (Intra-zone, local broadcast) - Attacker poisons ARP cache of `adminpc1`.
-        ``admin (adminpc1) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (Intercepted by Attacker, then forwarded via POLICY: `admin -> all ACCEPT`) - Legitimate traffic from `adminpc1` to `VIDEOSERVER` passes through the firewall, intercepted/relayed by the Attacker in the `lan` zone.
+        ``lan (Attacker) <-> lan (adminpc1)`` | ARP | (Intra-zone, local broadcast) - Attacker poisons ARP cache of `adminpc1`.
+        ``lan (adminpc1) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (Intercepted by Attacker, then forwarded) - Legitimate traffic from `adminpc1` to `VIDEOSERVER` passes through the firewall, intercepted/relayed by the Attacker in the `lan` zone.
 *   **Session Hijacking (Attacker reusing cookie):**
-        ``admin (Attacker) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (POLICY: `admin -> all ACCEPT`) - Attacker makes HTTP requests to the ``VIDEOSERVER`` using the stolen session cookie.
+        ``lan (Attacker) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (POLICY: `lan -> all ACCEPT`) - Attacker makes HTTP requests to the ``VIDEOSERVER`` using the stolen session cookie.
 
 
 
