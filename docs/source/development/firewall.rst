@@ -50,10 +50,14 @@ Scenario 1: Videoserver / ZoneMinder Exploit
 
 This scenario targets the ZoneMinder service running on the ``VIDEOSERVER`` in the DMZ.
 
+*   **Reconaissance (DNS Enumeration):**
+        ``inet (Attacker) -> inet (Firewall)`` | TCP Top 100 Ports |  Attacker performs nmap scan to firewall IP (top 100 ports even if fhe ports are not open) 
+*   **Reconaissance (Host/Service Scanning):**
+        ``inet (Attacker) -> inet (CorpsDNS)`` | UDP/TCP Port 53 | Attacker performs DNS enumeration
 *   **Initial Access & Exploitation:**
         ``inet (Attacker) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (DNAT) - Attacker accesses the ZoneMinder web interface via the firewall's public IP, forwarded to the ``VIDEOSERVER``.
 *   **Command and Control (Reverse Shell):**
-        ``dmz (VIDEOSERVER) -> inet (Attacker)`` | TCP Port <LPORT> (e.g. 4444) | (POLICY: `dmz -> inet ACCEPT`) - Meterpreter reverse shell connection initiated from the compromised ``VIDEOSERVER`` back to the attacker's listener.
+        ``dmz (VIDEOSERVER) -> inet (Attacker)`` | TCP Port <LPORT> (e.g. 3333) | (POLICY: `dmz -> inet ACCEPT`) - Meterpreter reverse shell connection initiated from the compromised ``VIDEOSERVER`` back to the attacker's listener.
 *   **Payload Download:**
         ``dmz (VIDEOSERVER) -> inet (Attacker)`` | TCP Port 80 | (POLICY: `dmz -> inet ACCEPT`) - Compromised ``VIDEOSERVER`` downloads additional payloads (e.g., `pam_unix.so`, command files like `README.txt.*`) from the attacker's web server.
 *   **Post-Exploitation (SSH Access):**
@@ -70,6 +74,16 @@ This scenario targets the ZoneMinder service running on the ``VIDEOSERVER`` in t
      - Destination
      - Protocol / Port
      - Firewall Rule/Policy
+   * - Reconaissance
+     - ``inet (Attacker)``
+     - ``inet (Firewall)``
+     - TCP Top 100 Ports
+     - - Intra-zone
+   * - Reconaissance
+     - ``inet (Attacker)``
+     - ``inet (CorpsDNS)``
+     - TCP 53
+     - Intra-zone
    * - Initial Access
      - ``inet (Attacker)``
      - ``dmz (VIDEOSERVER)``
@@ -78,7 +92,7 @@ This scenario targets the ZoneMinder service running on the ``VIDEOSERVER`` in t
    * - Command & Control
      - ``dmz (VIDEOSERVER)``
      - ``inet (Attacker)``
-     - TCP 4444
+     - TCP 3333
      - POLICY: ``dmz -> inet ACCEPT``
    * - Payload Download
      - ``dmz (VIDEOSERVER)``
