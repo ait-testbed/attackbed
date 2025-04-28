@@ -51,7 +51,7 @@ Scenario 1: Videoserver / ZoneMinder Exploit
 This scenario targets the ZoneMinder service running on the ``VIDEOSERVER`` in the DMZ.
 
 *   **Reconaissance (DNS Enumeration):**
-        ``inet (Attacker) -> inet (Firewall)`` | TCP Top 100 Ports |  Attacker performs nmap scan to firewall IP (top 100 ports even if fhe ports are not open) 
+        ``inet (Attacker) -> fw`` | TCP Top 100 Ports |  Attacker performs nmap scan to firewall IP (top 100 ports even if fhe ports are not open) 
 *   **Reconaissance (Host/Service Scanning):**
         ``inet (Attacker) -> inet (CorpsDNS)`` | UDP/TCP Port 53 | Attacker performs DNS enumeration
 *   **Initial Access & Exploitation:**
@@ -76,7 +76,7 @@ This scenario targets the ZoneMinder service running on the ``VIDEOSERVER`` in t
      - Firewall Rule/Policy
    * - Reconaissance
      - ``inet (Attacker)``
-     - ``inet (Firewall)``
+     - ``fw``
      - TCP Top 100 Ports
      - - Intra-zone
    * - Reconaissance
@@ -179,15 +179,9 @@ Scenario 3: Lateral Movement
 This scenario involves brute-forcing credentials and moving laterally within the network.
 
 *   **Initial Access (Credential Attack):**
-        ``inet (Attacker) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (DNAT) - Attacks against ZoneMinder login.
-
         ``inet (Attacker) -> dmz (REPOSERVER)`` | TCP Port 10022 | (DNAT) - SSH brute-force attempt against ``REPOSERVER``.
 
-        ``inet (Attacker) -> dmz (REPOSERVER)`` | TCP Port 3389 | (DNAT) - RDP brute-force attempt against ``REPOSERVER``.
-
         ``inet (Attacker) -> dmz (REPOSERVER)`` | TCP Port 5901 | (DNAT) - VNC brute-force attempt against ``REPOSERVER``.
-*   **Command and Control:**
-        ``dmz (VIDEOSERVER/REPOSERVER) -> inet (Attacker)`` | TCP Port 4444 | (POLICY: `dmz -> inet ACCEPT`) - Reverse shell from compromised DMZ hosts.
 *   **Lateral Movement (From compromised DMZ host, e.g., REPOSERVER):**
         ``dmz (REPOSERVER) -> lan (KAFKA)`` | TCP Port 9092 | (RULE) - Accessing Kafka service.
 
@@ -195,7 +189,13 @@ This scenario involves brute-forcing credentials and moving laterally within the
 
         ``dmz (REPOSERVER) -> fw`` | TCP/UDP Port 53 | (RULE: `DNS/ACCEPT`) - DNS lookups via the firewall.
 
-        ``dmz (REPOSERVER) -> dmz (VIDEOSERVER)`` | Various Ports | (Intra-zone, allowed) - Communication within the DMZ.
+        ``dmz (REPOSERVER) -> lan (LINUXSHARE)`` | TCP Port 1881 | (RULE) - Healthcheck service, sending hostname and status message
+
+        ``dmz (REPOSERVER) -> lan (LINUXSHARE)`` | TCP/UDP 111, 2049 | (RULE) - Access File Share
+*   **Command and Control:**
+        ``lan (LINUXSHARE) -> inet (Attacker)`` | TCP Port 4444 | (POLICY: `lan -> inet ACCEPT`) - Reverse shell from compromised hosts.
+
+
 
 .. list-table:: Scenario 3 Firewall Connections
    :widths: 30 20 20 15 15
@@ -206,37 +206,22 @@ This scenario involves brute-forcing credentials and moving laterally within the
      - Destination
      - Protocol / Port
      - Firewall Rule/Policy
-   * - Initial Access (ZM Login)
-     - ``inet (Attacker)``
-     - ``dmz (VIDEOSERVER)``
-     - TCP 80
-     - DNAT
    * - Initial Access (SSH Brute)
      - ``inet (Attacker)``
      - ``dmz (REPOSERVER)``
      - TCP 10022
-     - DNAT
-   * - Initial Access (RDP Brute)
-     - ``inet (Attacker)``
-     - ``dmz (REPOSERVER)``
-     - TCP 3389
      - DNAT
    * - Initial Access (VNC Brute)
      - ``inet (Attacker)``
      - ``dmz (REPOSERVER)``
      - TCP 5901
      - DNAT
-   * - Command & Control (from DMZ)
-     - ``dmz (VIDEOSERVER/REPOSERVER)``
-     - ``inet (Attacker)``
-     - TCP `4444`
-     - POLICY: ``dmz -> inet ACCEPT``
    * - Lateral (-> LinuxShare Service)
      - ``dmz (REPOSERVER)``
      - ``lan (LINUXSHARE)``
      - TCP 1881
      - RULE
-   * - Lateral (-> LinuxShare NFS)
+   * - Lateral (-> LinuxShare Filesystem)
      - ``dmz (REPOSERVER)``
      - ``lan (LINUXSHARE)``
      - TCP/UDP 111, 2049
@@ -256,11 +241,12 @@ This scenario involves brute-forcing credentials and moving laterally within the
      - ``fw``
      - TCP/UDP 53
      - RULE: ``DNS/ACCEPT``
-   * - Lateral (Intra-DMZ)
-     - ``dmz (REPOSERVER)``
-     - ``dmz (VIDEOSERVER)``
-     - Various
-     - Intra-zone
+   * - Command & Control 
+     - ``lan (LINUXSHARE)``
+     - ``inet (Attacker)``
+     - TCP `4444`
+     - POLICY: ``dmz -> inet ACCEPT``
+
 
 Scenario 4: Network
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
