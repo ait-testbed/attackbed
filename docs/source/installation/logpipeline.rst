@@ -126,6 +126,10 @@ To check if the connection to OpenSearch is working, we can use curl to send a r
 
 If a json is returned with opensearch cluster information, the connection was successfully established.
 
+.. note::
+
+   Curl is sent from the jump host. We assume a hosts entry for "search.aecid-testbed.local" to the ip of the opensearch machine
+   is set (in our case 192.168.100.11). The ca.pem created in (see :ref:`deployment-section`) needs to be copied to the jumphost as well beforehand.
 
 OpenSearch
 ----------
