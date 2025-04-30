@@ -1,0 +1,9 @@
+#cloud-config
+system_info:
+  default_user:
+    name: aecid
+    plain_text_passwd: aecid
+    lock_passwd: False
+runcmd:
+  -  [apt-get, update]
+  -  [apt-get, install, -y, python3]

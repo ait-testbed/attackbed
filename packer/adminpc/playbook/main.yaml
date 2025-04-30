@@ -26,7 +26,7 @@
                   rootkeys_private_key_user: aecid
                   rootkeys_private_dir: "/home/aecid/.ssh"
           - role: mate-desktop
-          - role: atb-ansible-novnc
+          - role: novnc
           - role: atb-ansible-ghostagent-linux
             vars:
                   ghostsserver_url: "http://192.168.100.122:5000/api"

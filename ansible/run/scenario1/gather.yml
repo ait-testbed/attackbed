@@ -47,6 +47,8 @@
 
     kyoushi_gather_configs:
       - src: /home/aecid/scenario*.yml
+      - src: /var/www/html
+        recursive: true
       - src: /etc
         recursive: true
         exclude:

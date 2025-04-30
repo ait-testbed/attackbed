@@ -8,9 +8,9 @@ Attacker Steps:
 ---------------
 
 1. Attacker joins the network with a new machine (Lanturtle) (T1200)
-2. Attacker executes arp-spoofing against client + firewall (T1557)
+2. Attacker executes arp-spoofing against client + firewall (T1557.002)
 3. Clients connects via http to server in dmz
-4. Attacker performs sslstrip-attack and gains cookie
+4. Attacker performs sslstrip-attack and gains cookie (T1539)
 5. Attacker uses cookie to login (T1563)
 
 
@@ -25,7 +25,7 @@ However for a manual inspection, the detailed steps are described below.
 This step is part of the initial setup, an attacker machine is already placed inside
 the LAN network with terragrunt.
 
-\2. Attacker executes arp-spoofing against client + firewall (T1557)
+\2. Attacker executes arp-spoofing against client + firewall (T1557.002)
 
 For this step, bettercap is used. There is a ``ansible/run/scenario5/files/bettercap.cap`` file defined with the target IP of the AdminPC:
 
@@ -75,13 +75,13 @@ To kill the process, run:
 We can observe it on the videoserver machine, that requests are really arriving, by inspecting
 the following file: ``/var/www/default/log/access.log``.
 
-\4. Attacker performs sslstrip-attack and gains cookie
+\4. Attacker performs sslstrip-attack and gains cookie (T1539)
 
 The process for this is defined in the ``ansible/run/scenario5/files/get_cookie.py`` file.
 
 \5. Attacker uses cookie to login (T1563)
 
-Attackmate is utilized to recreate the http request, passing the stolen session ID
+AttackMate is utilized to recreate the http request, passing the stolen session ID
 along with the cookies (see ``ansible/run/scenario5/files/playbook.yml``).
 
 

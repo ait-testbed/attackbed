@@ -27,6 +27,7 @@ can import all prebuild images to the openstack-project:
   $ testbedimage import_images
 
 .. _packer-manual-build:
+
 Build server images manually
 ============================
 
@@ -38,6 +39,7 @@ You need to copy **default.json.example** to **default.json** and change at leas
     cd packer/adminpc/playbook
     ansible-galaxy install -r requirements.yml
     packer build -var-file=default.json .
+
 
 .. note::
 

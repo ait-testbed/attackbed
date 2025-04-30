@@ -1,0 +1,261 @@
+- name: Install ClientPC
+  hosts: all
+  become: true
+  vars:
+    linux_user: "judy"
+    linux_user_password: "garland"
+    proxy_address: "192.168.50.254"
+    proxy_port: "3128"
+    go_version: "1.22.12"
+    go_tarball: "go{{ go_version }}.linux-amd64.tar.gz"
+    go_url: "https://go.dev/dl/{{ go_tarball }}"
+
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: Install Packages for Client
+      ansible.builtin.apt:
+        pkg:
+          - xclip
+          - xsel
+          - python3-pip
+          - wmctrl
+        update_cache: yes
+
+    - name: Remove existing Go installation if present
+      ansible.builtin.file:
+        path: /usr/local/go
+        state: absent
+
+    - name: Download Go {{ go_version }}
+      ansible.builtin.get_url:
+        url: "{{ go_url }}"
+        dest: "/tmp/{{ go_tarball }}"
+        mode: '0644'
+        use_proxy: yes
+        validate_certs: yes
+
+    - name: Extract Go to /usr/local
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ go_tarball }}"
+        dest: /usr/local
+        remote_src: yes
+
+    - name: Ensure Go is in the system PATH
+      ansible.builtin.lineinfile:
+        path: /etc/profile.d/go_path.sh
+        line: 'export PATH=$PATH:/usr/local/go/bin'
+        create: yes
+        mode: '0755'
+
+    - name: Apply new PATH for Go
+      ansible.builtin.shell: source /etc/profile.d/go_path.sh
+      args:
+        executable: /bin/bash
+
+    - name: Verify Go version
+      ansible.builtin.command: /usr/local/go/bin/go version
+      register: go_version_output
+
+    - name: Show installed Go version
+      ansible.builtin.debug:
+        var: go_version_output.stdout
+
+    - name: Set permanent network buffer sizes in sysctl
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-buffer-sizes.conf
+        content: |
+          net.core.rmem_max=7500000
+          net.core.wmem_max=7500000
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Allow password login
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/password.conf
+        content: 'PasswordAuthentication yes'
+
+    # Add proxy to /etc/environment
+    - name: Add HTTP proxy to /etc/environment
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        line: 'HTTP_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+    - name: Add HTTPS proxy to /etc/environment
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        line: 'HTTPS_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.bashrc
+    - name: Add HTTP proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export HTTP_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    # Add proxy to ~/.bashrc
+    - name: Add HTTP proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export http_proxy="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    - name: Add HTTPS proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export HTTPS_PROXY="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    - name: Add HTTPS proxy to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export https_proxy="http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+        insertafter: EOF
+
+    # Add proxy to /etc/apt/apt.conf.d/95proxy
+    - name: Add HTTP proxy to APT config
+      ansible.builtin.lineinfile:
+        path: /etc/apt/apt.conf.d/95proxy
+        line: 'Acquire::http::Proxy "http://{{ proxy_address }}:{{ proxy_port }}/";'
+        create: yes
+        state: present
+
+    - name: Add HTTPS proxy to APT config
+      ansible.builtin.lineinfile:
+        path: /etc/apt/apt.conf.d/95proxy
+        line: 'Acquire::https::Proxy "http://{{ proxy_address }}:{{ proxy_port }}/";'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.curlrc
+    - name: Add proxy to ~/.curlrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.curlrc"
+        line: 'proxy = "http://{{ proxy_address }}:{{ proxy_port }}"'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.wgetrc
+    - name: Add http proxy to ~/.wgetrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.wgetrc"
+        line: 'http_proxy=http://{{ proxy_address }}:{{ proxy_port }}'
+        create: yes
+        state: present
+
+   # Add proxy to ~/.wgetrc
+    - name: Add https proxy to ~/.wgetrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.wgetrc"
+        line: 'https_proxy=http://{{ proxy_address }}:{{ proxy_port }}'
+        create: yes
+        state: present
+
+    # Add proxy to ~/.wgetrc
+    - name: Add use proxy to ~/.wgetrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.wgetrc"
+        line: 'use_proxy = yes'
+        create: yes
+        state: present
+
+    # Add default editor to ~/.bashrc
+    - name: default editor to ~/.bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ linux_user }}/.bashrc"
+        line: 'export EDITOR=vim'
+        create: yes
+        state: present
+
+    - name: Ensure LightDM configuration directory exists
+      ansible.builtin.file:
+        path: /etc/lightdm
+        state: directory
+        mode: '0755'
+
+    - name: Enable autologin for LightDM
+      ansible.builtin.copy:
+        dest: /etc/lightdm/lightdm.conf
+        content: |
+          [Seat:*]
+          autologin-user={{ linux_user }}
+          autologin-user-timeout=0
+        mode: '0644'
+
+    # --- Dynamic UID Lookup (needs to run *after* weaklinuxuser is created) ---
+    - name: Get UID for user '{{ linux_user }}'
+      ansible.builtin.command: "id -u {{ linux_user }}"
+      register: user_id_result
+      changed_when: false
+      failed_when: user_id_result.rc != 0
+      check_mode: no
+
+    - name: Add specific audit rule for UID {{ user_id_result.stdout }}
+      ansible.builtin.lineinfile:
+        path: /etc/audit/rules.d/99-user.rules 
+        line: "-a always,exit -F arch=b64 -F uid={{ user_id_result.stdout }} -S all -k user_activity" 
+        create: yes 
+        owner: root
+        group: root
+        mode: '0640'
+      notify: Restart auditd 
+
+  handlers:
+    - name: Restart auditd
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
+
+  roles:
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: weaklinuxuser
+            vars: 
+                  weaklinuxuser_user: "{{ linux_user }}"
+                  weaklinuxuser_pass: "{{ linux_user_password}}"
+                  weaklinuxuser_sudo: True
+          - role: manage_unattended_upgrades
+          - role: firefox-home
+            vars: 
+                  firefox_proxy_address: "{{ proxy_address }}"
+                  firefox_proxy_port: "{{ proxy_port }}"
+                  install_user: "{{ linux_user }}"
+                  allow_unsigned_extensions: true
+          - role: thunderbird
+            vars:
+                  thunderbird_user: "{{ linux_user}}"
+                  populate_emails: true
+          - role: libreoffice
+            vars:
+                  disable_macros_execution: false
+                  macro_security_level: 'low'
+          - role: mate-desktop
+          - role: novnc
+          - role: auditd
+
+
+
+
+
+
+

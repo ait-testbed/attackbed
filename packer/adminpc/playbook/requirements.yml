@@ -16,7 +16,7 @@ roles:
     name: mate-desktop
   - src: https://github.com/ait-testbed/atb-ansible-novnc.git
     version: v1.0.0
-    name: atb-ansible-novnc
+    name: novnc
   - src: https://github.com/ait-testbed/atb-ansible-ghostagent-linux.git
     version: v1.0.0
     name: atb-ansible-ghostagent-linux

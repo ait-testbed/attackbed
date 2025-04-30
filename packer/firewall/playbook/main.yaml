@@ -5,6 +5,7 @@
     suricata_interface: [ens5]
     internal_domain: "aecid-testbed.local"
     suricata_home_nets: ["172.17.100.0/24"]
+    netflow_enabled: true
     weaklinuxuser_name: "john"
   tasks: 
     - name: Allow password login
@@ -83,6 +84,7 @@
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER:22", proto: tcp, dest_port: 10022 }
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 3389 }
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 4501 }
+            - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 5901 }
             - Reposerver to Linux-Share
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 1881 }
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
@@ -92,6 +94,21 @@
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
             - Usernet access to Squid proxy (3128/tcp) on the firewall
             - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
+            - Allow fw to DMZ for browser traffic (to let client browse videoserver login page)
+            - { action: ACCEPT, source: fw, dest: dmz, proto: tcp, dest_port: 80 }
+            - { action: ACCEPT, source: fw, dest: dmz, proto: tcp, dest_port: 443 }
+            - Usernet access for reverse tcp (4443/tcp) to the attacker machine 
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 4443 }
+            - Usernet access to inet for rust-desk screen sharing
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21114} 
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21115 }
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21116 }
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21117 }
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 21118 } 
+            - { action: ACCEPT, source: user, dest: inet, proto: tcp, dest_port: 8000 }  
+            - { action: ACCEPT, source: user, dest: inet, proto: udp, dest_port: 21116 }   
+            - Usernet access to inet for veiltransfer udp       
+            - { action: ACCEPT, source: user, dest: inet, proto: udp, dest_port: 443 } 
             - Permit access to SSH
             - { action: SSH/ACCEPT,  source: lan, dest: fw }
             - { action: SSH/ACCEPT,  source: dmz, dest: fw }
