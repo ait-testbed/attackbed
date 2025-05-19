@@ -1,0 +1,21 @@
+- name: Install Docker Host
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  roles:
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: manage_unattended_upgrades
+          - role: auditd
+          - role: atb-ansible-dockerce
+          - role: nextcloudrce
+            vars:
+                  nextcloud_rce_domain: "172.17.100.125:8080"
+          - role: vulndockerd
+            vars:
+                  vulndockerd_socket: "tcp://172.18.0.1:2375"

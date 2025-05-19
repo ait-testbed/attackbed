@@ -9,7 +9,7 @@ terraform {
 
 inputs = {
   sshkey = "testbed-key"
-  docker_image = "Ubuntu 22.04"
+  docker_image = "atb-docker-image-2025-04-25T15-42-30Z"
 } 
 
 
