@@ -47,7 +47,7 @@
     - name: Create file with add-key-to-root-authorize-command
       ansible.builtin.copy:
               content: |
-                "\"echo {{sshkey.public_key}} >> /root/.ssh/authorized_keys\""
+                "echo {{sshkey.public_key}} >> /root/.ssh/authorized_keys"
               dest: "/var/www/html/README.txt"
               owner: "root"
               mode: "0755"
