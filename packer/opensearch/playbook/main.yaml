@@ -14,10 +14,10 @@
     admin_password: "myStrongPassword@123!"
     kibanaserver_password: "Test@6789"
     logstash_password: "Test@456"
-    domain_name: aecid-testbed.local
-    opensearch_hostname: search.aecid-testbed.local
+    domain_name: attackbed.local
+    opensearch_hostname: search.attackbed.local
     opensearch_hosts:
-            search.aecid-testbed.local: 
+            search.attackbed.local: 
               ip: 127.0.0.1
     iac_enable: true
 
@@ -42,13 +42,13 @@
             vars:
               hostname: search
               hostname_ip: 127.0.0.1
-              hostname_fqdn: search.aecid-testbed.local
+              hostname_fqdn: search.attackbed.local
           - role: opensearch
           - role: opensearch-dashboards
   post_tasks:
         - name: Download root-ca.key to local machine
           ansible.builtin.fetch:
-            src: /usr/share/opensearch/config/search.aecid-testbed.local_http.pem
+            src: /usr/share/opensearch/config/search.attackbed.local_http.pem
             dest: ../../logstash/playbook/files/ca.pem
             flat: yes
         # Manually upload ingest pipelines to OpenSearch
@@ -69,8 +69,8 @@
         - name: Upload ingest pipelines to OpenSearch
           command: >
             curl -u {{ os_admin }}:{{ admin_password }}
-            --cacert /usr/share/opensearch/config/search.aecid-testbed.local_http.pem
-            -X PUT "https://search.aecid-testbed.local:9200/_ingest/pipeline/{{ item.path | basename | regex_replace('.json$', '') }}"
+            --cacert /usr/share/opensearch/config/search.attackbed.local_http.pem
+            -X PUT "https://search.attackbed.local:9200/_ingest/pipeline/{{ item.path | basename | regex_replace('.json$', '') }}"
             -H 'Content-Type: application/json'
             --data-binary "@{{ item.path }}"
           loop: "{{ pipeline_files.files }}"

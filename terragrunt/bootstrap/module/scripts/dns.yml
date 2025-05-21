@@ -20,4 +20,4 @@ runcmd:
   - [apt-get, update]
   - [apt-get, install, -y, python3]
   - [apt-get, install, -y, dnsmasq]
-  - echo "server=/aecid-testbed.com/192.42.0.233" > /etc/dnsmasq.d/corpdomain.conf
+  - echo "server=/attackbed.com/192.42.0.233" > /etc/dnsmasq.d/corpdomain.conf

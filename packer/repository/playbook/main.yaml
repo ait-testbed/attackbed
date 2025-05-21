@@ -23,7 +23,7 @@
           - role: hostname
             vars:
                   hostname: "puppet"
-                  hostname_fqdn: "puppet.aecid-testbed.local"
+                  hostname_fqdn: "puppet.attackbed.local"
                   hostname_ip: "172.17.100.122"
           - role: aeciduser
             vars:

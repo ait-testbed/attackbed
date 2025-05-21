@@ -13,17 +13,17 @@
     admin_password: "myStrongPassword@123!"
     kibanaserver_password: "Test@6789"
     logstash_password: "Test@456"
-    domain_name: aecid-testbed.local
-    opensearch_hostname: search.aecid-testbed.local
+    domain_name: attackbed.local
+    opensearch_hostname: search.attackbed.local
     opensearch_hosts:
-            search.aecid-testbed.local: 
+            search.attackbed.local: 
               ip: 192.168.100.11
   roles:
     - role: hostname
       vars:
         hostname: search
         hostname_ip: 192.168.100.11
-        hostname_fqdn: search.aecid-testbed.local
+        hostname_fqdn: search.attackbed.local
     - role: opensearch
     - role: opensearch-dashboards
 

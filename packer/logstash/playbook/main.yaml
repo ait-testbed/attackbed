@@ -16,7 +16,7 @@
       - logstash-input-beats
       - logstash-filter-multiline
       - logstash-output-opensearch
-    logstash_opensearch_hosts: [ "https://search.aecid-testbed.local:9200" ]
+    logstash_opensearch_hosts: [ "https://search.attackbed.local:9200" ]
     # ca.pem from the opensearch-config
     logstash_opensearch_ca: "/opt/ca.pem"
     logstash_opensearch_user: "admin"
@@ -28,7 +28,7 @@
       - 31-opensearch-output.conf
     logstash_monitor_local_syslog: False
     logstash_kafka_enable: true
-    logstash_kafka_server: "kafka.aecid-testbed.local:9092"
+    logstash_kafka_server: "kafka.attackbed.local:9092"
     logstash_kafka_topics: [ "logs" ]
 
   pre_tasks:
@@ -45,11 +45,11 @@
     - name: Add opensearch to /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "192.168.100.11 search.aecid-testbed.local"
+        line: "192.168.100.11 search.attackbed.local"
     - name: Add kafka to /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "192.168.100.10 kafka.aecid-testbed.local"
+        line: "192.168.100.10 kafka.attackbed.local"
 
   roles:
     - role: aeciduser
@@ -64,5 +64,5 @@
       vars:
         hostname: logstash
         hostname_ip: 192.168.100.12
-        hostname_fqdn: logstash.aecid-testbed.local
+        hostname_fqdn: logstash.attackbed.local
     - role: logstash

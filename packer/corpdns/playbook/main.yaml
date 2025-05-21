@@ -17,20 +17,20 @@
         dnsmasq_systemd_resolved_disable: true
         dnsmasq_config:
               - { name: "logging",  content: "log-queries" }
-              - { name: "host-video",  content: "host-record=video.aecid-testbed.com,192.42.0.254" }
-              - { name: "host-firewall",  content: "host-record=fw.aecid-testbed.com,192.42.0.254" }
-              - { name: "host-domain",  content: "host-record=aecid-testbed.com,192.42.0.254" }
-              - { name: "auth-zone",  content: "auth-zone=aecid-testbed.com,192.42.0.254" }
+              - { name: "host-video",  content: "host-record=video.attackbed.com,192.42.0.254" }
+              - { name: "host-firewall",  content: "host-record=fw.attackbed.com,192.42.0.254" }
+              - { name: "host-domain",  content: "host-record=attackbed.com,192.42.0.254" }
+              - { name: "auth-zone",  content: "auth-zone=attackbed.com,192.42.0.254" }
               - { name: "auth-server",  content: "auth-server=192.42.0.233,,ens3" }
-              - { name: "domain",  content: "domain=aecid-testbed.com" }
-              - { name: "local-domain",  content: "local=/aecid-testbed.com/192.42.0.254" }
+              - { name: "domain",  content: "domain=attackbed.com" }
+              - { name: "local-domain",  content: "local=/attackbed.com/192.42.0.254" }
     - role: filebeat
       vars:
         filebeat_service_enabled: false
         filebeat_output_logstash_enabled: false
         filebeat_output_kafka_enabled: true
         filebeat_output_kafka_hosts:
-          - "kafka.aecid-testbed.local:9092"
+          - "kafka.attackbed.local:9092"
         filebeat_output_kafka_topic: "logs"
         filebeat_template: "filebeatkafka.yml.j2"
         filebeat_inputs:
@@ -46,5 +46,5 @@
     - name: Add kafka host entry in /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "192.42.0.254 kafka.aecid-testbed.local"
+        line: "192.42.0.254 kafka.attackbed.local"
         state: present

@@ -3,7 +3,7 @@
   become: true
   vars:
     suricata_interface: [ens5]
-    internal_domain: "aecid-testbed.local"
+    internal_domain: "attackbed.local"
     suricata_home_nets: ["172.17.100.0/24"]
     netflow_enabled: true
     weaklinuxuser_name: "john"
@@ -147,7 +147,7 @@
         filebeat_service_enabled: false
         filebeat_output_kafka_enabled: true
         filebeat_output_kafka_hosts:
-          - "kafka.aecid-testbed.local:9092"
+          - "kafka.attackbed.local:9092"
         filebeat_output_kafka_topic: "logs"
         filebeat_template: "filebeatkafka.yml.j2"
         filebeat_inputs:
@@ -171,5 +171,5 @@
     - name: Add kafka host entry in /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "192.168.100.10 kafka.aecid-testbed.local"
+        line: "192.168.100.10 kafka.attackbed.local"
         state: present
