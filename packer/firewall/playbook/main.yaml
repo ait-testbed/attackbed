@@ -37,6 +37,7 @@
          - { name: "linuxshare", content: "address=/linuxshare.{{ internal_domain }}/192.168.100.23" }
          - { name: "kafka", content: "address=/kafka.{{ internal_domain }}/192.168.100.10" }
          - { name: "cloud", content: "address=/cloud.{{ internal_domain }}/172.17.100.125" }
+         - { name: "firewall", content: "address=/firewall.{{ internal_domain }}/172.17.100.254" }
        dnsmasq_systemd_resolved_disable: true
     - role: shorewall
       vars:
