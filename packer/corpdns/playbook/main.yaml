@@ -19,6 +19,7 @@
               - { name: "logging",  content: "log-queries" }
               - { name: "host-video",  content: "host-record=video.attackbed.com,192.42.0.254" }
               - { name: "host-firewall",  content: "host-record=fw.attackbed.com,192.42.0.254" }
+              - { name: "host-repo",  content: "host-record=repo.attackbed.com,192.42.0.254" }
               - { name: "host-domain",  content: "host-record=attackbed.com,192.42.0.254" }
               - { name: "auth-zone",  content: "auth-zone=attackbed.com,192.42.0.254" }
               - { name: "auth-server",  content: "auth-server=192.42.0.233,,ens3" }
