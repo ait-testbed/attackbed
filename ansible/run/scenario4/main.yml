@@ -149,7 +149,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_4.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_4.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_4

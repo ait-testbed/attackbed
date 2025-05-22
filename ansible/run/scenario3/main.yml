@@ -54,7 +54,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_a_a
@@ -66,7 +66,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_b.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_a_b
@@ -78,7 +78,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_b
@@ -90,7 +90,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_c
@@ -102,7 +102,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_d
