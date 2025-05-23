@@ -1,3 +1,5 @@
+# Always build the OpenSearch image before building the Logstash image! 
+# Logstash requires the CA certificate from OpenSearch to function properly.
 - name: Install Logstash Host
   hosts: all
   remote_user: ubuntu

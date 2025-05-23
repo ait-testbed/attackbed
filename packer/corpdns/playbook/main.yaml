@@ -11,6 +11,8 @@
             # pass: aecid
             aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
     - role: suricata
+      vars:
+        netflow_enabled: true
     - role: auditd
     - role: dnsmasq
       vars:
