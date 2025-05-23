@@ -42,6 +42,7 @@
     kyoushi_gather_logs:
       - /home/aecid/attackmate.log
       - /home/aecid/output.log
+      - /home/aecid/attackmate.json
       - src: /var/log
         recursive: true
 

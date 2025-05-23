@@ -13,7 +13,7 @@
             vars:
                   hostname: linuxshare
                   hostname_ip: 192.168.100.23
-                  hostname_fqdn: linuxshare.aecid-testbed.local
+                  hostname_fqdn: linuxshare.attackbed.local
           - role: aeciduser
             vars:
                   # pass: aecid
