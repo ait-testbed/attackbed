@@ -1,3 +1,21 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
@@ -18,6 +36,16 @@
         - install
         - git
         - attackmate
+        - playbooks
+
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: '^(command_delay:\s*)\d+'
+        replace: '\110' 
+        backup: yes
+      become: true
+      tags:
         - playbooks
 
     - name: Create shellcode for port 3333
