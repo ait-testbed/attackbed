@@ -88,3 +88,10 @@
     - role: veiltransfer
       vars:
         veiltransfer_user: "{{ attacker_user }}"
+
+  post_tasks: 
+    - name: Remove 8.8.8.8 again from /etc/resolv.conf
+      ansible.builtin.lineinfile:
+        path: /etc/resolv.conf
+        regexp: '^nameserver 8\.8\.8\.8$'
+        state: absent
