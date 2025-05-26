@@ -1,3 +1,21 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Start Ghosts Client on Admin PC
   hosts: adminpc1
   become: true
@@ -29,6 +47,16 @@
     attacker_user: aecid
     attacker_home: "/home/{{ attacker_user }}"
   tasks:
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: Copy entire folder to attacker
       ansible.builtin.copy:
         src: "files/"

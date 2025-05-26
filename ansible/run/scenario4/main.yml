@@ -1,3 +1,21 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
@@ -16,7 +34,16 @@
         name: msfrpcd
         state: restarted
 
-  tasks:
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: get user home directory
       ansible.builtin.shell: >
              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'

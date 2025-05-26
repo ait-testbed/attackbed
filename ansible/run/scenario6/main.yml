@@ -43,6 +43,16 @@
         state: restarted
 
   tasks:
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: get user home directory
       ansible.builtin.shell: >
              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
