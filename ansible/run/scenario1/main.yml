@@ -41,8 +41,8 @@
     - name: Ensure delay of 10 seconds
       ansible.builtin.replace:
         path: /etc/attackmate.yml
-        regexp: '^(command_delay:\s*)\d+'
-        replace: '\110' 
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
         backup: yes
       become: true
       tags:
