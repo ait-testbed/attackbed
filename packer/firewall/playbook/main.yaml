@@ -95,6 +95,8 @@
             - Kafka Ports
             - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
+            - Wazuh Ports
+            - { action: ACCEPT, source: dmz, dest: "lan:$WAZUH", proto: tcp, dest_port: 1514,1515 }
             - Usernet access to Squid proxy (3128/tcp) on the firewall
             - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
             - Allow fw to DMZ for browser traffic (to let client browse videoserver login page)
@@ -140,6 +142,7 @@
             - { name: LINUXSHARE, value: 192.168.100.23}
             - { name: VIDEOSERVER, value: 172.17.100.121}
             - { name: KAFKA, value: 192.168.100.10}
+            - { name: WAZUH, value: 192.168.100.130}
  
     - role: auditd
     - role: filebeat
