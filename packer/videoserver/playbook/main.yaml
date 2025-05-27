@@ -74,7 +74,7 @@
               filebeat_service_enabled: false
               filebeat_output_kafka_enabled: true
               filebeat_output_kafka_hosts:
-                - "kafka.aecid-testbed.local:9092"
+                - "kafka.attackbed.local:9092"
               filebeat_output_kafka_topic: "logs"
               filebeat_template: "filebeatkafka.yml.j2"
               filebeat_inputs:

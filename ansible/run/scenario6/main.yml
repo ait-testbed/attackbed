@@ -43,6 +43,16 @@
         state: restarted
 
   tasks:
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: get user home directory
       ansible.builtin.shell: >
              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
@@ -184,7 +194,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_a.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_a_a
@@ -196,7 +206,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_b.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_a_b
@@ -208,7 +218,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_a.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_b_a
@@ -220,7 +230,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_b.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_b_b
@@ -232,7 +242,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_c.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_6_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_c

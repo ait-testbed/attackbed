@@ -1,3 +1,21 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
@@ -20,6 +38,16 @@
         - attackmate
         - playbooks
 
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: Copy user-password-combo
       ansible.builtin.copy:
               src: user_pass_combo.txt
@@ -27,6 +55,29 @@
               mode: "0644"
       tags:
           - playbooks
+
+    - name: Prepare msf directory
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.file:
+          path: "{{user_home.stdout}}/.msf4/modules/exploit/linux/misc/"
+          state: directory
+          recurse: True
+          mode: '0755'
+      tags:
+          - healthcheck
+          - playbooks
+
+    - name: Upload healthcheck-exploit
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.copy:
+          src: healthcheck_rce
+          dest: "{{user_home.stdout}}/.msf4/modules/exploit/linux/misc/healthcheck_rce"
+      tags:
+          - healthcheck
+          - playbooks
+
 
     - name: Copy playbooks
       become: True
@@ -54,7 +105,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_a_a
@@ -66,7 +117,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_b.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_a_b
@@ -78,7 +129,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_b
@@ -90,7 +141,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_c
@@ -102,7 +153,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml"
+          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_d

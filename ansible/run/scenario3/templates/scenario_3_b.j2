@@ -73,6 +73,7 @@ commands:
     session: foothold
     cmd: "cat /etc/shadow\n"
     interactive: True
+    metadata:
       techniques: "T1003.008"
       tactics: "Credential Access"
       technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
@@ -218,7 +219,7 @@ commands:
     cmd: rm -rf /media/data/*
     metadata:
       techniques: "T1485"
-      tactics: "Impact
+      tactics: "Impact"
       technique_name: "Data Destruction"
   
   - type: msf-session
