@@ -56,6 +56,28 @@
       tags:
           - playbooks
 
+    - name: Prepare msf directory
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.file:
+          path: "{{user_home.stdout}}/.msf4/modules/exploit/linux/misc/"
+          state: directory
+          mode: '0755'
+      tags:
+          - healthcheck
+          - playbooks
+
+    - name: Upload healthcheck-exploit
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.copy:
+          src: healthcheck_rce
+          dest: "{{user_home.stdout}}/.msf4/modules/exploit/linux/misc/healthcheck_rce"
+      tags:
+          - healthcheck
+          - playbooks
+
+
     - name: Copy playbooks
       become: True
       become_user: "{{attacker_user}}"
