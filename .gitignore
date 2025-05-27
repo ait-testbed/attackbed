@@ -30,3 +30,7 @@ ansible/hosts
 
 # ignore opensearch certificate file
 ca.pem
+
+# python
+*.egg-info/
+scripts/*/build/
