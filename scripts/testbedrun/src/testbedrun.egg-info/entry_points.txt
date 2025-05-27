@@ -1,2 +1,0 @@
-[console_scripts]
-testbedrun = testbedrun.__main__:main

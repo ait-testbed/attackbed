@@ -30,3 +30,5 @@ ansible/hosts
 
 # ignore opensearch certificate file
 ca.pem
+
+*.egg-info/
