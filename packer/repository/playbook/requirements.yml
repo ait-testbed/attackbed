@@ -47,4 +47,6 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-tightvnc.git
     version: v1.0.0
     name: tightvnc
-
+  - src: https://github.com/ait-testbed/atb-ansible-wazuh_agent.git
+    version: v0.9.0
+    name: wazuh_agent

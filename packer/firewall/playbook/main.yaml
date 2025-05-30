@@ -22,6 +22,9 @@
       vars:
             # pass: aecid
             aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+      vars:
+            aecidtools_user: "aecid"
     - role: weaklinuxuser
       vars: 
             weaklinuxuser_user: "{{ weaklinuxuser_name }}"
@@ -29,6 +32,7 @@
             weaklinuxuser_groups:
               - sudo
     - role: suricata
+    - role: collectd
     - role: dnsmasq
       vars:
        dnsmasq_config:
@@ -36,6 +40,7 @@
          - { name: "puppetserver", content: "address=/puppet.{{ internal_domain }}/172.17.100.122" }
          - { name: "linuxshare", content: "address=/linuxshare.{{ internal_domain }}/192.168.100.23" }
          - { name: "kafka", content: "address=/kafka.{{ internal_domain }}/192.168.100.10" }
+         - { name: "wazuh", content: "address=/wazuh.{{ internal_domain }}/192.168.100.130" }
          - { name: "cloud", content: "address=/cloud.{{ internal_domain }}/172.17.100.125" }
        dnsmasq_systemd_resolved_disable: true
     - role: shorewall
@@ -164,6 +169,25 @@
             paths: ["/var/log/suricata/eve.json"]
           - tpl: "auditd.yml"
             paths: ["/var/log/audit/audit.log"]
+    - role: wazuh_agent
+      vars:
+            wazuh_manager: 192.168.100.130
+            wazuh_localfiles:
+              - log_format: json
+                location: /var/lib/docker/containers/*/*-json.log
+              - log_format: audit
+                location: /var/log/audit/audit.log
+              - log_format: json
+                location: /var/log/suricata/eve.json
+              - log_format: syslog
+                location: /var/log/suricata/fast.log
+              - log_format: syslog
+                location: /var/log/suricata/suricata.log
+              - log_format: syslog
+                location: /var/log/*.log
+              - log_format: squid
+                location: /var/log/squid/*.log
+
   tasks:
     - name: Start Shorewall on startup
       lineinfile: >
