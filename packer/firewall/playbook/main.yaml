@@ -32,6 +32,8 @@
             weaklinuxuser_groups:
               - sudo
     - role: suricata
+      vars:
+            netflow_enabled: true 
     - role: collectd
     - role: dnsmasq
       vars:
