@@ -4,7 +4,7 @@ locals {
 
 ####################################################################
 #
-# CREATE INSTANCE for "VIDEOSERVER"
+# CREATE INSTANCE for "WAZUH"
 #
 data "template_file" "userdata_wazuh" {
   template = "${file("${local.ext_wazuh_userdata_file}")}"
