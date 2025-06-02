@@ -22,6 +22,7 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
+    delay_before_attack: 3
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -176,7 +177,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_4.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_4.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_4

@@ -22,6 +22,7 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
+    delay_before_attack: 3
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >
@@ -182,7 +183,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_a_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_a_a
@@ -194,7 +195,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_b_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_b_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_b_a
@@ -206,7 +207,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_f_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_f_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_f_a
@@ -218,7 +219,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_e_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_e_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_e_a
@@ -230,7 +231,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_c_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_c_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_c_a
@@ -242,7 +243,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_d_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_d_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_d_a
@@ -254,7 +255,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_a_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_a_b
@@ -266,7 +267,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_b_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_b_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_b_b
@@ -278,7 +279,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_c_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_c_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_c_b
@@ -290,7 +291,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_d_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_d_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_d_b
@@ -302,7 +303,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_e_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_e_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_e_b
@@ -314,7 +315,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_f_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_f_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_f_b
@@ -326,7 +327,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_a_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_a_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_a_c
@@ -338,7 +339,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_b_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_b_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_b_c
@@ -350,7 +351,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_c_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_c_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_c_c
@@ -362,7 +363,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_d_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_d_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_d_c
@@ -374,7 +375,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_e_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_e_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_e_c
@@ -386,7 +387,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_1_f_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_1_f_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_1_f_c

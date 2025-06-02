@@ -46,6 +46,7 @@
   vars:
     attacker_user: aecid
     attacker_home: "/home/{{ attacker_user }}"
+    delay_before_attack: 3
   tasks:
     - name: Ensure delay of 10 seconds
       ansible.builtin.replace:

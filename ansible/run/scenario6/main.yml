@@ -30,6 +30,7 @@
     attacker_ip: 192.42.1.174
     ansible_ssh_private_key_file: ~/.ssh/testbed
     attacker_user: aecid
+    delay_before_attack: 3
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -194,7 +195,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_a_a
@@ -206,7 +207,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_a_b
@@ -218,7 +219,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_a.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_b_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_b_a
@@ -230,7 +231,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_b.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_b_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_b_b
@@ -242,7 +243,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_c.yml --json"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_c
