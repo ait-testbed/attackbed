@@ -8,3 +8,5 @@ attacker: attacker
 inet-dns: bootstrap
 inet-fw: bootstrap
 mgmt: bootstrap
+docker: docker
+wazuh: wazuh
