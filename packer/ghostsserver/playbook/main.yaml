@@ -10,6 +10,7 @@
     - role: aecidtools
       vars:
             aecidtools_user: "aecid"
+    - role: collectd
     - role: docker
       vars:
             docker_edition: 'ce'

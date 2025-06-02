@@ -229,6 +229,7 @@
           - role: aecidtools
             vars:
                   aecidtools_user: "aecid"
+          - role: collectd
           - role: weaklinuxuser
             vars: 
                   weaklinuxuser_user: "{{ linux_user }}"
