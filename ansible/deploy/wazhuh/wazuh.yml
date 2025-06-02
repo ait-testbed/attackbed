@@ -1,0 +1,6 @@
+- name: Deploy Wazuh
+  hosts: wazuh
+  remote_user: aecid
+  become: true
+  roles:
+    - role: wazuh_manager

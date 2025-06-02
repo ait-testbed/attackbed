@@ -22,6 +22,9 @@
       vars:
             # pass: aecid
             aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+      vars:
+            aecidtools_user: "aecid"
     - role: weaklinuxuser
       vars: 
             weaklinuxuser_user: "{{ weaklinuxuser_name }}"
@@ -30,7 +33,8 @@
               - sudo
     - role: suricata
       vars:
-        netflow_enabled: true
+            netflow_enabled: true 
+    - role: collectd
     - role: dnsmasq
       vars:
        dnsmasq_config:
@@ -38,6 +42,7 @@
          - { name: "puppetserver", content: "address=/puppet.{{ internal_domain }}/172.17.100.122" }
          - { name: "linuxshare", content: "address=/linuxshare.{{ internal_domain }}/192.168.100.23" }
          - { name: "kafka", content: "address=/kafka.{{ internal_domain }}/192.168.100.10" }
+         - { name: "wazuh", content: "address=/wazuh.{{ internal_domain }}/192.168.100.130" }
          - { name: "cloud", content: "address=/cloud.{{ internal_domain }}/172.17.100.125" }
          - { name: "firewall", content: "address=/firewall.{{ internal_domain }}/172.17.100.254" }
        dnsmasq_systemd_resolved_disable: true
@@ -98,6 +103,8 @@
             - Kafka Ports
             - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
+            - Wazuh Ports
+            - { action: ACCEPT, source: dmz, dest: "lan:$WAZUH", proto: tcp, dest_port: 1514,1515 }
             - Usernet access to Squid proxy (3128/tcp) on the firewall
             - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
             - Allow fw to DMZ for browser traffic (to let client browse videoserver login page)
@@ -143,6 +150,7 @@
             - { name: LINUXSHARE, value: 192.168.100.23}
             - { name: VIDEOSERVER, value: 172.17.100.121}
             - { name: KAFKA, value: 192.168.100.10}
+            - { name: WAZUH, value: 192.168.100.130}
  
     - role: auditd
     - role: filebeat
@@ -164,6 +172,25 @@
             paths: ["/var/log/suricata/eve.json"]
           - tpl: "auditd.yml"
             paths: ["/var/log/audit/audit.log"]
+    - role: wazuh_agent
+      vars:
+            wazuh_manager: 192.168.100.130
+            wazuh_localfiles:
+              - log_format: json
+                location: /var/lib/docker/containers/*/*-json.log
+              - log_format: audit
+                location: /var/log/audit/audit.log
+              - log_format: json
+                location: /var/log/suricata/eve.json
+              - log_format: syslog
+                location: /var/log/suricata/fast.log
+              - log_format: syslog
+                location: /var/log/suricata/suricata.log
+              - log_format: syslog
+                location: /var/log/*.log
+              - log_format: squid
+                location: /var/log/squid/*.log
+
   tasks:
     - name: Start Shorewall on startup
       lineinfile: >

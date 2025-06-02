@@ -47,3 +47,19 @@
           - role: acct
           - role: ftploginjob
           - role: collectd
+          - role: wazuh_agent
+            vars:
+                  wazuh_manager: 192.168.100.130
+                  wazuh_localfiles:
+                    - log_format: audit
+                      location: /var/log/audit/audit.log
+                    - log_format: json
+                      location: /var/log/suricata/eve.json
+                    - log_format: syslog
+                      location: /var/log/suricata/fast.log
+                    - log_format: syslog
+                      location: /var/log/suricata/suricata.log
+                    - log_format: syslog
+                      location: /var/log/*.log
+                    - log_format: syslog
+                      location: /var/www/default/log/*.log
