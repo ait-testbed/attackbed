@@ -46,6 +46,7 @@
 
   roles:
     - role: manage_unattended_upgrades
+    - role: acct
     - role: aeciduser
       vars:
             # pass: aecid
