@@ -29,11 +29,18 @@
         name: dnsmasq
         state: restarted
       delegate_to: inetdns
-
+  tasks:
     - name: restart msfrpcd
       ansible.builtin.service:
         name: msfrpcd
         state: restarted
+    
+    - name: ensure sshpass is installed
+      ansible.builtin.apt:
+        name: sshpass
+        state: present
+      tags:
+        - playbooks
 
     - name: Ensure delay of 10 seconds
       ansible.builtin.replace:
