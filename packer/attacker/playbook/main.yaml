@@ -21,6 +21,7 @@
             - dnsenum
             - hydra
             - bettercap
+            - sshpass
           update_cache: yes
     - name: Ensure LightDM configuration directory exists
       ansible.builtin.file:
