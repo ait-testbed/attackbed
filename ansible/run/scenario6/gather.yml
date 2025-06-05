@@ -11,6 +11,7 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
 
     kyoushi_gather_logs:
       - src: /var/log
@@ -49,6 +50,7 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
 
     kyoushi_gather_logs:
       - src: /var/log
@@ -70,6 +72,7 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
 
 - hosts: wazuh
   roles:
@@ -86,3 +89,5 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/shared
+        recursive: true
