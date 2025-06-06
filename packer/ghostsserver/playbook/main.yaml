@@ -10,6 +10,7 @@
     - role: aecidtools
       vars:
             aecidtools_user: "aecid"
+    - role: collectd
     - role: docker
       vars:
             docker_edition: 'ce'
@@ -24,3 +25,4 @@
               - aecid
     - role: ghostsserver
     - role: manage_unattended_upgrades
+    - role: acct

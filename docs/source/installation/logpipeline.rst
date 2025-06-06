@@ -122,7 +122,7 @@ To check if the connection to OpenSearch is working, we can use curl to send a r
 
 ::
 
-  curl -u admin:myStrongPassword@123! -X GET "https://search.aecid-testbed.local:9200" --cacert /opt/ca.pem
+  curl -u admin:myStrongPassword@123! -X GET "https://search.attackbed.local:9200" --cacert /opt/ca.pem
 
 If a json is returned with opensearch cluster information, the connection was successfully established.
 
