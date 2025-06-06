@@ -20,6 +20,20 @@
       tags:
         - playbooks
 
+    - name: stop dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: stopped
+      tags:
+        - playbooks
+
+    - name: start dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: started
+      tags:
+        - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
@@ -71,10 +85,12 @@
       tags:
         - playbooks
 
-    - name: Install Flask
-      ansible.builtin.pip:
-        name: flask
+    - name: Install Flask system-wide via apt
+      ansible.builtin.apt:
+        name: python3-flask
         state: present
+        update_cache: yes
+      become: true 
       tags:
         - playbooks
 
@@ -88,6 +104,7 @@
         mode: '0600'
       tags:
         - ssh
+        - playbooks
 
     - name: Read SSH public key from attacker
       become: yes
@@ -96,6 +113,7 @@
       register: ssh_key
       tags:
         - ssh
+        - playbooks
     
     - name: Add public key to mgmt's authorized_keys
       become: yes
@@ -106,6 +124,7 @@
       delegate_to: mgmt
       tags:
         - ssh
+        - playbooks
 
     - name: Copy firefox extension folder
       become: True
