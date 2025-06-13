@@ -22,6 +22,10 @@
           - role: aecidtools
             vars:
                   aecidtools_user: "aecid"
+          - role: collectd
+            vars:
+                  aecidtools_user: "aecid"
           - role: manage_unattended_upgrades
+          - role: acct
           - role: auditd
           - role: simulatedwebcam

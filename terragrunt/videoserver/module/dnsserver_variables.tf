@@ -6,7 +6,7 @@ variable "dnsserver_image" {
 variable "dnsserver_flavor" {
   type        = string
   description = "flavor of the dnsserver host"
-  default     = "d2-2"
+  default     = "d2-8"
 }
 
 variable "dnsserver_userdata" {

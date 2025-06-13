@@ -64,6 +64,23 @@ variable "mgmt_flavor" {
   default     = "d2-2"
 }
 
+variable "dnsserver_image" {
+  type        = string
+  description = "image of the dnsserver host"
+}
+
+variable "dnsserver_flavor" {
+  type        = string
+  description = "flavor of the dnsserver host"
+  default     = "d2-8"
+}
+
+variable "dnsserver_userdata" {
+  type        = string
+  description = "Userdata for the dnsserver virtual machine"
+  default     = null
+}
+
 variable "inet_dns" {
   type        = list(string)
   description = "dns servers to configure for the internet"

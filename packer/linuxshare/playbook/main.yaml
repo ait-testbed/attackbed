@@ -2,6 +2,12 @@
   hosts: all
   remote_user: debian
   become: true
+  pre_tasks:
+    - name: Ensure gnupg is installed
+      ansible.builtin.apt: 
+        name: gnupg
+        state: present
+        update_cache: yes
   tasks:
     - name: Allow password login
       ansible.builtin.copy:
@@ -9,11 +15,27 @@
         content: 'PasswordAuthentication yes'
   roles:
           - role: puppetclient
+          - role: wazuh_agent
+            vars:
+              wazuh_manager: 192.168.100.130
+              wazuh_localfiles:
+                - log_format: audit
+                  location: /var/log/audit/audit.log
+                - log_format: json
+                  location: /var/log/suricata/eve.json
+                - log_format: syslog
+                  location: /var/log/suricata/fast.log
+                - log_format: syslog
+                  location: /var/log/suricata/suricata.log
+                - log_format: syslog
+                  location: /var/log/*.log
+                - log_format: syslog
+                  location: /var/www/default/log/*.log
           - role: hostname
             vars:
                   hostname: linuxshare
                   hostname_ip: 192.168.100.23
-                  hostname_fqdn: linuxshare.aecid-testbed.local
+                  hostname_fqdn: linuxshare.attackbed.local
           - role: aeciduser
             vars:
                   # pass: aecid
@@ -22,6 +44,8 @@
             vars:
                   aecidtools_user: "aecid"
           - role: manage_unattended_upgrades
+          
+          - role: acct
           - role: auditd
           - role: weaklinuxuser
           - role: disableresolved
@@ -44,22 +68,6 @@
                   path: /media/data
           - role: customdpkg
           - role: rootkeys
-          - role: acct
           - role: ftploginjob
           - role: collectd
-          - role: wazuh_agent
-            vars:
-                  wazuh_manager: 192.168.100.130
-                  wazuh_localfiles:
-                    - log_format: audit
-                      location: /var/log/audit/audit.log
-                    - log_format: json
-                      location: /var/log/suricata/eve.json
-                    - log_format: syslog
-                      location: /var/log/suricata/fast.log
-                    - log_format: syslog
-                      location: /var/log/suricata/suricata.log
-                    - log_format: syslog
-                      location: /var/log/*.log
-                    - log_format: syslog
-                      location: /var/www/default/log/*.log
+
