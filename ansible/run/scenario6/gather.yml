@@ -1,4 +1,4 @@
-- hosts: inetfw
+- hosts: corpdns, inetfw
   roles:
     - kyoushi-gather
   vars:
@@ -73,6 +73,8 @@
           - "/etc/runit "
           - "/etc/sv "
       - src: /var/ossec/etc/ossec.conf
+      - src: /var/ossec/ruleset
+        recursive: true
 
 - hosts: wazuh
   roles:

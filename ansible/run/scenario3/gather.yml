@@ -1,4 +1,4 @@
-- hosts: inetfw
+- hosts: corpdns, inetfw
   roles:
     - kyoushi-gather
   vars:

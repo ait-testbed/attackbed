@@ -1,4 +1,4 @@
-- hosts: inetdns, inetfw-int
+- hosts: inetdns, inetfw, corpdns
   roles:
     - kyoushi-gather
   vars:
@@ -36,7 +36,7 @@
           - "/etc/sv "
       - src: /var/ossec/etc/ossec.conf
 
-- hosts: attacker
+- hosts: lanturtle
   roles:
     - kyoushi-gather
   vars:
