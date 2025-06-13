@@ -152,8 +152,8 @@ commands:
   # allow extension install
   - type: vnc
     cmd: move
-    x: 930
-    y: 653
+    x: 935
+    y: 700
     session: social_engineering
     metadata:
       techniques: "T1176,T1056.001,T1056.004,T1115"
@@ -174,13 +174,37 @@ commands:
   - type: sleep
     seconds: 2
 
+  # Extension was added click OK
+  - type: vnc
+    cmd: move
+    x: 967
+    y: 220
+    session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    cmd: click
+    session: social_engineering
+    metadata:
+      techniques: "T1176,T1056.001,T1056.004,T1115"
+      tactics: "Persistence"
+      technique_name: "Browser Extensions,Input Capture: Keylogging,Input Capture: Credential API Hooking,Clipboard Data"
+
+  - type: sleep
+    seconds: 2
 #################### OPEN VIDEOSERVER LOGIN PAGE ############################
 
   # click search bar
   - type: vnc
     cmd: move
-    x: 255
-    y: 95
+    x: 492
+    y: 93
     session: social_engineering
 
   - type: sleep
@@ -238,8 +262,6 @@ commands:
       tactics: "Collection, Credential Access"
       technique_name: "Input Capture: Credential API Hooking,Input Capture: Keylogging"
 
-    Input Capture: Credential API Hooking
-
   - type: sleep
     seconds: 2
 
@@ -290,8 +312,8 @@ commands:
   # click search bar
   - type: vnc
     cmd: move
-    x: 513
-    y: 95
+    x: 492
+    y: 93
     session: social_engineering
 
   - type: sleep
@@ -307,7 +329,7 @@ commands:
   # click paste button
   - type: vnc
     cmd: move
-    x: 565
+    x: 520
     y: 245
     session: social_engineering
     metadata:

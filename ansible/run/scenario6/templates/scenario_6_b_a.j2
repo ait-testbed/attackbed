@@ -112,7 +112,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 3
+    seconds: 5
 
   # copy something to the clipboard
   - type: vnc 
@@ -222,24 +222,24 @@ commands:
       technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
 
   - type: sleep
-    seconds: 2
+    seconds: 5
 
-# option menu
+# option menu (three dots next to id) todo adjust
   - type: vnc
     cmd: move
-    x: 167
-    y: 188
+    x: 174
+    y: 187
     session: social_engineering
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
   - type: vnc
     cmd: click
     session: social_engineering
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
 # network
   - type: vnc
@@ -441,8 +441,8 @@ commands:
 # option menu
   - type: vnc
     cmd: move
-    x: 167
-    y: 188
+    x: 173
+    y: 151
     session: attacker
 
   - type: sleep
@@ -451,6 +451,8 @@ commands:
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click the option button"
 
   - type: sleep
     seconds: 1
@@ -458,13 +460,15 @@ commands:
 # network
   - type: vnc
     cmd: move
-    x: 82
-    y: 272
+    x: 73
+    y: 238
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click the network settings button"
 
   - type: sleep
     seconds: 1
@@ -473,12 +477,14 @@ commands:
   - type: vnc
     cmd: move
     x: 468
-    y: 131
+    y: 93
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click unlock network settings button"
 
   - type: sleep
     seconds: 1
@@ -500,15 +506,18 @@ commands:
     seconds: 2
 
 # id relay server
+
   - type: vnc
     cmd: move
-    x: 351
-    y: 182
+    x: 386
+    y: 155
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click in relay server field, enter attackmate IP"
 
   - type: sleep
     seconds: 5
@@ -525,13 +534,15 @@ commands:
 # Key Field
   - type: vnc
     cmd: move
-    x: 334
-    y: 439
+    x: 300
+    y: 401
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click in key field, enter public key"
 
   - type: sleep
     seconds: 5
@@ -548,9 +559,11 @@ commands:
 # click ok
   - type: vnc
     cmd: move
-    x: 621
-    y: 490
+    x: 623
+    y: 453
     session: attacker
+    metadata:
+      action: "click ok"
 
   - type: vnc
     cmd: click
@@ -597,6 +610,8 @@ commands:
     cmd: type 
     input: "rustdesk --connect $CLIENT_RUSTDESK_ID -p password"
     session: attacker
+    metadata:
+      action: "command for connection"
 
   - type: sleep
     seconds: 3
@@ -637,10 +652,11 @@ commands:
 
 ## attackers interactions via screenshares on the client desktop
 # select the vnc tab
+# TODO double check this
 
   - type: vnc
     cmd: move
-    x: 581
+    x: 708
     y: 754
     session: attacker
 
@@ -723,7 +739,7 @@ commands:
 
 #### Persistence OPTION A set up a fake firefox binary that executes the reverse shell and then the actual firefox
 
-
+  # TODO this download does not work. squid?
   # download the fake executable from attacker webserver
   - type: vnc
     cmd: type
@@ -735,7 +751,7 @@ commands:
       technique_name: "Ingress Tool Transfer,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 10
 
   - type: vnc
     cmd: key
