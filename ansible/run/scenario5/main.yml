@@ -1,4 +1,4 @@
-- name: Retstart dnsmasq on inetdns
+- name: Restart dnsmasq on inetdns
   hosts: inetdns
   become: true
   tasks:
@@ -16,30 +16,8 @@
     tags:
       - playbooks
 
-- name: Start Ghosts Client on Admin PC
-  hosts: adminpc1
-  become: true
-  vars:
-    ghostsagent_user: "aecid"
-    ghostagent_path: "/home/{{ ghostsagent_user }}/ghosts-client-linux-v8.0.0"
-  tasks:
 
-    - name: Copy ghostagent config files
-      ansible.builtin.template:
-        src: "{{ item }}.j2"
-        dest: "{{ghostagent_path}}/config/{{ item }}.json"
-        mode: '0755'
-      loop:
-        - application
-        - timeline
-
-    - name: Run ghost client on adminpc and administer its process id
-      ansible.builtin.shell: "{{ghostagent_path}}/ghosts.client.linux > /home/{{ ghostsagent_user }}/ghosts-client.log 2>&1 & echo $! > /tmp/ghosts_client.pid"
-      async: 3600
-      poll: 0
-      tags:
-        - run-ghosts-client
-
+# attacker gets a different name and ip here than in other scenarios
 - name: Run Attacker Tasks
   hosts: attacker
   become: true
@@ -48,15 +26,24 @@
     attacker_home: "/home/{{ attacker_user }}"
     delay_before_attack: 3
   tasks:
-    - name: Ensure delay of 10 seconds
-      ansible.builtin.replace:
-        path: /etc/attackmate.yml
-        regexp: 'command_delay: 0'
-        replace: 'command_delay: 10'
-        backup: yes
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\tattacker"
+        state: present         
+
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+
+    - name: Ensure scapy is installed in attackmate's venv
+      ansible.builtin.pip:
+        name: scapy
+        virtualenv: /usr/local/share/attackmate/venv
+        virtualenv_python: python3.12 
       become: true
-      tags:
-        - playbooks
 
     - name: Copy entire folder to attacker
       ansible.builtin.copy:
@@ -66,23 +53,45 @@
         owner: "{{ attacker_user }}"
         group: "{{ attacker_user }}"
         remote_src: no
-      tags:
-        - attacker-tasks
 
-    - name: Run final playbook on attacker with activated environment
-      ansible.builtin.shell: |
-        source /usr/local/share/attackmate/venv/bin/activate && attackmate {{ attacker_home }}/scenario5/playbook.yml
-      args:
-        executable: /bin/bash  # run command in a bash shell
-      tags:
-        - attacker-tasks
 
-- name: Stop Ghosts Client on Admin PC
-  hosts: adminpc1
+    # - name: "Run Scenario 5"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux {{ attacker_home }}/scenario5/playbook.yml --json"
+    #       chdir: "{{user_home.stdout}}"
+
+
+- name: Start attackmate on Admin PC
+  hosts: adminpc
   become: true
+  become_user: aecid
+  vars:
+    user: "aecid"
+    home_path: "/home/{{ user }}"
+    venv_path: "/usr/local/share/attackmate/venv"
+    delay_before_login: 60
   tasks:
-    - name: Stop Ghosts Client
-      ansible.builtin.shell: "kill $(cat /tmp/ghosts_client.pid)"
-      ignore_errors: true  # ignore errors in case the process has already stopped
+
+    - name: Copy playbook to adminpc1
+      ansible.builtin.copy:
+        src: "files/login.yml"
+        dest: "{{ home_path }}/playbook.yml"
+        mode: '0644'
+        owner: "{{ user }}"
+        group: "{{ user }}"
       tags:
-        - stop-ghosts-client
+        - playbooks
+
+    # - name: Run login playbook
+    #   ansible.builtin.shell:
+    #     cmd: "/usr/local/bin/attackmate-tmux {{ home_path }}/playbook.yml --json"
+    #     chdir: "{{ home_path }}"
+    #   become: true
+    #   become_user: aecid
+    #   tags:
+    #     - playbooks
+
+
+
