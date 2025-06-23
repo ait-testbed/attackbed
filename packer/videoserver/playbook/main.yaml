@@ -15,6 +15,10 @@
   hosts: all
   remote_user: debian
   become: true
+  vars:
+    php_version: "7.4"
+    php_ini_path: "/etc/php/{{ php_version }}/apache2/php.ini"
+    timezone: "UTC"
   tasks:
     - name: Install Videoserver Packages
       ansible.builtin.apt:
@@ -32,6 +36,23 @@
       ansible.builtin.copy:
         dest: /etc/ssh/sshd_config.d/password.conf
         content: 'PasswordAuthentication yes'
+
+    - name: Set 'date.timezone = UTC' in php.ini
+      ansible.builtin.lineinfile:
+        path: "{{ php_ini_path }}"
+        regexp: ';date.timezone =' # Matches lines with or without leading semicolon, and current value
+        line: 'date.timezone = {{ timezone }}' 
+        state: present
+        backup: yes 
+        insertafter: EOF # Add at the end of the file if not found, as a fallback
+      notify: Restart Apache2
+
+  handlers:
+  - name: Restart Apache2
+    ansible.builtin.service:
+      name: apache2
+      state: restarted
+
 
   roles:
           - role: aeciduser
