@@ -161,7 +161,7 @@ commands:
       technique_name: "User Execution: Malicious Link,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
   - type: vnc
     cmd: key
@@ -224,7 +224,7 @@ commands:
   - type: sleep
     seconds: 5
 
-# option menu (three dots next to id) todo adjust
+# option menu (three dots next to id) 
   - type: vnc
     cmd: move
     x: 174
@@ -437,7 +437,6 @@ commands:
     seconds: 10
 
 # enter the attacker ID in the rustdesk client on the attacker machine
-
 # option menu
   - type: vnc
     cmd: move
@@ -763,7 +762,7 @@ commands:
       technique_name: "Ingress Tool Transfer,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 10
 
   # make it executable
   - type: vnc
@@ -776,7 +775,7 @@ commands:
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 10
 
   - type: vnc
     cmd: key
