@@ -154,7 +154,7 @@ commands:
 
   - type: ssh
     session: foothold
-    cmd: "node 'linuxshare.aecid-testbed.local' {\n  class { 'blah2': }\n}\n"
+    cmd: "node 'linuxshare.attackbed.local' {\n  class { 'blah2': }\n}\n"
     interactive: True
     metadata:
       techniques: "T1072"
@@ -238,7 +238,7 @@ commands:
     cmd: rm -rf /media/data/*
     metadata:
       techniques: "T1485"
-      tactics: "Impact
+      tactics: "Impact"
       technique_name: "Data Destruction"
   
   - type: msf-session

@@ -4,7 +4,7 @@ locals {
 
 ####################################################################
 #
-# CREATE INSTANCE for "VIDEOSERVER"
+# CREATE INSTANCE for "ADMINPC"
 #
 data "template_file" "userdata_adminpc" {
   template = "${file("${local.ext_adminpc_userdata_file}")}"

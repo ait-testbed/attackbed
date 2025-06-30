@@ -17,6 +17,6 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-novnc.git
     version: v1.0.0
     name: novnc
-  - src: https://github.com/ait-testbed/atb-ansible-ghostagent-linux.git
-    version: v1.0.0
-    name: atb-ansible-ghostagent-linux
+  - src: https://github.com/annaerdi/attackmate-ansible.git
+    version: playwright
+    name: attackmate

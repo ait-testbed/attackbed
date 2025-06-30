@@ -20,6 +20,20 @@
       tags:
         - playbooks
 
+    - name: stop dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: stopped
+      tags:
+        - playbooks
+
+    - name: start dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: started
+      tags:
+        - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
@@ -30,6 +44,7 @@
     attacker_ip: 192.42.1.174
     ansible_ssh_private_key_file: ~/.ssh/testbed
     attacker_user: aecid
+    delay_before_attack: 3
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -43,6 +58,16 @@
         state: restarted
 
   tasks:
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: get user home directory
       ansible.builtin.shell: >
              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
@@ -60,10 +85,12 @@
       tags:
         - playbooks
 
-    - name: Install Flask
-      ansible.builtin.pip:
-        name: flask
+    - name: Install Flask system-wide via apt
+      ansible.builtin.apt:
+        name: python3-flask
         state: present
+        update_cache: yes
+      become: true 
       tags:
         - playbooks
 
@@ -77,6 +104,7 @@
         mode: '0600'
       tags:
         - ssh
+        - playbooks
 
     - name: Read SSH public key from attacker
       become: yes
@@ -85,6 +113,7 @@
       register: ssh_key
       tags:
         - ssh
+        - playbooks
     
     - name: Add public key to mgmt's authorized_keys
       become: yes
@@ -95,6 +124,7 @@
       delegate_to: mgmt
       tags:
         - ssh
+        - playbooks
 
     - name: Copy firefox extension folder
       become: True
@@ -184,7 +214,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_a.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_a_a
@@ -196,7 +226,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_a_b.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_a_b
@@ -208,7 +238,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_a.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_b_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_b_a
@@ -220,7 +250,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_b_b.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_b_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_b_b
@@ -232,7 +262,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_6_c.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_6_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_6_c
