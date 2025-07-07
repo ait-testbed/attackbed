@@ -16,6 +16,49 @@
     tags:
       - playbooks
 
+- name: Configure ZoneMinder API on Video Server
+  hosts: videoserver
+  become: true
+  vars:
+    # Assuming standard ZoneMinder paths and database details
+    zoneminder_conf_file: /etc/zm/conf.d/03-custom.conf
+    zoneminder_db_name: zm
+    zoneminder_db_user: zmuser
+    zoneminder_db_password: zmpass
+  tasks:
+    - name: Ensure OPT_USE_API is enabled in zm.conf
+      ansible.builtin.lineinfile:
+        path: "{{ zoneminder_conf_file }}"
+        regexp: '^ZM_OPT_USE_API='
+        line: 'ZM_OPT_USE_API=TRUE'
+        state: present
+        backup: yes # Create a backup of the original file
+      notify: Restart ZoneMinder
+
+    - name: Ensure OPT_USE_LEGACY_API_AUTH is enabled in zm.conf
+      ansible.builtin.lineinfile:
+        path: "{{ zoneminder_conf_file }}"
+        regexp: '^ZM_OPT_USE_LEGACY_API_AUTH='
+        line: 'ZM_OPT_USE_LEGACY_API_AUTH=TRUE'
+        state: present
+        backup: yes # Create a backup of the original file
+      notify: Restart ZoneMinder
+
+    - name: Enable API access for all users in ZoneMinder database
+      community.mysql.mysql_query:
+        login_db: "{{ zoneminder_db_name | default('zm') }}"
+        login_user: "{{ zoneminder_db_user | default('zmuser') }}"
+        login_password: "{{ zoneminder_db_password | default('zmpass') }}"
+        query: "UPDATE Users SET APIEnabled=1;"
+      notify: Restart ZoneMinder
+
+  handlers:
+    - name: Restart ZoneMinder
+      ansible.builtin.service:
+        name: zoneminder 
+        state: restarted
+      listen: "Restart ZoneMinder" 
+
 
 # attacker gets a different name and ip here than in other scenarios
 - name: Run Attacker Tasks
@@ -30,7 +73,17 @@
       ansible.builtin.lineinfile:
         path: "/etc/hosts"
         line: "127.0.0.1\tattacker"
-        state: present         
+        state: present
+
+    - name: Ensure delay of 10 seconds
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 10'
+        backup: yes
+      become: true
+      tags:
+        - playbooks         
 
     - name: get user home directory
       ansible.builtin.shell: >
