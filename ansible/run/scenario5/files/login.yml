@@ -28,7 +28,7 @@ commands:
   - type: sleep
     seconds: 1
 
-  # press login button
+#  press login button
   - type: browser
     cmd: click
     selector: "button[type='submit']"
@@ -38,7 +38,8 @@ commands:
 
   - type: sleep
     seconds: 1
-
+    
+# this is only needed when the user logs in for the very first time
   # press apply button
   - type: browser
     cmd: click
@@ -61,7 +62,7 @@ commands:
         headless: true
 
       - type: sleep
-        seconds: 7
+        seconds: 20
 
       - type: browser
         cmd: click
@@ -70,7 +71,7 @@ commands:
         headless: true
 
       - type: sleep
-        seconds: 7
+        seconds: 20
 
       - type: browser
         cmd: click
@@ -79,6 +80,33 @@ commands:
         headless: true
 
       - type: sleep
-        seconds: 7
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getConsoleHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getOptionsHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getGroupsHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
 
      
