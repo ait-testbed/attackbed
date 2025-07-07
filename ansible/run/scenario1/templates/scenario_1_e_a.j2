@@ -4,10 +4,10 @@
 #
 ####################
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: video.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-  $DOMAIN: aecid-testbed.com
+  $DOMAIN: attackbed.com
   $USER: aecid
   $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
   $SSH_KEY: {{sshkey.public_key}}
@@ -28,7 +28,7 @@ commands:
     metadata:
       techniques: "T1595,T1592.002"
       tactics: "Reconnaissance"
-      technique_name: "Active Scanning,Gather Victim Host Information: Software
+      technique_name: "Active Scanning,Gather Victim Host Information: Software"
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
@@ -136,7 +136,7 @@ commands:
 
   # wait a little bit for linpeas
   - type: sleep
-    seconds: 380
+    seconds: 600
 
   # This command fixes the outputbuffer
   # so that the output of the further

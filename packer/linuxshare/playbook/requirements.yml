@@ -18,7 +18,7 @@ roles:
     version: v1.2.1
     name: mate-desktop
   - src: https://github.com/ait-testbed/atb-ansible-weaklinuxuser.git
-    version: v1.0.0
+    version: v1.0.2
     name: weaklinuxuser
   - src: https://github.com/ait-testbed/atb-ansible-hostname.git
     version: v1.0.0
@@ -59,6 +59,3 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-wazuh_agent.git
     version: v0.9.0
     name: wazuh_agent
-  - src: https://github.com/ait-testbed/atb-ansible-collectd.git
-    version: v1.0.2
-    name: collectd

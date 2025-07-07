@@ -12,7 +12,6 @@ inputs = {
   videoserver_image = "atb-videoserver-image-2024-07-09T11-00-42Z"
   adminpc_image = "atb-adminpc-image-2024-07-03T11-47-38Z"
   attacker_image = "atb-attacker-image-2024-07-03T11-58-41Z"
-  ghostsserver_image = "atb-ghostsserver-image-2024-07-18T12-38-17Z"
 }
 
 

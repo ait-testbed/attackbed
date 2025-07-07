@@ -11,5 +11,6 @@
             vars:
                   aecidtools_user: "aecid"
           - role: manage_unattended_upgrades
+          - role: acct
           - role: auditd
           - role: wazuh_manager

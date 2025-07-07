@@ -229,12 +229,14 @@
           - role: aecidtools
             vars:
                   aecidtools_user: "aecid"
+          - role: collectd
           - role: weaklinuxuser
             vars: 
                   weaklinuxuser_user: "{{ linux_user }}"
                   weaklinuxuser_pass: "{{ linux_user_password}}"
                   weaklinuxuser_sudo: True
           - role: manage_unattended_upgrades
+          - role: acct
           - role: firefox-home
             vars: 
                   firefox_proxy_address: "{{ proxy_address }}"

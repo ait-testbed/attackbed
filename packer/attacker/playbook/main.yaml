@@ -21,6 +21,7 @@
             - dnsenum
             - hydra
             - bettercap
+            - sshpass
           update_cache: yes
     - name: Ensure LightDM configuration directory exists
       ansible.builtin.file:
@@ -46,6 +47,7 @@
 
   roles:
     - role: manage_unattended_upgrades
+    - role: acct
     - role: aeciduser
       vars:
             # pass: aecid
@@ -88,3 +90,10 @@
     - role: veiltransfer
       vars:
         veiltransfer_user: "{{ attacker_user }}"
+
+  post_tasks: 
+    - name: Remove 8.8.8.8 again from /etc/resolv.conf
+      ansible.builtin.lineinfile:
+        path: /etc/resolv.conf
+        regexp: '^nameserver 8\.8\.8\.8$'
+        state: absent

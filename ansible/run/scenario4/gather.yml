@@ -1,4 +1,4 @@
-- hosts: inetfw
+- hosts: corpdns, inetfw
   roles:
     - kyoushi-gather
   vars:
@@ -11,6 +11,7 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
 
     kyoushi_gather_logs:
       - src: /var/log
@@ -33,6 +34,7 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
 
 - hosts: linuxshare
   roles:
@@ -49,6 +51,7 @@
         exclude:
           - "/etc/runit "
           - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
 
 
 - hosts: attacker
@@ -59,6 +62,7 @@
     kyoushi_gather_logs:
       - /home/aecid/attackmate.log
       - /home/aecid/output.log
+      - /home/aecid/attackmate.json
       - src: /home/aecid/.msf4
         recursive: true
       - src: /var/log
@@ -74,3 +78,20 @@
           - "/etc/runit "
           - "/etc/sv "
 
+- hosts: wazuh
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - src: /var/ossec/logs/alerts
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+      - src: /var/ossec/etc/shared
+        recursive: true
