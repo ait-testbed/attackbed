@@ -36,7 +36,7 @@
           - "/etc/sv "
       - src: /var/ossec/etc/ossec.conf
 
-- hosts: lanturtle
+- hosts: attacker
   roles:
     - kyoushi-gather
   vars:
@@ -74,4 +74,23 @@
           - "/etc/sv "
       - src: /var/ossec/etc/shared
         recursive: true
+
+- hosts: adminpc
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - /home/aecid/attackmate.log
+      - /home/aecid/output.log
+      - src: /var/log
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /home/aecid/
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
 
