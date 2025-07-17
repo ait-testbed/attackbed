@@ -140,7 +140,7 @@ commands:
 
   # wait a little bit for linpeas
   - type: sleep
-    seconds: 600
+    seconds: 380
 
   # This command fixes the outputbuffer
   # so that the output of the further
@@ -239,6 +239,9 @@ commands:
   - type: msf-session
     cmd: stty rows 38 columns 116
     session: "root"
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
 
   - type: msf-session
     cmd: id
