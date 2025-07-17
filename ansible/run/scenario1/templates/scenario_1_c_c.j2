@@ -242,6 +242,10 @@ commands:
   - type: msf-session
     cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
     session: "root"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
  
   - type: msf-session
     cmd: export SHELL=bash

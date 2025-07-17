@@ -281,6 +281,7 @@ commands:
     metadata:
       techniques: "T1124"
       tactics: "Discovery"
+      technique_name: "System Time Discovery"
 
   - type: ssh
     cmd: sudo find /usr -name \*virtualbox\*
@@ -288,7 +289,7 @@ commands:
     metadata:
       techniques: "T1497.001"
       tactics: "Defense Evasion, Discovery"
-      technique_name: "Peripheral Device Discovery"
+      technique_name: "Virtualization/Sandbox Evasion: System Checks"
       #
       #  - type: msf-session
       #    cmd: sudo -l
