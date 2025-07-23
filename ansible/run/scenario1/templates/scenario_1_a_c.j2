@@ -61,10 +61,6 @@ commands:
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
-    metadata:
-      techniques: "T1105"
-      tactics: "Command and Control"
-      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -165,9 +161,9 @@ commands:
     cmd: chmod +x PwnKit && ./PwnKit
     session: "foothold"
     metadata:
-      techniques: "T1068, T1546, T1574"
+      techniques: "T1068"
       tactics: "Privilege Escalation"
-      technique_name: "Exploitation for Privilege Escalation,Event Triggered Execution,Hijack Execution Flow"
+      technique_name: "Exploitation for Privilege Escalation"
 
   - type: msf-session
     cmd: id
