@@ -207,15 +207,6 @@ commands:
     end_str: "PWN >"
 
   - type: msf-session
-    cmd: rm ./PwnKit
-    session: "foothold"
-    end_str: "PWN >"
-    metadata:
-      techniques: "T1070.004"
-      tactics: "Defense Evasion"
-      technique_name: "Indicator Removal: File Deletion"
-
-  - type: msf-session
     cmd: rm linpeas.sh
     session: "foothold"
     end_str: "PWN >"
