@@ -38,12 +38,20 @@ commands:
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Vulnerability Scanning"
 
+  # wazuh alerts arrive with delay of up to 15 seconds, therefore wait some time
+  - type: sleep
+    seconds: 30
+
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
     metadata:
       techniques: "T1595.003"
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Wordlist Scanning"
+
+  # additional access logs will be produced for around 60 seconds after finishing ffuf, therefore wait some time
+  - type: sleep
+    seconds: 90
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
