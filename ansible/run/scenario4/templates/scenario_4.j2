@@ -139,28 +139,16 @@ commands:
     cmd: "vim /etc/systemd/system/auditf.service\n"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":inoremap jj <ESC>\n"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "o"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "[Unit]\nDescription=Run auditf on boot\n\n[Service]\nExecStart=/usr/bin/auditf\nWorkingDirectory=/usr/bin\nRestart=on-failure\nType=simple\n\n[Install]\nWantedBy=multi-user.target\n"
@@ -175,10 +163,6 @@ commands:
     cmd: "jj"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":wq!\n"
