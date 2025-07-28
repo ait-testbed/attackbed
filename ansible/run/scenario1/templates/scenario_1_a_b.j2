@@ -189,7 +189,7 @@ commands:
     metadata:
       techniques: "T1105,T1136.001"
       tactics: "Command and Control,Persistence"
-      technique_name:"Ingress Tool Transfer,Create Account: Local Account"
+      technique_name: "Ingress Tool Transfer,Create Account: Local Account"
 
   - type: msf-session
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
@@ -312,3 +312,6 @@ commands:
       #  - type: msf-session
       #    cmd: ls -l /root
       #
+
+  - type: sleep
+    seconds: 30

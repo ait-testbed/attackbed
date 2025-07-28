@@ -177,6 +177,7 @@ commands:
     metadata:
       techniques: "T1033"
       tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
 
   - type: msf-session
     session: "foothold"
@@ -302,3 +303,6 @@ commands:
       #  - type: msf-session
       #    cmd: ls -l /root
       #
+
+  - type: sleep
+    seconds: 30
