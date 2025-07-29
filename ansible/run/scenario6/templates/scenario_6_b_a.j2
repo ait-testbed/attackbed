@@ -147,6 +147,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1105,T1566.004"
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
     seconds: 45
@@ -324,6 +328,10 @@ commands:
   - type: vnc
     cmd: click
     session: social_engineering
+    metadata:
+      techniques: "T1219" # Configuring Remote Access SW to connect to attacker C2
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
 
   - type: sleep
     seconds: 1
