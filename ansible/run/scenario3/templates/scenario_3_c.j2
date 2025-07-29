@@ -178,6 +178,11 @@ commands:
     cmd: "vim DEBIAN/control\n"
     interactive: True
     ## TODO
+
+  - type: ssh
+    session: foothold
+    cmd: ":%s/1.0-1/1.0-2/g\n"
+    interactive: True
     metadata:
       techniques: "T1059,T1574"
       tactics: "Execution"
@@ -185,22 +190,17 @@ commands:
 
   - type: ssh
     session: foothold
-    cmd: ":%s/1.0-1/1.0-2/g\n"
-    interactive: True
-
-  - type: ssh
-    session: foothold
     cmd: ":wq\n"
     interactive: True
+    metadata:
+      techniques: "T1059,T1574"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
     cmd: "vim DEBIAN/postinst\n"
     interactive: True
-    metadata:
-      techniques: "T1059,T1574"
-      tactics: "Persistence"
-      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
@@ -231,6 +231,10 @@ commands:
     session: foothold
     cmd: ":wq\n"
     interactive: True
+    metadata:
+        techniques: "T1053.003,T1105,T1071.001 "
+        tactics: "Persistence,Command and Control"
+        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols "
 
   - type: ssh
     session: foothold
@@ -352,3 +356,6 @@ commands:
       techniques: "T1489"
       tactics: "Impact"
       technique_name: "Service Stop"
+
+  - type: sleep
+    seconds: 30

