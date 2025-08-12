@@ -46,6 +46,7 @@
          - { name: "wazuh", content: "address=/wazuh.{{ internal_domain }}/192.168.100.130" }
          - { name: "cloud", content: "address=/cloud.{{ internal_domain }}/172.17.100.125" }
          - { name: "firewall", content: "address=/firewall.{{ internal_domain }}/172.17.100.254" }
+         - { name: "admin", content: "address=/admin.{{ internal_domain }}/10.12.0.222" }
        dnsmasq_systemd_resolved_disable: true
     - role: shorewall
       vars:
