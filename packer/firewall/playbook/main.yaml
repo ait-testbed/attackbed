@@ -2,7 +2,7 @@
 - hosts: all
   become: true
   vars:
-    suricata_interface: [ens4, ens5, ens6, ens7]
+    suricata_interface: [ens5, ens4, ens6, ens7]
     internal_domain: "attackbed.local"
     suricata_home_nets: ["172.17.100.0/24"]
     netflow_enabled: true
