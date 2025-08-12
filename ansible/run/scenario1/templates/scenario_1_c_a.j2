@@ -205,6 +205,11 @@ commands:
  # connect via jumphost to admin host, that ssh to videoserver to reboot
   - type: shell
     cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@$ADMIN_SERVER 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 'reboot'" | at now + 2 minute' 
+    metadata:
+      delayed_manifestation: "120s"
+
+  - type: sleep
+    seconds: 180
 
 
   - type: msf-module

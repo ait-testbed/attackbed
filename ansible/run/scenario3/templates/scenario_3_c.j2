@@ -278,6 +278,11 @@ commands:
     jmp_hostname:  192.42.2.42
     clear_cache: True
     exit_on_error: False
+    metadata:
+      delayed_manifestation: "120s"
+
+  - type: sleep
+    seconds: 180
 
 
 #################### MOVED ################################
