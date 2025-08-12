@@ -44,7 +44,7 @@
     attacker_ip: 192.42.1.174
     ansible_ssh_private_key_file: ~/.ssh/testbed
     attacker_user: aecid
-    delay_before_attack: 3
+    delay_before_attack: 600
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:

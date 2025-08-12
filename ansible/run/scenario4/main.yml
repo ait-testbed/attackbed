@@ -22,7 +22,7 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
-    delay_before_attack: 3
+    delay_before_attack: 600
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:

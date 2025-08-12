@@ -22,7 +22,7 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
-    delay_before_attack: 3
+    delay_before_attack: 600
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >

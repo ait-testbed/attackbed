@@ -67,7 +67,7 @@
   vars:
     attacker_user: aecid
     attacker_home: "/home/{{ attacker_user }}"
-    delay_before_attack: 3
+    delay_before_attack: 600
   tasks:
     - name: Ensure 127.0.0.1 is present in /etc/hosts
       ansible.builtin.lineinfile:
