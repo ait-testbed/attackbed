@@ -58,7 +58,7 @@
         state: restarted
 
   tasks:
-    - name: Ensure delay of 10 seconds
+    - name: Ensure delay before commands
       ansible.builtin.replace:
         path: /etc/attackmate.yml
         regexp: 'command_delay: 0'

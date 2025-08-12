@@ -75,7 +75,7 @@
         line: "127.0.0.1\tattacker"
         state: present
 
-    - name: Ensure delay of 10 seconds
+    - name: Ensure delay before commands
       ansible.builtin.replace:
         path: /etc/attackmate.yml
         regexp: 'command_delay: 0'
