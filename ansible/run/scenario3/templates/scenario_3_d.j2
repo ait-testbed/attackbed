@@ -129,19 +129,11 @@ commands:
     session: foothold
     cmd: "vim /etc/puppetlabs/code/environments/production/manifests/site.pp\n"
     interactive: True
-    metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
     cmd: "a"
     interactive: True
-    metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
@@ -157,28 +149,24 @@ commands:
     cmd: "node 'linuxshare.attackbed.local' {\n  class { 'blah2': }\n}\n"
     interactive: True
     metadata:
-      techniques: "T1072"
+      techniques: "T1072,T1105,T1059.004"
       tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
+      technique_name: "Software Deployment Tools,Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell"
 
   - type: ssh
     session: foothold
     cmd: "1B"
     interactive: True
     bin: True
-    metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
     cmd: ":wq\n"
     interactive: True
     metadata:
-      techniques: "T1072"
+      techniques: "T1072,T1105,T1059.004"
       tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
+      technique_name: "Software Deployment Tools,Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell"
 
 #################### MOVED ################################
   - type: msf-session
@@ -257,3 +245,5 @@ commands:
       tactics: "Impact"
       technique_name: "Service Stop"
 
+  - type: sleep
+    seconds: 30

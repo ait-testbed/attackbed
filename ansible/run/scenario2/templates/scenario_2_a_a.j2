@@ -40,7 +40,7 @@ commands:
     metadata:
       techniques: "T1071.001,T1573.001"
       tactics: "Command and Control"
-      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel: Symmetric Cryptography "
+      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel: Symmetric Cryptography"
 
   - type: shell
     cmd: ls $LAST_SLIVER_IMPLANT
@@ -252,3 +252,5 @@ commands:
       tactics: "Discovery"
       technique_name: "Network Service Discovery,Remote System Discovery"
 
+  - type: sleep
+    seconds: 30

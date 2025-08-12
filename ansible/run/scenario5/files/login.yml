@@ -6,6 +6,9 @@ commands:
     creates_session: "cas_session"
     headless: true
 
+  - type: sleep
+    seconds: 15
+
   # Type in the username 
   - type: browser
     cmd: type
@@ -15,7 +18,7 @@ commands:
     headless: true
 
   - type: sleep
-    seconds: 1
+    seconds: 15
 
   # Type in the password 
   - type: browser
@@ -26,7 +29,7 @@ commands:
     headless: true
 
   - type: sleep
-    seconds: 1
+    seconds: 15
 
 #  press login button
   - type: browser
@@ -37,7 +40,7 @@ commands:
     exit_on_error: false
 
   - type: sleep
-    seconds: 1
+    seconds: 15
     
 # this is only needed when the user logs in for the very first time
   # press apply button
@@ -48,7 +51,7 @@ commands:
     headless: true
 
   - type: sleep
-    seconds: 1
+    seconds: 15
 
 #from here on run in loop
   - type: loop

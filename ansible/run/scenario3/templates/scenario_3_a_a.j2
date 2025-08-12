@@ -126,28 +126,16 @@ commands:
     session: foothold
     cmd: "vim /media/share/healthcheck_cron.sh\n"
     interactive: True
-    metadata:
-      techniques: "T1080"
-      tactics: "Lateral Movement"
-      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
     cmd: "G"
     interactive: True
-    metadata:
-      techniques: "T1080"
-      tactics: "Lateral Movement"
-      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
     cmd: "o"
     interactive: True
-    metadata:
-      techniques: "T1080"
-      tactics: "Lateral Movement"
-      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -163,10 +151,6 @@ commands:
     cmd: "1B"
     interactive: True
     bin: True
-    metadata:
-      techniques: "T1080"
-      tactics: "Lateral Movement"
-      technique_name: "Taint Shared Content"
 
   - type: ssh
     session: foothold
@@ -270,3 +254,6 @@ commands:
       techniques: "T1489"
       tactics: "Impact"
       technique_name: "Service Stop"
+
+  - type: sleep
+    seconds: 30
