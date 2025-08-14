@@ -2,7 +2,7 @@
 - hosts: all
   become: true
   vars:
-    suricata_interface: [ens5]
+    suricata_interface: [ens5, ens4, ens6, ens7]
     internal_domain: "attackbed.local"
     suricata_home_nets: ["172.17.100.0/24"]
     netflow_enabled: true
@@ -25,6 +25,7 @@
     - role: aecidtools
       vars:
             aecidtools_user: "aecid"
+    - role: manage_unattended_upgrades
     - role: weaklinuxuser
       vars: 
             weaklinuxuser_user: "{{ weaklinuxuser_name }}"
@@ -45,6 +46,7 @@
          - { name: "wazuh", content: "address=/wazuh.{{ internal_domain }}/192.168.100.130" }
          - { name: "cloud", content: "address=/cloud.{{ internal_domain }}/172.17.100.125" }
          - { name: "firewall", content: "address=/firewall.{{ internal_domain }}/172.17.100.254" }
+         - { name: "admin", content: "address=/admin.{{ internal_domain }}/10.12.0.222" }
        dnsmasq_systemd_resolved_disable: true
     - role: shorewall
       vars:
@@ -98,8 +100,10 @@
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 5901 }
             - Reposerver to Linux-Share
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 1881 }
-            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
-            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111,2049 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 2049 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 2049 }
             - Kafka Ports
             - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }

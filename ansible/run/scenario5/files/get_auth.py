@@ -20,9 +20,6 @@ def packet_callback(packet):
     if packet.haslayer(TCP) and packet.haslayer(Raw):
         try:
             payload = packet[Raw].load.decode(errors='ignore')
-
-
-
             # Check if it's an HTTP response (starts with "HTTP/1.")
             # and if the payload likely contains HTML (e.g., contains "<html" or "<body")
             if ("auth_hash" in payload.lower()): 
@@ -33,7 +30,6 @@ def packet_callback(packet):
                     f.write(payload)
                     f.write("\n--- End Payload ---\n\n")
             # --- END ADDED LINE ---
-
                 auth_hash_value = extract_auth_hash_from_html(payload)
                 if auth_hash_value:
                     print(f"{auth_hash_value}", end='')

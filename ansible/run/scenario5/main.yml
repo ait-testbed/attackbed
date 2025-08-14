@@ -67,7 +67,7 @@
   vars:
     attacker_user: aecid
     attacker_home: "/home/{{ attacker_user }}"
-    delay_before_attack: 3
+    delay_before_attack: 600
   tasks:
     - name: Ensure 127.0.0.1 is present in /etc/hosts
       ansible.builtin.lineinfile:
@@ -75,15 +75,13 @@
         line: "127.0.0.1\tattacker"
         state: present
 
-    - name: Ensure delay of 10 seconds
+    - name: Ensure delay before commands
       ansible.builtin.replace:
         path: /etc/attackmate.yml
         regexp: 'command_delay: 0'
-        replace: 'command_delay: 10'
+        replace: 'command_delay: 15'
         backup: yes
-      become: true
-      tags:
-        - playbooks         
+      become: true         
 
     - name: get user home directory
       ansible.builtin.shell: >
@@ -98,21 +96,32 @@
         virtualenv_python: python3.12 
       become: true
 
-    - name: Copy entire folder to attacker
+    - name: Copy helper files to attacker
       ansible.builtin.copy:
         src: "files/"
-        dest: "{{ attacker_home }}/scenario5/"
+        dest: "{{ attacker_home }}/"
         mode: '0755'
         owner: "{{ attacker_user }}"
         group: "{{ attacker_user }}"
         remote_src: no
+
+    - name: Copy playbooks
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}.j2"
+          dest: "{{attacker_home}}/{{ item }}.yml"
+          mode: '0755'
+      loop:
+          - scenario_5
+ 
 
 
     # - name: "Run Scenario 5"
     #   become: True
     #   become_user: "{{attacker_user}}"
     #   ansible.builtin.shell:
-    #       cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux {{ attacker_home }}/scenario5/playbook.yml --json"
+    #       cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux {{ attacker_home }}/scenario_5.yml --json"
     #       chdir: "{{user_home.stdout}}"
 
 
@@ -130,21 +139,19 @@
     - name: Copy playbook to adminpc1
       ansible.builtin.copy:
         src: "files/login.yml"
-        dest: "{{ home_path }}/playbook.yml"
+        dest: "{{ home_path }}/login.yml"
         mode: '0644'
         owner: "{{ user }}"
         group: "{{ user }}"
-      tags:
-        - playbooks
+
 
     # - name: Run login playbook
     #   ansible.builtin.shell:
-    #     cmd: "/usr/local/bin/attackmate-tmux {{ home_path }}/playbook.yml --json"
+    #     cmd: "/usr/local/bin/attackmate-tmux {{ home_path }}/login.yml --json"
     #     chdir: "{{ home_path }}"
     #   become: true
     #   become_user: aecid
-    #   tags:
-    #     - playbooks
+
 
 
 

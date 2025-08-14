@@ -35,3 +35,6 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-acct.git
     version: v1.0.0
     name: acct
+  - src: https://github.com/ait-testbed/atb-ansible-wazuh_agent.git
+    version: v0.9.0
+    name: wazuh_agent
