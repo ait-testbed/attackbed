@@ -5,6 +5,17 @@
     suricata_interface: [ens3]
     suricata_pcap_log: False
     netflow_enabled: true
+  pre_tasks:
+    - name: Ensure dynamic hostname is in /etc/hosts with 127.0.1.1
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1\t\t\t\t{{ ansible_hostname }}" # Uses the system's current hostname
+        state: present
+        create: true             # Creates the file if it doesn't exist
+        owner: root
+        group: root
+        mode: '0644'
+      become: true  
   roles:
     - role: aeciduser
       vars:
@@ -71,4 +82,16 @@
       ansible.builtin.lineinfile:
         path: /etc/hosts
         line: "192.42.0.254 kafka.attackbed.local"
+        state: present
+  post_tasks:
+    - name: Remove dynamic hostname from /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1\s+{{ ansible_hostname }}$'
+        state: absent
+      become: true
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\tcorpdns"
         state: present
