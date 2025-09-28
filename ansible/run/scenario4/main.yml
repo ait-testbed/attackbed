@@ -22,7 +22,7 @@
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
-    delay_before_attack: 3
+    delay_before_attack: 600
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -42,11 +42,11 @@
       tags:
         - playbooks
 
-    - name: Ensure delay of 10 seconds
+    - name: Ensure delay before commands
       ansible.builtin.replace:
         path: /etc/attackmate.yml
         regexp: 'command_delay: 0'
-        replace: 'command_delay: 10'
+        replace: 'command_delay: 15'
         backup: yes
       become: true
       tags:

@@ -2,16 +2,42 @@
 - hosts: all
   become: true
   vars:
-    suricata_interface: [ens5]
+    suricata_interface: [ens5, ens4, ens6, ens7]
     internal_domain: "attackbed.local"
-    suricata_home_nets: ["172.17.100.0/24"]
+    # suricata homenets dmz, user, lan, admin
+    suricata_home_nets: ["172.17.100.0/24", "192.168.50.0/24","192.168.100.0/24", "10.12.0.0/24" ]
     netflow_enabled: true
     weaklinuxuser_name: "john"
+
+  pre_tasks:
+    - name: Ensure dynamic hostname is in /etc/hosts with 127.0.1.1
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1\t\t\t\t{{ ansible_hostname }}" # Uses the system's current hostname
+        state: present
+        create: true             # Creates the file if it doesn't exist
+        owner: root
+        group: root
+        mode: '0644'
+      become: true    
+      
   tasks: 
     - name: Allow password login
       ansible.builtin.copy:
         dest: /etc/ssh/sshd_config.d/99-password.conf
         content: 'PasswordAuthentication yes'
+    - name: Start Shorewall on startup
+      lineinfile: >
+        dest=/etc/default/shorewall
+        line="startup=1"
+        regexp="^startup="
+        state=present
+    - name: Add kafka host entry in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "192.168.100.10 kafka.attackbed.local"
+        state: present
+
   roles:
     - role: squidproxy
       vars:
@@ -25,6 +51,7 @@
     - role: aecidtools
       vars:
             aecidtools_user: "aecid"
+    - role: manage_unattended_upgrades
     - role: weaklinuxuser
       vars: 
             weaklinuxuser_user: "{{ weaklinuxuser_name }}"
@@ -45,6 +72,7 @@
          - { name: "wazuh", content: "address=/wazuh.{{ internal_domain }}/192.168.100.130" }
          - { name: "cloud", content: "address=/cloud.{{ internal_domain }}/172.17.100.125" }
          - { name: "firewall", content: "address=/firewall.{{ internal_domain }}/172.17.100.254" }
+         - { name: "admin", content: "address=/admin.{{ internal_domain }}/10.12.0.222" }
        dnsmasq_systemd_resolved_disable: true
     - role: shorewall
       vars:
@@ -98,13 +126,16 @@
             - { action: DNAT, source: inet, dest: "dmz:$REPOSERVER", proto: tcp, dest_port: 5901 }
             - Reposerver to Linux-Share
             - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 1881 }
-            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111,2049 }
-            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111,2049 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 111 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 111 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: tcp, dest_port: 2049 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$LINUXSHARE", proto: udp, dest_port: 2049 }
             - Kafka Ports
             - { action: ACCEPT, source: dmz, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }  
             - { action: DNAT, source: inet, dest: "lan:$KAFKA", proto: tcp, dest_port: 9092 }
             - Wazuh Ports
-            - { action: ACCEPT, source: dmz, dest: "lan:$WAZUH", proto: tcp, dest_port: 1514,1515 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$WAZUH", proto: tcp, dest_port: 1514 }
+            - { action: ACCEPT, source: dmz, dest: "lan:$WAZUH", proto: tcp, dest_port: 1515 }
             - Usernet access to Squid proxy (3128/tcp) on the firewall
             - { action: ACCEPT, source: user, dest: fw, proto: tcp, dest_port: 3128 }
             - Allow fw to DMZ for browser traffic (to let client browse videoserver login page)
@@ -191,15 +222,28 @@
               - log_format: squid
                 location: /var/log/squid/*.log
 
-  tasks:
-    - name: Start Shorewall on startup
-      lineinfile: >
-        dest=/etc/default/shorewall
-        line="startup=1"
-        regexp="^startup="
-        state=present
-    - name: Add kafka host entry in /etc/hosts
+  post_tasks:
+    - name: Remove dynamic hostname from /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "192.168.100.10 kafka.attackbed.local"
-        state: present
+        regexp: '^127\.0\.1\.1\s+{{ ansible_hostname }}$'
+        state: absent
+      become: true
+    - name: Add Suricata suppression rule for cti.wazuh.com
+      lineinfile:
+        path: /etc/suricata/threshold.config
+        line: "suppress gen_id 1, sig_id 2210044, track by_dst, ip 104.21.40.220"
+        create: yes
+        insertafter: EOF
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart Suricata
+
+  handlers:
+    - name: Restart Suricata
+      systemd:
+        name: suricata
+        state: restarted
+
+

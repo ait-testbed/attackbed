@@ -1,4 +1,4 @@
-- hosts: corpdns, inetfw
+- hosts: inetfw
   roles:
     - kyoushi-gather
   vars:
@@ -35,6 +35,26 @@
           - "/etc/runit "
           - "/etc/sv "
       - src: /var/ossec/etc/ossec.conf
+
+- hosts: corpdns
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_configs:
+      - src: /var/lib/suricata
+        recursive: true
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
+
+    kyoushi_gather_logs:
+      - src: /var/log
+        recursive: true
+
 
 - hosts: attacker
   roles:
@@ -75,4 +95,3 @@
           - "/etc/sv "
       - src: /var/ossec/etc/shared
         recursive: true
-
