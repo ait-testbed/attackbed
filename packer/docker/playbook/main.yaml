@@ -1,28 +1,71 @@
-- name: Install Docker Host
-  hosts: all
-  remote_user: ubuntu
+- name: Deploy Docker
+  hosts: all 
+  remote_user: aecid
   become: true
   roles:
-          - role: aeciduser
-            vars:
-                  # pass: aecid
-                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
-          - role: aecidtools
-            vars:
-                  aecidtools_user: "aecid"
-          - role: manage_unattended_upgrades
-          - role: auditd
-          - role: atb-ansible-dockerce
-          - role: nextcloudrce
-            vars:
-                  nextcloud_rce_domain: "172.17.100.125:8080"
-          - role: vulndockerd
-            vars:
-                  vulndockerd_socket: "tcp://172.18.0.1:2375"
-          - role: collectd
-          - role: wazuh_agent
-            vars:
-                  wazuh_manager: 192.168.100.130
-                  wazuh_localfiles:
-                    - log_format: json
-                      location: /var/lib/docker/containers/*/*-json.log
+    - role: aeciduser
+      vars:
+            # pass: aecid
+            aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: aecidtools
+      vars:
+            aecidtools_user: "aecid"
+    - role: manage_unattended_upgrades
+    - role: auditd
+    - role: atb-ansible-dockerce
+    - role: nextcloudrce
+      vars:
+        nextcloud_rce_start_container: false  #Needed to prevent the start of containers at atb-ansible-nextcloudrce role before mail feature
+        nextcloud_rce_domain: "localhost:8080"
+        nextcloud_mail_image: "ghcr.io/ait-testbed/attackbed/nextcloud-mail:1.0.0"
+        nextcloud_rce_docker_compose_template: "docker-compose-mail.yml.j2"
+    - role: vulndockerd
+      vars:
+        vulndockerd_socket: "tcp://0.0.0.0:2375"
+    - role: collectd
+    - role: wazuh_agent
+      vars:
+            wazuh_manager: 192.168.100.130
+            wazuh_localfiles:
+              - log_format: json
+                location: /var/lib/docker/containers/*/*-json.log          
+  tasks:
+    - name: Ensure mail build context directory exists
+      ansible.builtin.file:
+        path: "{{ nextcloud_rce_dir }}/mail"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure mailconfig directories exist
+      ansible.builtin.file:
+        path: "{{ nextcloud_rce_dir }}/mailconfig/{{ item }}"
+        state: directory
+        mode: '0754'
+      loop:
+        - postfix
+        - dovecot
+        - dovecot/conf.d
+
+    - name: Deploy Dovecot/Postfix config files
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ nextcloud_rce_dir }}/mailconfig/{{ item.dest }}"
+        mode: '0644'
+      loop:
+        - { src: 'auth-sql-conf.ext.j2', dest: 'dovecot/conf.d/auth-sql-conf.ext' }
+        - { src: 'dovecot-10-auth.conf.j2', dest: 'dovecot/conf.d/10-auth.conf' }
+        - { src: 'dovecot-10-mail.conf.j2', dest: 'dovecot/conf.d/10-mail.conf' }
+        - { src: 'dovecot-sql.conf.ext.j2', dest: 'dovecot/dovecot-sql.conf.ext' }
+        - { src: 'dovecot-10-master.conf.j2', dest: 'dovecot/conf.d/10-master.conf' }
+        - { src: 'postfix-main.cf.j2', dest: 'postfix/main.cf' }
+        - { src: 'postfix-master.cf.j2', dest: 'postfix/master.cf' }
+        - { src: 'postfix-mysql_virtual_mailbox_maps.cf.j2', dest: 'postfix/mysql_virtual_mailbox_maps.cf' }
+
+    - name: List mail build context files
+      ansible.builtin.shell: "ls -l {{ nextcloud_rce_dir }}/mail"
+      register: mail_dir_listing
+    
+    - name: Start containers
+      ansible.builtin.shell: "docker compose up -d"
+      args:
+        chdir: "{{ nextcloud_rce_dir }}"
