@@ -1,0 +1,5 @@
+driver = mysql
+connect = host=db dbname=nextcloud user=root password=root
+default_pass_scheme = ARGON2ID
+password_query = SELECT uid AS user,CONCAT('{ARGON2ID}',substring(password,3)) AS password FROM oc_users WHERE uid = '%n'
+user_query = SELECT '/var/mail/' as home, 103 AS uid, 8 AS gid FROM oc_users WHERE uid = '%n'

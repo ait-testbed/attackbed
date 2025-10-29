@@ -1,0 +1,52 @@
+volumes:
+  db:
+
+services:
+  db:
+    image: mariadb:10.6
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    volumes:
+      - db:/var/lib/mysql
+      - ${PWD}/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_PASSWORD=root
+      - MARIADB_DATABASE=nextcloud
+      - MARIADB_USER=nextcloud
+
+  app:
+    image: {{nextcloud_rce_image}}
+    restart: always
+    ports:
+      - 8080:80
+    links:
+      - db
+    volumes:
+      - ${PWD}/config.php:/var/www/nextcloud/config/config.php
+    environment:
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=root
+      - MYSQL_HOST=db
+    depends_on:
+      - db
+
+  mail:
+    image: {{nextcloud_mail_image}} 
+    restart: always
+    volumes:
+      - ${PWD}/mailconfig:/opt/mailconfig
+      - ${PWD}/mailconfig/postfix/main.cf:/etc/postfix/main.cf
+      - ${PWD}/mailconfig/postfix/master.cf:/etc/postfix/master.cf
+      - ${PWD}/mailconfig/postfix/mysql_virtual_mailbox_maps.cf:/etc/postfix/mysql_virtual_mailbox_maps.cf
+      - ${PWD}/mailconfig/dovecot/dovecot-sql.conf.ext:/etc/dovecot/dovecot-sql.conf.ext
+      - ${PWD}/mailconfig/dovecot/conf.d/auth-sql-conf.ext:/etc/dovecot/conf.d/auth-sql-conf.ext
+      - ${PWD}/mailconfig/dovecot/conf.d/10-auth.conf:/etc/dovecot/conf.d/10-auth.conf
+      - ${PWD}/mailconfig/dovecot/conf.d/10-mail.conf:/etc/dovecot/conf.d/10-mail.conf
+      - ${PWD}/mailconfig/dovecot/conf.d/10-master.conf:/etc/dovecot/conf.d/10-master.conf
+      - ./log:/var/log
+    ports:
+      - "143:143"
+      - "587:587"
+      - "25:25"
