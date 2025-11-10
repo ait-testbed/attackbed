@@ -65,5 +65,3 @@
                   rootkeys_install_private: True
                   rootkeys_private_key_user: aecid
                   rootkeys_private_dir: "/home/aecid/.ssh"
-
-
