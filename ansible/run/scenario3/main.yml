@@ -1,9 +1,28 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
+    delay_before_attack: 600
   tasks:
     - name: get user home directory
       ansible.builtin.shell: >
@@ -18,6 +37,16 @@
         - install
         - git
         - attackmate
+        - playbooks
+
+    - name: Ensure delay before commands
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 15'
+        backup: yes
+      become: true
+      tags:
         - playbooks
 
     - name: Copy user-password-combo
@@ -60,10 +89,13 @@
       loop:
           - scenario_3_a_a
           - scenario_3_a_b
+          - scenario_3_a_c
+          - scenario_3_a_d
+          - scenario_3_b_a
+          - scenario_3_b_b
+          - scenario_3_b_c
+          - scenario_3_b_d
           - upgrade
-          - scenario_3_b
-          - scenario_3_c
-          - scenario_3_d
       tags:
          - metasploit
          - attackmate
@@ -76,7 +108,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_a.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_a_a
@@ -88,46 +120,82 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_a_b.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_a_b.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_3_a_b
          - metasploit
          - attackmate
          - exploit
-
-    - name: "Run Scenario 3 b"
-      become: True
-      become_user: "{{attacker_user}}"
-      ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_b.yml"
-          chdir: "{{user_home.stdout}}"
-      tags:
-         - scenario_3_b
-         - metasploit
-         - attackmate
-         - exploit
           
-    - name: "Run Scenario 3 c"
+    - name: "Run Scenario 3 a c"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_c.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_a_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
-         - scenario_3_c
+         - scenario_3_a_c
          - metasploit
          - attackmate
          - exploit
 
-    - name: "Run Scenario 3 d"
+    - name: "Run Scenario 3 a d"
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_3_d.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_a_d.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
-         - scenario_3_d
+         - scenario_3_a_d
+         - metasploit
+         - attackmate
+         - exploit
+
+    - name: "Run Scenario 3 b a"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_b_a.yml --json"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_b_a
+         - metasploit
+         - attackmate
+         - exploit
+
+    - name: "Run Scenario 3 b b"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_b_b.yml --json"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_b_b
+         - metasploit
+         - attackmate
+         - exploit
+
+    - name: "Run Scenario 3 b c"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_b_c.yml --json"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_b_c
+         - metasploit
+         - attackmate
+         - exploit
+
+    - name: "Run Scenario 3 b d"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_3_b_d.yml --json"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_3_b_d
          - metasploit
          - attackmate
          - exploit

@@ -1,59 +1,157 @@
-- name: Start Ghosts Client on Admin PC
-  hosts: adminpc1
+- name: Restart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
+- name: Configure ZoneMinder API on Video Server
+  hosts: videoserver
   become: true
   vars:
-    ghostsagent_user: "aecid"
-    ghostagent_path: "/home/{{ ghostsagent_user }}/ghosts-client-linux-v8.0.0"
+    # Assuming standard ZoneMinder paths and database details
+    zoneminder_conf_file: /etc/zm/conf.d/03-custom.conf
+    zoneminder_db_name: zm
+    zoneminder_db_user: zmuser
+    zoneminder_db_password: zmpass
   tasks:
+    - name: Ensure OPT_USE_API is enabled in zm.conf
+      ansible.builtin.lineinfile:
+        path: "{{ zoneminder_conf_file }}"
+        regexp: '^ZM_OPT_USE_API='
+        line: 'ZM_OPT_USE_API=TRUE'
+        state: present
+        backup: yes # Create a backup of the original file
+      notify: Restart ZoneMinder
 
-    - name: Copy ghostagent config files
-      ansible.builtin.template:
-        src: "{{ item }}.j2"
-        dest: "{{ghostagent_path}}/config/{{ item }}.json"
-        mode: '0755'
-      loop:
-        - application
-        - timeline
+    - name: Ensure OPT_USE_LEGACY_API_AUTH is enabled in zm.conf
+      ansible.builtin.lineinfile:
+        path: "{{ zoneminder_conf_file }}"
+        regexp: '^ZM_OPT_USE_LEGACY_API_AUTH='
+        line: 'ZM_OPT_USE_LEGACY_API_AUTH=TRUE'
+        state: present
+        backup: yes # Create a backup of the original file
+      notify: Restart ZoneMinder
 
-    - name: Run ghost client on adminpc and administer its process id
-      ansible.builtin.shell: "{{ghostagent_path}}/ghosts.client.linux > /home/{{ ghostsagent_user }}/ghosts-client.log 2>&1 & echo $! > /tmp/ghosts_client.pid"
-      async: 3600
-      poll: 0
-      tags:
-        - run-ghosts-client
+    - name: Enable API access for all users in ZoneMinder database
+      community.mysql.mysql_query:
+        login_db: "{{ zoneminder_db_name | default('zm') }}"
+        login_user: "{{ zoneminder_db_user | default('zmuser') }}"
+        login_password: "{{ zoneminder_db_password | default('zmpass') }}"
+        query: "UPDATE Users SET APIEnabled=1;"
+      notify: Restart ZoneMinder
 
+  handlers:
+    - name: Restart ZoneMinder
+      ansible.builtin.service:
+        name: zoneminder 
+        state: restarted
+      listen: "Restart ZoneMinder" 
+
+
+# attacker gets a different name and ip here than in other scenarios
 - name: Run Attacker Tasks
   hosts: attacker
   become: true
   vars:
     attacker_user: aecid
     attacker_home: "/home/{{ attacker_user }}"
+    delay_before_attack: 600
   tasks:
-    - name: Copy entire folder to attacker
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\tattacker"
+        state: present
+
+    - name: Ensure delay before commands
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 15'
+        backup: yes
+      become: true         
+
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+
+    - name: Ensure scapy is installed in attackmate's venv
+      ansible.builtin.pip:
+        name: scapy
+        virtualenv: /usr/local/share/attackmate/venv
+        virtualenv_python: python3.12 
+      become: true
+
+    - name: Copy helper files to attacker
       ansible.builtin.copy:
         src: "files/"
-        dest: "{{ attacker_home }}/scenario5/"
+        dest: "{{ attacker_home }}/"
         mode: '0755'
         owner: "{{ attacker_user }}"
         group: "{{ attacker_user }}"
         remote_src: no
-      tags:
-        - attacker-tasks
 
-    - name: Run final playbook on attacker with activated environment
-      ansible.builtin.shell: |
-        source /usr/local/share/attackmate/venv/bin/activate && attackmate {{ attacker_home }}/scenario5/playbook.yml
-      args:
-        executable: /bin/bash  # run command in a bash shell
-      tags:
-        - attacker-tasks
+    - name: Copy playbooks
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}.j2"
+          dest: "{{attacker_home}}/{{ item }}.yml"
+          mode: '0755'
+      loop:
+          - scenario_5
+ 
 
-- name: Stop Ghosts Client on Admin PC
-  hosts: adminpc1
+
+    # - name: "Run Scenario 5"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux {{ attacker_home }}/scenario_5.yml --json"
+    #       chdir: "{{user_home.stdout}}"
+
+
+- name: Start attackmate on Admin PC
+  hosts: adminpc
   become: true
+  become_user: aecid
+  vars:
+    user: "aecid"
+    home_path: "/home/{{ user }}"
+    venv_path: "/usr/local/share/attackmate/venv"
+    delay_before_login: 60
   tasks:
-    - name: Stop Ghosts Client
-      ansible.builtin.shell: "kill $(cat /tmp/ghosts_client.pid)"
-      ignore_errors: true  # ignore errors in case the process has already stopped
-      tags:
-        - stop-ghosts-client
+
+    - name: Copy playbook to adminpc1
+      ansible.builtin.copy:
+        src: "files/login.yml"
+        dest: "{{ home_path }}/login.yml"
+        mode: '0644'
+        owner: "{{ user }}"
+        group: "{{ user }}"
+
+
+    # - name: Run login playbook
+    #   ansible.builtin.shell:
+    #     cmd: "/usr/local/bin/attackmate-tmux {{ home_path }}/login.yml --json"
+    #     chdir: "{{ home_path }}"
+    #   become: true
+    #   become_user: aecid
+
+
+
+

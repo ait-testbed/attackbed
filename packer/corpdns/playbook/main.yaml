@@ -5,32 +5,51 @@
     suricata_interface: [ens3]
     suricata_pcap_log: False
     netflow_enabled: true
+  pre_tasks:
+    - name: Ensure dynamic hostname is in /etc/hosts with 127.0.1.1
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1\t\t\t\t{{ ansible_hostname }}" # Uses the system's current hostname
+        state: present
+        create: true             # Creates the file if it doesn't exist
+        owner: root
+        group: root
+        mode: '0644'
+      become: true  
   roles:
     - role: aeciduser
       vars:
             # pass: aecid
             aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+    - role: collectd
+    - role: aecidtools
+      vars:
+            aecidtools_user: "aecid"
+    - role: manage_unattended_upgrades
     - role: suricata
+      vars:
+        netflow_enabled: true
     - role: auditd
     - role: dnsmasq
       vars:
         dnsmasq_systemd_resolved_disable: true
         dnsmasq_config:
               - { name: "logging",  content: "log-queries" }
-              - { name: "host-video",  content: "host-record=video.aecid-testbed.com,192.42.0.254" }
-              - { name: "host-firewall",  content: "host-record=fw.aecid-testbed.com,192.42.0.254" }
-              - { name: "host-domain",  content: "host-record=aecid-testbed.com,192.42.0.254" }
-              - { name: "auth-zone",  content: "auth-zone=aecid-testbed.com,192.42.0.254" }
+              - { name: "host-video",  content: "host-record=video.attackbed.com,192.42.0.254" }
+              - { name: "host-firewall",  content: "host-record=fw.attackbed.com,192.42.0.254" }
+              - { name: "host-repo",  content: "host-record=repo.attackbed.com,192.42.0.254" }
+              - { name: "host-domain",  content: "host-record=attackbed.com,192.42.0.254" }
+              - { name: "auth-zone",  content: "auth-zone=attackbed.com,192.42.0.254" }
               - { name: "auth-server",  content: "auth-server=192.42.0.233,,ens3" }
-              - { name: "domain",  content: "domain=aecid-testbed.com" }
-              - { name: "local-domain",  content: "local=/aecid-testbed.com/192.42.0.254" }
+              - { name: "domain",  content: "domain=attackbed.com" }
+              - { name: "local-domain",  content: "local=/attackbed.com/192.42.0.254" }
     - role: filebeat
       vars:
         filebeat_service_enabled: false
         filebeat_output_logstash_enabled: false
         filebeat_output_kafka_enabled: true
         filebeat_output_kafka_hosts:
-          - "kafka.aecid-testbed.local:9092"
+          - "kafka.attackbed.local:9092"
         filebeat_output_kafka_topic: "logs"
         filebeat_template: "filebeatkafka.yml.j2"
         filebeat_inputs:
@@ -41,10 +60,38 @@
         filebeat_modules:
           - tpl: "suricata.yml"
             paths: ["/var/log/suricata/eve.json"]
+    - role: wazuh_agent
+      vars:
+            wazuh_manager: 192.168.100.130
+            wazuh_localfiles:
+              - log_format: json
+                location: /var/lib/docker/containers/*/*-json.log
+              - log_format: audit
+                location: /var/log/audit/audit.log
+              - log_format: json
+                location: /var/log/suricata/eve.json
+              - log_format: syslog
+                location: /var/log/suricata/fast.log
+              - log_format: syslog
+                location: /var/log/suricata/suricata.log
+              - log_format: syslog
+                location: /var/log/*.log
 
   tasks:
     - name: Add kafka host entry in /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "192.42.0.254 kafka.aecid-testbed.local"
+        line: "192.42.0.254 kafka.attackbed.local"
+        state: present
+  post_tasks:
+    - name: Remove dynamic hostname from /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1\s+{{ ansible_hostname }}$'
+        state: absent
+      become: true
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\tcorpdns"
         state: present

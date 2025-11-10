@@ -1,22 +1,57 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
+    delay_before_attack: 600
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
         name: dnsmasq
         state: restarted
       delegate_to: inetdns
-
+  tasks:
     - name: restart msfrpcd
       ansible.builtin.service:
         name: msfrpcd
         state: restarted
+    
+    - name: ensure sshpass is installed
+      ansible.builtin.apt:
+        name: sshpass
+        state: present
+      tags:
+        - playbooks
 
-  tasks:
+    - name: Ensure delay before commands
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 15'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
     - name: get user home directory
       ansible.builtin.shell: >
              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
@@ -149,7 +184,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_4.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_4.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_4

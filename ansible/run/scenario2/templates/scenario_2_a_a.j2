@@ -5,10 +5,10 @@
 ####################
 
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-  $DOMAIN: aecid-testbed.com
+  $DOMAIN: attackbed.com
   $USER: aecid
   $SSH_KEY: "{{user_home.stdout}}/.ssh/privesc_key_videoserver"
   $IMPLANTPATH: /tmp/superimplant
@@ -40,10 +40,10 @@ commands:
     metadata:
       techniques: "T1071.001,T1573.001"
       tactics: "Command and Control"
-      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel: Symmetric Cryptography "
+      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel: Symmetric Cryptography"
 
   - type: shell
-    cmd: ls $IMPLANTPATH
+    cmd: ls $LAST_SLIVER_IMPLANT
 
   - type: sftp
     cmd: put
@@ -252,3 +252,5 @@ commands:
       tactics: "Discovery"
       technique_name: "Network Service Discovery,Remote System Discovery"
 
+  - type: sleep
+    seconds: 30

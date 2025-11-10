@@ -1,9 +1,28 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
 - name: Install Attacker Host
   hosts: attacker
   become: true
   vars:
     attacker_user: aecid
     attacker_ip: 192.42.1.174
+    delay_before_attack: 600
   handlers:
     - name: restart dnsmasq
       ansible.builtin.service:
@@ -17,6 +36,26 @@
         state: restarted
 
   tasks:
+    - name: enable sliver service
+      ansible.builtin.systemd:
+        name: sliver
+        state: started
+        enabled: yes
+      become: true
+      tags:
+        - sliver
+        - playbooks
+
+    - name: Ensure delay before commands
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 15'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+  
     - name: get user home directory
       ansible.builtin.shell: >
              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
@@ -96,7 +135,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_2_a_a.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_2_a_a.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_2_a_a
@@ -108,7 +147,7 @@
       become: True
       become_user: "{{attacker_user}}"
       ansible.builtin.shell:
-          cmd: "/usr/local/bin/attackmate-tmux scenario_2_a_c.yml"
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux scenario_2_a_c.yml --json"
           chdir: "{{user_home.stdout}}"
       tags:
          - scenario_2_a_c

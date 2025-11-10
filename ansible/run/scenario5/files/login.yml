@@ -1,0 +1,115 @@
+commands:
+
+  - type: browser
+    cmd: visit
+    url: "http://172.17.100.121:80/zm" 
+    creates_session: "cas_session"
+    headless: true
+
+  - type: sleep
+    seconds: 15
+
+  # Type in the username 
+  - type: browser
+    cmd: type
+    text: "admin"
+    selector: "input[name='username']"
+    session: "cas_session"
+    headless: true
+
+  - type: sleep
+    seconds: 15
+
+  # Type in the password 
+  - type: browser
+    cmd: type
+    text: "zm_VERY_S3CURE_PASSW0RD"
+    selector: "input[name='password']"
+    session: "cas_session"
+    headless: true
+
+  - type: sleep
+    seconds: 15
+
+#  press login button
+  - type: browser
+    cmd: click
+    selector: "button[type='submit']"
+    session: "cas_session"
+    headless: true
+    exit_on_error: false
+
+  - type: sleep
+    seconds: 15
+    
+# this is only needed when the user logs in for the very first time
+  # press apply button
+  - type: browser
+    cmd: click
+    selector: "button[type='submit']"
+    session: "cas_session"
+    headless: true
+
+  - type: sleep
+    seconds: 15
+
+#from here on run in loop
+  - type: loop
+    cmd: until(3 == 4)
+    commands:
+
+      - type: browser
+        cmd: click
+        selector: "#getConsoleHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getOptionsHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getGroupsHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getConsoleHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getOptionsHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+      - type: browser
+        cmd: click
+        selector: "#getGroupsHTML > a"
+        session: "cas_session"
+        headless: true
+
+      - type: sleep
+        seconds: 20
+
+     

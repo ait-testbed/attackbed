@@ -6,7 +6,7 @@ variable "attacker_image" {
 variable "attacker_flavor" {
   type        = string
   description = "flavor of the attacker host"
-  default     = "m1.large"
+  default     = "r3-16"
 }
 
 variable "attacker_userdata" {

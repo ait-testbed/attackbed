@@ -23,7 +23,7 @@
           - role: hostname
             vars:
                   hostname: "puppet"
-                  hostname_fqdn: "puppet.aecid-testbed.local"
+                  hostname_fqdn: "puppet.attackbed.local"
                   hostname_ip: "172.17.100.122"
           - role: aeciduser
             vars:
@@ -59,4 +59,19 @@
                   host: 192.168.100.23
                   export: /media/health
           - role: dpkgrepo
-
+          - role: wazuh_agent
+            vars:
+              wazuh_manager: 192.168.100.130
+              wazuh_localfiles:
+                - log_format: audit
+                  location: /var/log/audit/audit.log
+                - log_format: json
+                  location: /var/log/suricata/eve.json
+                - log_format: syslog
+                  location: /var/log/suricata/fast.log
+                - log_format: syslog
+                  location: /var/log/suricata/suricata.log
+                - log_format: syslog
+                  location: /var/log/*.log
+                - log_format: syslog
+                  location: /var/www/default/log/*.log

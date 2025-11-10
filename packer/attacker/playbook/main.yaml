@@ -3,6 +3,13 @@
   become: true
   vars:
     attacker_user: aecid
+      #  pre_tasks:
+      #    - name: Add hostname to /etc/hosts
+      #      ansible.builtin.lineinfile:
+      #        path: /etc/hosts
+      #        line: "127.0.0.1 {{ansible_hostname}} attacker"
+      #        create: yes
+
   tasks:
     - name: Install Packages for Attacker
       ansible.builtin.apt:
@@ -14,6 +21,7 @@
             - dnsenum
             - hydra
             - bettercap
+            - sshpass
           update_cache: yes
     - name: Ensure LightDM configuration directory exists
       ansible.builtin.file:
@@ -39,6 +47,7 @@
 
   roles:
     - role: manage_unattended_upgrades
+    - role: acct
     - role: aeciduser
       vars:
             # pass: aecid
@@ -70,8 +79,8 @@
     - role: disableresolved
       vars:
             disableresolved_nameservers:
-                    - 192.42.2.2
                     - 8.8.8.8
+                    - 192.42.2.2
     - role: mate-desktop
     - role: novnc
     - role: rustdesk
@@ -81,3 +90,10 @@
     - role: veiltransfer
       vars:
         veiltransfer_user: "{{ attacker_user }}"
+
+  post_tasks: 
+    - name: Remove 8.8.8.8 again from /etc/resolv.conf
+      ansible.builtin.lineinfile:
+        path: /etc/resolv.conf
+        regexp: '^nameserver 8\.8\.8\.8$'
+        state: absent

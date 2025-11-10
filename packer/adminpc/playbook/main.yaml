@@ -1,6 +1,10 @@
 - name: Install AdminPC
   hosts: all
   become: true
+  vars:
+    user: aecid
+    attacker_home: "/home/{{ user }}"
+    venv_path: "/usr/local/share/attackmate/venv"
   tasks:
           - name: Allow password login
             ansible.builtin.copy:
@@ -10,6 +14,31 @@
             ansible.builtin.apt:
               name: at
               state: present
+          - name: Ensure ownership of .config is aecid:aecid
+            file:
+              path: /home/{{ user }}/.config
+              owner: "{{ user }}"
+              group: "{{ user }}"
+              recurse: yes
+          - name: Install Playwright in virtual environment
+            ansible.builtin.shell: |
+              source {{ venv_path }}/bin/activate && playwright install
+            args:
+              executable: /bin/bash
+          - name: Install Playwright dependencies in virtual environment
+            ansible.builtin.shell: |
+              source {{ venv_path }}/bin/activate && playwright install-deps
+            args:
+              executable: /bin/bash
+          - name: Recursively change ownership
+            file:
+              path:  /usr/local/share/attackmate
+              state: directory
+              recurse: yes
+              mode : 0775
+              owner: "{{ user }}"
+              group: "{{ user }}"
+
   roles:
           - role: aeciduser
             vars:
@@ -19,13 +48,20 @@
             vars:
                   aecidtools_user: "aecid"
           - role: manage_unattended_upgrades
+          - role: attackmate
+            vars:
+              attackmate_msf_server: "localhost"
+              attackmate_msf_passwd: "hackerman"
+              attackmate_sliver_config: "/home/aecid/.sliver-client/configs/aecid_localhost.cfg"
+              attackmate_tmux_session: "aecid"
+              attackmate_playwright: True
+          - role: mate-desktop
+          - role: novnc
+          - role: collectd
+          - role: acct
           - role: rootkeys
             vars:
                   rootkeys_install_public: False
                   rootkeys_install_private: True
                   rootkeys_private_key_user: aecid
                   rootkeys_private_dir: "/home/aecid/.ssh"
-          - role: mate-desktop
-          - role: novnc
-
-

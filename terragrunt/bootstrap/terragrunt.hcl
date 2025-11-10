@@ -11,10 +11,10 @@ inputs = {
   host_userdata = "firewallinit.yml"
   ext_router = "taq-router" 
   sshkey = "testbed-key"
-  inetdns_image = "ubuntu-2204"
+  inetdns_image = "Ubuntu 22.04"
   inetfw_image = "atb-fw-inet-lan-dmz-image-2023-08-24T13-50-01Z"
-  mgmt_image = "ubuntu-2204"
-  floating_pool = "provider-aecid-208"
+  mgmt_image = "Ubuntu 22.04"
+  floating_pool = "AECID-provider-network"
 } 
 
 
