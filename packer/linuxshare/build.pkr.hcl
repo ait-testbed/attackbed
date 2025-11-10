@@ -17,6 +17,7 @@ build {
     playbook_file = "playbook/main.yaml"
     user          = "${var.build_user}"
     use_proxy     = false
+    extra_arguments = ["-v", "-e", "ansible_python_interpreter=/usr/bin/python3"] 
   }
 
   provisioner "shell" {

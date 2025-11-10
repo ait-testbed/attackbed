@@ -28,6 +28,28 @@
       tags:
           - playbooks
 
+    - name: Prepare Metasploit-directory
+      ansible.builtin.file:
+          path: "{{user_home.stdout}}/.msf4/modules/exploits/linux/misc/"
+          state: directory
+          recurse: True
+      tags:
+          - scenario_3_b 
+
+    - name: upload exploit
+      ansible.builtin.copy:
+        src: healthcheck_rce.rb
+        dest: "{{user_home.stdout}}/.msf4/modules/exploits/linux/misc/"
+      tags:
+          - scenario_3_b 
+
+
+    - name: Restart msfrpcd
+      become: True
+      ansible.builtin.shell: systemctl restart msfrpcd
+      tags:
+          - scenario_3_b 
+
     - name: Copy playbooks
       become: True
       become_user: "{{attacker_user}}"
