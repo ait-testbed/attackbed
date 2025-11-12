@@ -1,0 +1,81 @@
+####################
+#
+# Caldera lateral movement
+#
+####################
+vars:
+  $ATTACKER_ADDRESS: 192.42.1.174 
+  $TARGET_ADDRESS: 192.42.1.175
+  $TARGET2_ADDRESS: 192.42.1.176
+
+  $LINUX_USER: aecid
+  $LINUX_USER_PASSWORD: aecid
+
+  $TARGET2_USER: judy
+  $TARGET2_USER_PASSWORD: garland
+
+commands:
+
+#login with a valid account 
+  - type: ssh
+    creates_session: foothold
+    username: $LINUX_USER
+    key_filename: "/home/aecid/.ssh/key"
+    hostname: $TARGET_ADDRESS
+    cmd: id
+    metadata:
+      techniques: "T1078.002"
+      tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
+
+  - type: sleep
+    seconds: 30
+
+# login with ssh username and password on second target
+
+  - type: ssh
+    session: foothold
+    cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password judy@192.42.1.176\n"
+    interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactics: "Lateral Movement"
+      technique_name: "Valid Accounts: Local Accounts"
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold
+    cmd: "garland\n"
+    interactive: True
+    metadata:
+      techniques: "T1078.003"
+      tactics: "Lateral Movement"
+      technique_name: "Valid Accounts: Local Accounts"
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold
+    cmd: "id\n"
+    interactive: True
+    metadata:
+      techniques: "T1087.001"
+      tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold
+    cmd: "whoami\n"
+    interactive: True
+    metadata:
+      techniques: "T1087.001"
+      tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
+
+
