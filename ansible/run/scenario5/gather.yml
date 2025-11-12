@@ -1,4 +1,4 @@
-- hosts: inetdns, inetfw, corpdns
+- hosts: inetfw, corpdns
   roles:
     - kyoushi-gather
   vars:
@@ -36,19 +36,20 @@
           - "/etc/sv "
       - src: /var/ossec/etc/ossec.conf
 
-- hosts: attacker
+- hosts: lanturtle
   roles:
     - kyoushi-gather
   vars:
     kyoushi_gather_ignore_errors: yes
     kyoushi_gather_logs:
-      - /home/aecid/scenario5/attackmate.log
-      - /home/aecid/scenario5/output.log
+      - /home/aecid/attackmate.log
+      - /home/aecid/output.log
+      - /home/aecid/attackmate.json
       - src: /var/log
         recursive: true
 
     kyoushi_gather_configs:
-      - src: /home/aecid/scenario5/
+      - src: /home/aecid/scenario_5.yml
       - src: /var/www/html
         recursive: true
       - src: /etc
@@ -87,7 +88,7 @@
         recursive: true
 
     kyoushi_gather_configs:
-      - src: /home/aecid/
+      - src: /home/aecid/login.yml
       - src: /etc
         recursive: true
         exclude:
