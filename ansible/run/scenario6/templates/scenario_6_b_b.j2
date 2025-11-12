@@ -26,6 +26,15 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
+################### GET RUSTDESK PUBLIC KEY ############################
+
+  - type: shell
+    cmd: sudo cat /home/ubuntu/rustdesk_public_key.txt
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: RUSTDESK_KEY
+
 ################### SERVE VEILTRANSFER CLIENT ############################
 
   # serve payload via http
@@ -144,7 +153,7 @@ commands:
       technique_name: "User Execution: Malicious Link,Ingress Tool Transfer,Phishing: Spearphishing Voice"
 
   - type: sleep
-    seconds: 45
+    seconds: 300
 
   - type: vnc 
     cmd: type 
@@ -168,7 +177,7 @@ commands:
       technique_name: "User Execution: Malicious Link,Remote Access Software"
   
   - type: sleep
-    seconds: 45
+    seconds: 300
 
   - type: vnc
     cmd: type
@@ -404,16 +413,6 @@ commands:
   - type: setvar
     cmd: $RESULT_STDOUT
     variable: CLIENT_RUSTDESK_ID
-
-  - type: shell
-    cmd: cat rustdesk_public_key.txt
-
-  - type: setvar
-    cmd: $RESULT_STDOUT
-    variable: RUSTDESK_KEY
-
-  - type: sleep
-    seconds: 2
 
   - type: vnc
     cmd: type

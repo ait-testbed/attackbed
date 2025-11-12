@@ -124,6 +124,7 @@ commands:
     background: True
     kill_on_exit: true
 
+## lateral movement
   - type: ssh
     session: foothold
     cmd: "ls -l /var/www/html/debian\n"
@@ -152,7 +153,7 @@ commands:
     metadata:
       techniques: "T1036.005,T1564.001 "
       tactics: "Defense Evasion"
-      technique_name: "Masquerading: Match Legitimate Name or Location,Hide Artifacts: Hidden Files and Directories "
+      technique_name: "Masquerading: Match Legitimate Name or Location,Hide Artifacts: Hidden Files and Directories"
 
   - type: ssh
     session: foothold

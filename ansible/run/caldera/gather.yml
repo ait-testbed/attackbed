@@ -1,0 +1,52 @@
+- hosts: attacker
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      # - /home/aecid/attackmate.log
+      # - /home/aecid/output.log
+      # - /home/aecid/attackmate.json
+      # - /home/aecid/Downloads/tcpdump_with_timeout_report.json
+      # - /home/aecid/Downloads/priviledge_escalation_report.json
+       - /home/aecid/Downloads/root_report.json
+      # - /home/aecid/Downloads/priv_esc_as_www_data_report.json
+       - /home/aecid/Downloads/become_www-data_sed_for_priv_esc_report.json
+      # - /home/aecid/Downloads/tcpdump_with_timeout_report.json
+      # - /home/aecid/Downloads/lateral_movement_scp_report.json
+      # - /home/aecid/Downloads/moved_scp_report.json
+      # - /home/aecid/Downloads/lateral_movement_ssh_two_commands_report.json
+
+
+       - src: /var/log
+         recursive: true
+
+    kyoushi_gather_configs:
+   #   - src: /home/aecid/lateral_movement.yml
+      - src: /var/www/html
+        recursive: true
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+
+
+- hosts: target, target2
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_configs:
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+
+    kyoushi_gather_logs:
+      - src: /var/log
+        recursive: true
+
+
+

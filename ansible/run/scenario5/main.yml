@@ -153,5 +153,7 @@
     #   become_user: aecid
 
 
+# to run scenario, deploy, wait 10 minutes, then run first attacker, when get_auth.py is executing then run adminpc login.yml playbook manually
+
 
 

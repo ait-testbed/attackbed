@@ -113,7 +113,7 @@
       ansible.builtin.authorized_key:
         user: aecid
         state: present
-        key: "{{ hostvars['192.42.1.174']['attacker_mgmt_public_key'] }}"
+        key: "{{ hostvars['attacker']['attacker_mgmt_public_key'] }}"
       tags:
         - ssh
         - playbooks

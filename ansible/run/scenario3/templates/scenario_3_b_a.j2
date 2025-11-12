@@ -4,6 +4,9 @@
 #
 ####################
 
+# for vnc connection to the display, tunnel with : ssh -J aecid@<mgmt-ip> -L 5901:172.17.100.122:5901 aecid@172.17.100.122
+# then vncviewer localhost:5091
+
 vars:
   $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
@@ -224,9 +227,6 @@ commands:
       techniques: "T1021.005"
       tactics: "Lateral Movement"
       technique_name: "Remote Services: VNC"
-
-
-
 
 #################### MOVED ############################################
   - type: msf-session

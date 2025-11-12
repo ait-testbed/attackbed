@@ -1,0 +1,16 @@
+<VirtualHost *:80>
+	ServerName {{ item.name }}
+{% if item.aliases is defined %}
+	ServerAlias {{ item.aliases|join(' ') }}
+{% endif %}
+	DocumentRoot {{ apache2_vhost_dir }}/{{ item.name }}
+        RedirectMatch ^/$ /zm/
+	ErrorLog {{ apache2_vhost_dir }}/{{ item.name }}/log/error.log
+	CustomLog {{ apache2_vhost_dir }}/{{ item.name }}/log/access.log combined
+
+	<Directory "{{ apache2_vhost_dir }}/{{ item.name }}">
+		Options FollowSymLinks MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+</VirtualHost>

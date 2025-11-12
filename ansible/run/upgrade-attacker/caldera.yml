@@ -1,0 +1,35 @@
+- name: Upgrade Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    caldera_repo_url: "https://github.com/mitre/caldera.git"
+    caldera_dest_path: "/home/{{ attacker_user }}/caldera"
+    caldera_venv_path: "{{ caldera_dest_path }}/venv"
+    attacker_ip: 192.42.1.174
+    ansible_ssh_private_key_file: ~/.ssh/testbed
+  tasks:
+    - name: Ensure git and python3-venv are installed
+      ansible.builtin.package:
+        name:
+          - git
+          - python3-venv
+          - npm
+        state: present
+
+    - name: Clone CALDERA repository
+      ansible.builtin.git:
+        repo: "{{ caldera_repo_url }}"
+        dest: "{{ caldera_dest_path }}"
+        recursive: yes
+        version: master
+
+    - name: Create Python virtual environment
+      ansible.builtin.command:
+        cmd: "python3 -m venv {{ caldera_venv_path }}"
+        chdir: "{{ caldera_dest_path }}"
+
+    - name: Install Python 3 requirements into the virtual environment
+      ansible.builtin.pip:
+        requirements: "{{ caldera_dest_path }}/requirements.txt"
+        virtualenv: "{{ caldera_venv_path }}"

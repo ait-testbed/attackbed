@@ -1,0 +1,39 @@
+- name: Install Target
+  hosts: all
+  become: true
+  vars:
+    linux_user: "judy"
+    linux_user_password: "garland"
+    user: aecid
+    target_home: "/home/{{ linux_user }}"
+  tasks:
+          - name: Allow password login
+            ansible.builtin.copy:
+              dest: /etc/ssh/sshd_config.d/99-password.conf
+              content: 'PasswordAuthentication yes'
+
+  roles:
+          - role: collectd
+          - role: aeciduser
+            vars:
+                  # pass: aecid
+                  aeciduser_pass: "$6$9AqxTPJqYsFXwgPN$xAC4y1Vndk00EaBCuFcJC37BYDYYVAgt9SHymg15KSdKddZnwG.SsQaJvHarH4DYQj3tuboeLa4G5EfL7itcC0"
+          - role: aecidtools
+            vars:
+                  aecidtools_user: "aecid"
+          - role: manage_unattended_upgrades
+          - role: weaklinuxuser
+            vars: 
+                  weaklinuxuser_user: "{{ linux_user }}"
+                  weaklinuxuser_pass: "{{ linux_user_password}}"
+                  weaklinuxuser_sudo: True
+          - role: acct
+          - role: auditd
+          - role: rootkeys
+            vars:
+                  rootkeys_install_public: False
+                  rootkeys_install_private: True
+                  rootkeys_private_key_user: aecid
+                  rootkeys_private_dir: "/home/aecid/.ssh"
+
+
