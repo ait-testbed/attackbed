@@ -7,7 +7,7 @@ vars:
   $SERVER_ADDRESS: video.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-  $ADMIN_SERVER: admin.attackbed.local
+  $ADMIN_SERVER: 10.12.0.222
   $MGMT_IP: 192.42.0.201
   $MGMT_USERNAME: aecid
   $DOMAIN: attackbed.com
@@ -202,7 +202,7 @@ commands:
     cmd: "exit"
     session: "foothold"
 
- # connect via jumphost to admin host, that ssh to videoserver to reboot
+ # connect via jumphost to admin host, that ssh to videoserver to reboot. This is not considered an action of the attacker, but an eventual reboot of the videoserver by an admin
   - type: shell
     cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@$ADMIN_SERVER 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@172.17.100.121 'reboot'" | at now + 2 minute' 
     metadata:
