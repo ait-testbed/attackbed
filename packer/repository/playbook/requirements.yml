@@ -42,7 +42,7 @@ roles:
     version: v1.0.2
     name: collectd
   - src: https://github.com/ait-testbed/atb-ansible-puppetserver.git
-    version: v1.0.0
+    version: v1.0.1
     name: puppetserver
   - src: https://github.com/ait-testbed/atb-ansible-tightvnc.git
     version: v1.0.0
