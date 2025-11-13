@@ -45,13 +45,13 @@ roles:
     version: v1.0.0
     name: nfsserver
   - src: https://github.com/ait-testbed/atb-ansible-customdpkg.git
-    version: v1.0.2
+    version: v1.0.3
     name: customdpkg
   - src: https://github.com/ait-testbed/atb-ansible-rootkeys.git
     version: v1.0.0
     name: rootkeys
   - src: https://github.com/ait-testbed/atb-ansible-puppetclient.git
-    version: v1.0.0
+    version: v1.0.1
     name: puppetclient
   - src: https://github.com/ait-testbed/atb-ansible-disableresolved
     version: v1.0.0
