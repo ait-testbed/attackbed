@@ -5,7 +5,7 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-aecidtools.git
     version: v1.1.0
     name: aecidtools
-  - src: https://github.com/ait-cs-IaaS/ansible-mate-desktop.git
+  - src: https://github.com/ait-testbed/ansible-mate-desktop.git
     version: v1.2.1
     name: mate-desktop
   - src: https://github.com/ait-testbed/atb-ansible-novnc.git
@@ -23,10 +23,10 @@ roles:
   - src: https://github.com/ait-testbed/atb-ansible-firefox-home.git
     version: main
     name: firefox-home
-  - src: https://github.com/ait-cs-IaaS/ansible-manage_unattended_upgrades.git
+  - src: https://github.com/ait-testbed/ansible-manage_unattended_upgrades.git
     version: v1.0.0
     name: manage_unattended_upgrades
-  - src: https://github.com/ait-cs-IaaS/ansible-auditd.git
+  - src: https://github.com/ait-testbed/ansible-auditd.git
     version: v1.1
     name: auditd
   - src: https://github.com/ait-testbed/atb-ansible-collectd.git
