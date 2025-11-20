@@ -1,3 +1,2 @@
-argparse
 mitreattack-python
 setuptools
