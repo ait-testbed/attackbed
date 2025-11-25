@@ -3,3 +3,5 @@ roles/*
 !roles/.gitkeep
 collections/*
 !collections/.gitkeep%   
+*tar.gz
+
