@@ -48,6 +48,11 @@
             vars:
                   aecidtools_user: "aecid"
           - role: manage_unattended_upgrades
+          - role: hostname
+            vars:
+                  hostname: admin
+                  hostname_ip: 10.12.0.222
+                  hostname_fqdn: admin.attackbed.local
           - role: attackmate
             vars:
               attackmate_msf_server: "localhost"
