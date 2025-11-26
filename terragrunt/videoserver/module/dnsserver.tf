@@ -34,6 +34,10 @@ resource "openstack_compute_instance_v2" "dnsserver" {
   image_id    = data.openstack_images_image_v2.dnsserver-image.id
   user_data    = local.ext_dnsserver_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdnsserver[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+  
   network {
     name = "internet"
     fixed_ip_v4 = cidrhost(var.inet_cidr,233)

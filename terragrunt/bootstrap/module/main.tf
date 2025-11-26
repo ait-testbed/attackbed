@@ -68,6 +68,10 @@ resource "openstack_compute_instance_v2" "inet-dns" {
   image_id    = data.openstack_images_image_v2.inet-dns-image.id
   user_data    = local.ext_dns_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdns[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+
   network {
     name = "internet"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],514)
@@ -219,6 +223,10 @@ resource "openstack_compute_instance_v2" "inet-fw" {
   image_id    = data.openstack_images_image_v2.inet-fw-image.id
   user_data    = local.fw_userdata_file == null ? null : data.template_cloudinit_config.cloudinitinetfw[0].rendered
 
+    metadata = {
+    contact = var.contact
+  }
+
   network {
     name = "internet"
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],254)
@@ -296,6 +304,10 @@ resource "openstack_compute_instance_v2" "mgmt" {
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.mgmt-image.id
   user_data    = local.mgmt_userdata_file == null ? null : data.template_cloudinit_config.cloudinitmgmt[0].rendered
+
+    metadata = {
+    contact = var.contact
+  }
 
   network {
     name = "internet"
@@ -391,6 +403,10 @@ resource "openstack_compute_instance_v2" "dnsserver" {
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.dnsserver-image.id
   user_data    = local.ext_dnsserver_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdnsserver[0].rendered
+
+  metadata = {
+    contact = var.contact
+  }
 
   network {
     name = "internet"

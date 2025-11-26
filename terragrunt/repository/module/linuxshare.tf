@@ -37,6 +37,10 @@ resource "openstack_compute_instance_v2" "linuxshare" {
   image_id    = data.openstack_images_image_v2.linuxshare-image.id
   user_data    = local.ext_linuxshare_userdata_file == null ? null : data.template_cloudinit_config.cloudinitlinuxshare[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+  
   network {
     name = "lan"
     fixed_ip_v4 = cidrhost(var.lan_cidr,23)

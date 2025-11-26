@@ -34,6 +34,10 @@ resource "openstack_compute_instance_v2" "docker" {
   image_id    = data.openstack_images_image_v2.docker-image.id
   user_data    = local.ext_docker_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdocker[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+
   network {
     name = "dmz"
     fixed_ip_v4 = cidrhost(var.dmz_cidr,125)

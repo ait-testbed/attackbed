@@ -50,6 +50,9 @@ resource "openstack_compute_instance_v2" "client" {
   image_id    = data.openstack_images_image_v2.client-image.id
   user_data    = local.client_userdata_file == null ? null : data.template_cloudinit_config.cloudinitclient[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
 
   network {
     name = "user"

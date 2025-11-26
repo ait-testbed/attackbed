@@ -34,6 +34,10 @@ resource "openstack_compute_instance_v2" "adminpc" {
   image_id    = data.openstack_images_image_v2.adminpc-image.id
   user_data    = local.ext_adminpc_userdata_file == null ? null : data.template_cloudinit_config.cloudinitadminpc[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+  
   network {
     name = "admin"
     fixed_ip_v4 = cidrhost(var.admin_cidr,222)

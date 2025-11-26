@@ -34,6 +34,10 @@ resource "openstack_compute_instance_v2" "webcam" {
   image_id    = data.openstack_images_image_v2.webcam-image.id
   user_data    = local.ext_webcam_userdata_file == null ? null : data.template_cloudinit_config.cloudinitwebcam[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+  
   network {
     name = "dmz"
     fixed_ip_v4 = cidrhost(var.dmz_cidr,80)

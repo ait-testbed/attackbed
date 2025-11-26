@@ -35,7 +35,11 @@ resource "openstack_compute_instance_v2" "attacker" {
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.attacker-image.id
   user_data    = local.ext_attacker_userdata_file == null ? null : data.template_cloudinit_config.cloudinitattacker[0].rendered
-
+  
+  metadata = {
+    contact = var.contact
+  }
+  
   network {
     name = "internet"
     fixed_ip_v4 = "192.42.1.174"

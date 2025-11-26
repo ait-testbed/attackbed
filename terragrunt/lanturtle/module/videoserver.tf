@@ -34,6 +34,10 @@ resource "openstack_compute_instance_v2" "videoserver" {
   image_id    = data.openstack_images_image_v2.videoserver-image.id
   user_data    = local.ext_videoserver_userdata_file == null ? null : data.template_cloudinit_config.cloudinitvideoserver[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+
   network {
     name = "dmz"
     fixed_ip_v4 = cidrhost(var.dmz_cidr,121)

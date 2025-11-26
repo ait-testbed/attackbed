@@ -36,6 +36,10 @@ resource "openstack_compute_instance_v2" "logstash" {
   image_id    = data.openstack_images_image_v2.logstash-image.id
   user_data    = local.ext_logstash_userdata_file == null ? null : data.template_cloudinit_config.cloudinitlogstash[0].rendered
 
+  metadata = {
+    contact = var.contact
+  }
+  
   network {
     name = "lan"
     fixed_ip_v4 = cidrhost(var.lan_cidr,12)
