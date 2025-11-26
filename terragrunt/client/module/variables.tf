@@ -64,8 +64,8 @@ variable "dmz_cidr" {
 }
 
 variable "contact" {
-  description = "Email or Username of the person responsible for this instance (required for resource tracking)"
+  description = "Username of the person responsible for this instance (required for resource tracking)"
   type        = string
-  default = "email or contact person"
+  default = "contact person"
 }
 
