@@ -10,8 +10,8 @@ variable "lan_cidr" {
 }
 
 variable "contact" {
-  description = "Email of the person responsible for this instance (required for resource tracking)"
+  description = "Email or Username of the person responsible for this instance (required for resource tracking)"
   type        = string
-  default = "email contact"
+  default = "email or contact person"
 }
 
