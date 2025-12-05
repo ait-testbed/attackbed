@@ -1,0 +1,46 @@
+####################
+#
+# Caldera tcpdump
+#
+####################
+vars:
+  $TARGET_ADDRESS: 192.42.1.175
+  $ATTACKER_ADDRESS: 192.42.1.174 
+  $LINUX_USER: aecid
+  $LINUX_USER_PASSWORD: aecid
+
+commands:
+
+#login with a valid account 
+  - type: ssh
+    creates_session: foothold
+    username: $LINUX_USER
+    key_filename: "/home/aecid/.ssh/key"
+    hostname: $TARGET_ADDRESS
+    cmd: id
+    metadata:
+      techniques: "T1078.002"
+      tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
+
+# execute and stop tcpdump
+  - type: ssh
+    session: foothold
+    cmd: "sudo tcpdump \n"
+    interactive: True
+    metadata:
+      techniques: "T1040"
+      tactics: "Credential Access"
+      technique_name: "Network Sniffing"
+
+  - type: sleep
+    seconds: 10
+
+#stop process by sending ctrl-c
+  - type: ssh
+    session: foothold
+    cmd: "03"
+    interactive: True
+    bin: True  
+
+

