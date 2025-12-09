@@ -16,7 +16,7 @@
     - role: nextcloudrce
       vars:
         nextcloud_rce_start_container: false  #Needed to prevent the start of containers at atb-ansible-nextcloudrce role before mail feature
-        nextcloud_rce_domain: "localhost:8080"
+        nextcloud_rce_domain: "192.42.0.254:8080"
         nextcloud_mail_image: "ghcr.io/ait-testbed/attackbed/nextcloud-mail:1.0.0"
         nextcloud_rce_docker_compose_template: "docker-compose-mail.yml.j2"
     - role: vulndockerd

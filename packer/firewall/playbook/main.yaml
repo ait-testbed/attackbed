@@ -116,6 +116,8 @@
           rules:
             - Cloud Ports
             - { action: DNAT, source: inet, dest: "dmz:$CLOUD", proto: tcp, dest_port: 8080 }
+            - { action: DNAT, source: inet, dest: "dmz:$CLOUD", proto: tcp, dest_port: 25 }
+            - { action: DNAT, source: inet, dest: "dmz:$CLOUD", proto: tcp, dest_port: 143 }
             - Videoserver Ports
             - { action: DNAT, source: inet, dest: "dmz:$VIDEOSERVER", proto: tcp, dest_port: 80 }
             - { action: DNAT, source: inet, dest: "dmz:$VIDEOSERVER:22", proto: tcp, dest_port: 2222 }

