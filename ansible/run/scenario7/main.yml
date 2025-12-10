@@ -71,6 +71,8 @@
       apt:
         name: docker.io
         state: present
+      tags:
+        - playbooks
 
     - name: Copy smtp-enum
       become: True

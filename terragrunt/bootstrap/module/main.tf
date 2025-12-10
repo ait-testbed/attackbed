@@ -6,6 +6,7 @@ locals {
   ext_dns_userdata_file = var.ext_dns_userdata == null ? "${path.module}/scripts/dns.yml" : var.ext_dns_userdata
   fw_userdata_file    = var.fw_userdata == null ? "${path.module}/scripts/firewallinit.yml" : var.fw_userdata
   mgmt_userdata_file    = var.mgmt_userdata == null ? "${path.module}/scripts/mgmtinit.yml" : var.mgmt_userdata
+  ext_dnsserver_userdata_file = var.corpdns_userdata == null ? "${path.module}/scripts/corpdns.yml" : var.corpdns_userdata
 }
 
 
@@ -356,10 +357,6 @@ resource "openstack_networking_floatingip_associate_v2" "mgmt" {
 }
 
 
-locals {
-    ext_dnsserver_userdata_file = var.dnsserver_userdata == null ? "${path.module}/scripts/corpdns.yml" : var.dnsserver_userdata
-}
-
 ####################################################################
 #
 # CREATE INSTANCE for "DNS-Server"
@@ -381,13 +378,13 @@ data "template_cloudinit_config" "cloudinitdnsserver" {
 }
 
 data "openstack_images_image_v2" "dnsserver-image" {
-  name        = var.dnsserver_image
+  name        = var.corpdns_image
   most_recent = true
 }
 
 resource "openstack_compute_instance_v2" "dnsserver" {
   name        = "corpdns"
-  flavor_name = var.dnsserver_flavor
+  flavor_name = var.corpdns_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.dnsserver-image.id
   user_data    = local.ext_dnsserver_userdata_file == null ? null : data.template_cloudinit_config.cloudinitdnsserver[0].rendered
