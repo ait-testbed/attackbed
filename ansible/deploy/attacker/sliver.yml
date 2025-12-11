@@ -1,0 +1,7 @@
+- name: Install Attacker Host
+  become: true
+  hosts: 10.110.0.211
+  roles:
+    - role: sliver
+      vars:
+        sliver_user: ubuntu

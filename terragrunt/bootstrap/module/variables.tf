@@ -64,20 +64,20 @@ variable "mgmt_flavor" {
   default     = "d2-2"
 }
 
-variable "dnsserver_image" {
+variable "corpdns_image" {
   type        = string
-  description = "image of the dnsserver host"
+  description = "image of the corpdns-server host"
 }
 
-variable "dnsserver_flavor" {
+variable "corpdns_flavor" {
   type        = string
-  description = "flavor of the dnsserver host"
+  description = "flavor of the corpdns-server host"
   default     = "d2-8"
 }
 
-variable "dnsserver_userdata" {
+variable "corpdns_userdata" {
   type        = string
-  description = "Userdata for the dnsserver virtual machine"
+  description = "Userdata for the corpdns-server virtual machine"
   default     = null
 }
 

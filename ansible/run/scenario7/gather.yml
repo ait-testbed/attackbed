@@ -1,0 +1,85 @@
+- hosts: inetfw
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_configs:
+      - src: /var/lib/suricata
+        recursive: true
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+      - src: /var/ossec/etc/ossec.conf
+
+    kyoushi_gather_logs:
+      - src: /var/log
+        recursive: true
+
+
+- hosts: docker
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - /opt/nextcloud/log
+      - /var/lib/docker/containers
+        recursive: true
+      - src: /var/log
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+      - src: /opt/nextcloud
+        recursive: true
+        exclude:
+          - "/opt/nextcloud/dump.sql"
+          - "/opt/nextcloud/log"
+      - src: /var/ossec/etc/ossec.conf
+
+
+- hosts: attacker
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - /home/aecid/attackmate.log
+      - /home/aecid/output.log
+      - /home/aecid/attackmate.json
+      - src: /var/log
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /home/aecid/scenario*.yml
+      - src: /var/www/html
+        recursive: true
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+
+- hosts: wazuh
+  roles:
+    - kyoushi-gather
+  vars:
+    kyoushi_gather_ignore_errors: yes
+    kyoushi_gather_logs:
+      - src: /var/ossec/logs/alerts
+        recursive: true
+
+    kyoushi_gather_configs:
+      - src: /etc
+        recursive: true
+        exclude:
+          - "/etc/runit "
+          - "/etc/sv "
+      - src: /var/ossec/etc/shared
+        recursive: true
