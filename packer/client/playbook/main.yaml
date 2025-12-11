@@ -205,15 +205,18 @@
       failed_when: user_id_result.rc != 0
       check_mode: no
 
-    - name: Add specific audit rule for UID {{ user_id_result.stdout }}
-      ansible.builtin.lineinfile:
-        path: /etc/audit/rules.d/99-user.rules 
-        line: "-a always,exit -F arch=b64 -F uid={{ user_id_result.stdout }} -S all -k user_activity" 
-        create: yes 
+    - name: Add specific audit rules for user commands and home directory monitoring
+      ansible.builtin.blockinfile:
+        path: /etc/audit/rules.d/99-user.rules
+        create: yes
         owner: root
         group: root
         mode: '0640'
-      notify: Restart auditd 
+        block: |
+          -a always,exit -F arch=b64 -F auid>=1000 -S execve -k user_commands
+          -a exit,always -F dir=/home -p rxwa -F key=watch_home
+        insertafter: EOF 
+      notify: Restart auditd
 
   handlers:
     - name: Restart auditd
