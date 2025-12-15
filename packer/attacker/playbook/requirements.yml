@@ -23,7 +23,7 @@ roles:
     version: v1.2.0
     name: attackmate
   - src: https://github.com/ait-testbed/ansible-manage_unattended_upgrades.git
-    version: v1.0.0
+    version: v0.0.0
     name: manage_unattended_upgrades
   - src: https://github.com/ait-testbed/ansible-mate-desktop.git
     version: v1.2.1
