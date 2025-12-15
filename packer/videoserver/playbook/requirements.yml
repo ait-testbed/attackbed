@@ -27,10 +27,10 @@ roles:
     version: v1.0
     name: awffullprivesc
   - src: https://github.com/ait-testbed/atb-ansible-mariadb.git
-    version: v1.0.0
+    version: master
     name: mariadb
   - src: https://github.com/ait-testbed/ansible-apache2.git
-    version: v1.3
+    version: master
     name: apache2
   - src: https://github.com/ait-testbed/ansible-auditd.git
     version: v1.1
