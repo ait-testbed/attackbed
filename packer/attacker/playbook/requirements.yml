@@ -20,7 +20,7 @@ roles:
     version: v0.0.1
     name: seclists
   - src: https://github.com/ait-testbed/attackmate-ansible.git
-    version: v1.2.0
+    version: v1.4.0
     name: attackmate
   - src: https://github.com/ait-testbed/ansible-manage_unattended_upgrades.git
     version: v0.0.0
