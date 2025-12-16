@@ -156,6 +156,7 @@
               owner: "root"
               mode: "0755"
       tags:
+          - scenario_1_d_a
           - scenario_1_e_a
           - scenario_1_c_a
 
