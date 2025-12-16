@@ -2,6 +2,7 @@ roles/
 venv/
 .venv/
 .venv/*
+ansible/.venv*
 .env
 .terragrunt-cache/
 .terraform.lock.hcl
@@ -10,6 +11,7 @@ docs/build/
 *.qcow2
 .mypy_cache/
 *.tfstate
+*tar.gz
 
 # temporary packer-key(debug)
 os_builder.pem
