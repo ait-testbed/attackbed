@@ -39,15 +39,83 @@
         - attackmate
         - playbooks
 
-    - name: Ensure delay before commands
-      ansible.builtin.replace:
+    - name: Add cmd_config block to end of /etc/attackmate.yml
+      ansible.builtin.blockinfile:
         path: /etc/attackmate.yml
-        regexp: 'command_delay: 0'
-        replace: 'command_delay: 15'
+        block: |
+          cmd_config:
+            command_delay: 15
+        create: true  # Creates the file if it doesn't exist
         backup: yes
+        insertafter: EOF 
+        marker: "# {mark} ANSIBLE MANAGED BLOCK FOR CMD_CONFIG"
       become: true
       tags:
         - playbooks
+
+  
+# this is the key needed for scenario a_c when mgmt is used as jump host
+    - name: Generate SSH key pair for attacker to access mgmt
+      ansible.builtin.openssh_keypair:
+        path: "{{ user_home.stdout }}/.ssh/attacker_mgmt"
+        type: rsa
+        size: 4096
+        owner: "{{ attacker_user }}"
+        group: "{{ attacker_user }}"
+        mode: '0600'
+      tags:
+        - ssh
+        - playbooks
+
+    - name: Read SSH public key from attacker
+      become: yes
+      ansible.builtin.slurp:
+        src: "{{ user_home.stdout }}/.ssh/attacker_mgmt.pub"
+      register: ssh_key_mgmt
+      tags:
+        - ssh
+        - playbooks
+    
+    - name: Add public key to mgmt's authorized_keys
+      become: yes
+      ansible.builtin.authorized_key:
+        user: aecid
+        state: present
+        key: "{{ ssh_key_mgmt.content | b64decode }}"
+      delegate_to: mgmt
+      tags:
+        - ssh
+        - playbooks
+
+    - name: Set attacker_mgmt_public_key as a fact
+      ansible.builtin.set_fact:
+        attacker_mgmt_public_key: "{{ ssh_key_mgmt.content | b64decode }}"
+      tags:
+        - ssh
+        - playbooks
+
+- name: add ssh key to adminpc2
+  hosts: adminpc2
+  become: true
+  tasks:
+    - name: Add public key to adminpcs's authorized_keys
+      become: yes
+      ansible.builtin.authorized_key:
+        user: aecid
+        state: present
+        key: "{{ hostvars['attacker']['attacker_mgmt_public_key'] }}"
+      tags:
+        - ssh
+        - playbooks
+
+- name: Install Attacker Host Part 2
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+    delay_before_attack: 600
+  tasks:
 
     - name: Copy user-password-combo
       ansible.builtin.copy:

