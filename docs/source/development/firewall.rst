@@ -33,6 +33,7 @@ Key Host IPs from configuration:
 *   **LINUXSHARE**: ``192.168.100.23`` (lan)
 *   **VIDEOSERVER**: ``172.17.100.121`` (dmz)
 *   **KAFKA**: ``192.168.100.10`` (lan)
+*   **CLOUD**: ``172.17.100.125`` (dmz)
 *   **Firewall (inetfw)**: Public IP ``192.42.0.254`` (for knocking, from scenario 4), Internal IPs on respective zone interfaces.
 *   **Attacker**: ``192.42.1.174`` (inet)
 *   **inetdns**: Public DNS server, delegates requests for ``faaacebook.com``, ``facebock.com``, ``dailynews-wire.com`` to Attacker IP.
@@ -50,9 +51,9 @@ Scenario 1: Videoserver / ZoneMinder Exploit
 
 This scenario targets the ZoneMinder service running on the ``VIDEOSERVER`` in the DMZ.
 
-*   **Reconaissance (DNS Enumeration):**
-        ``inet (Attacker) -> fw`` | TCP Top 100 Ports |  Attacker performs nmap scan to firewall IP (top 100 ports even if fhe ports are not open) 
 *   **Reconaissance (Host/Service Scanning):**
+        ``inet (Attacker) -> fw`` | TCP Top 100 Ports |  Attacker performs nmap scan to firewall IP (top 100 ports even if fhe ports are not open) 
+*   **Reconaissance (DNS Enumeration):**
         ``inet (Attacker) -> inet (CorpsDNS)`` | UDP/TCP Port 53 | Attacker performs DNS enumeration
 *   **Initial Access & Exploitation:**
         ``inet (Attacker) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (DNAT) - Attacker accesses the ZoneMinder web interface via the firewall's public IP, forwarded to the ``VIDEOSERVER``.
@@ -115,8 +116,6 @@ Scenario 2: Linux Malware
 
 This scenario involves exploiting a vulnerability on the ``VIDEOSERVER``, using DNS redirection and privilege escalation techniques.
 
-*   **DNS Redirection Setup:**
-        ``inet (Attacker) -> inetdns`` | (Configuration Task) - Attacker configures `inetdns` to resolve ``faaacebook.com`` to the Attacker's IP.
 *   **Initial Access & Exploitation:**
         ``inet (Attacker) -> dmz (VIDEOSERVER)`` | TCP Port 80 | (DNAT) - Initial interaction with the ``VIDEOSERVER`` web service.
 *   **DNS Lookups:**
@@ -137,11 +136,6 @@ This scenario involves exploiting a vulnerability on the ``VIDEOSERVER``, using 
      - Destination
      - Protocol / Port
      - Firewall Rule/Policy
-   * - DNS Setup
-     - ``inet (Attacker)``
-     - ``inetdns``
-     - N/A
-     - Config Task
    * - Initial Access
      - ``inet (Attacker)``
      - ``dmz (VIDEOSERVER)``
@@ -417,3 +411,91 @@ This scenario involves tricking a user on the `client` machine (in the `user` zo
      - ``inet (Attacker IP)``
      - TCP 21114-8, 8000; UDP 21116
      - RULE
+
+Scenario 7: Docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this scenario attacker gains remote code execution via a nextcloud exploit inside a docker container and elevates the privileges using an exposed docker-daemon to gain root access on the docker host.
+
+*   **Reconaissance (DNS Enumeration):**
+        ``inet (Attacker) -> inet (CorpsDNS)`` | UDP/TCP Port 53 | Attacker performs DNS enumeration
+*   **Reconaissance (SMTP Enumeration):**
+        ``inet (Attacker) -> fw`` | TCP Port 25 |  Attacker enumerates possible usernames using SMTP
+*   **Initial Access (Credential Attack):**
+        ``inet (Attacker) -> fw`` | TCP Port 143 |  Attacker brute forces password for IMAP-User
+*   **Reconaissance (HTTP Title):**
+        ``inet (Attacker) -> dmz (CLOUD)`` | TCP Port 8080 | (DNAT) - Attacker accesses the Nextcloud web interface via the firewall's public IP, forwarded to the ``CLOUD``.
+*   **Initial Access & Exploitation:**
+        ``inet (Attacker) -> dmz (CLOUD)`` | TCP Port 8080 | (DNAT) - Attacker accesses the Nextcloud web interface via the firewall's public IP, forwarded to the ``CLOUD`` and exploits a command injection vulnerability.
+*   **Command and Control (Reverse Shell-Staged):**
+        ``dmz (CLOUD) -> inet (Attacker)`` | TCP Port <LPORT> (e.g. 8080 or 8081) | (POLICY: `dmz -> inet ACCEPT`) - Meterpreter reverse shell download initiated from the compromised ``CLOUD`` back to the attacker's listener.
+*   **Command and Control (Reverse Shell):**
+        ``dmz (CLOUD) -> inet (Attacker)`` | TCP Port <LPORT> (e.g. 4444) | (POLICY: `dmz -> inet ACCEPT`) - Meterpreter reverse shell connection initiated from the compromised ``CLOUD`` back to the attacker's listener.
+*   **Payload Download:**
+        ``dmz (CLOUD) -> inet (Attacker)`` | TCP Port 8888 | (POLICY: `dmz -> inet ACCEPT`) - Compromised ``CLOUD`` downloads sliver-implant from the attacker's web server to escape from container.
+*   **Post-Exploitation (Sliver):**
+        ``dmz (CLOUD) -> inet (Attacker)`` | TCP Port 443 | (POLICY: `dmz -> inet ACCEPT`) - Sliver-Implant connects back using domain `https://faaacebook.com` to establish reverse-connection for the attacker.
+*   **DNS Lookups:**
+        ``dmz (CLOUD) -> fw`` | TCP/UDP Port 53 | (RULE: `DNS/ACCEPT`) - ``CLOUD`` performing DNS lookups via the firewall.
+
+.. list-table:: Scenario 7 Firewall Connections
+   :widths: 25 20 20 15 20
+   :header-rows: 1
+
+   * - Phase / Action
+     - Source
+     - Destination
+     - Protocol / Port
+     - Firewall Rule/Policy
+   * - Reconaissance
+     - ``inet (Attacker)``
+     - ``inet`` (CorpsDNS)``
+     - TCP 53
+     - N/A
+   * - Reconaissance
+     - ``inet (Attacker)``
+     - ``dmz (CLOUD)``
+     - TCP 25
+     - DNAT
+   * - Initial Access
+     - ``inet (Attacker)``
+     - ``dmz (CLOUD)``
+     - TCP 143
+     - DNAT
+   * - Reconaissance
+     - ``inet (Attacker)``
+     - ``dmz (CLOUD)``
+     - TCP 8080
+     - DNAT
+   * - Initial Access
+     - ``inet (Attacker)``
+     - ``dmz (CLOUD)``
+     - TCP 8080
+     - DNAT
+   * - Command & Control
+     - ``dmz (CLOUD)``
+     - ``inet (Attacker)``
+     - TCP 8080
+     - POLICY: ``dmz -> inet ACCEPT``
+   * - Command & Control
+     - ``dmz (CLOUD)``
+     - ``inet (Attacker)``
+     - TCP 4444
+     - POLICY: ``dmz -> inet ACCEPT``
+   * - Payload Download
+     - ``dmz (CLOUD)``
+     - ``inet (Attacker)``
+     - TCP 8888
+     - POLICY: ``dmz -> inet ACCEPT``
+   * - Post-Exploitation Sliver
+     - ``dmz (CLOUD)``
+     - ``inet (Attacker)``
+     - TCP 443
+     - POLICY: ``dmz -> inet ACCEPT``
+   * - DNS Lookup
+     - ``dmz (CLOUD)``
+     - ``fw``
+     - TCP/UDP 53
+     - RULE: ``DNS/ACCEPT``
+
+
