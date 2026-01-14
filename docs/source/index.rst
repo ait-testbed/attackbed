@@ -43,6 +43,7 @@ AttackBed Documentation
    scenarios/network
    scenarios/lanturtle
    scenarios/client
+   scenarios/docker
 
 .. toctree::
    :maxdepth: 1

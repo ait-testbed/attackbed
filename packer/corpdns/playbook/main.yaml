@@ -5,11 +5,15 @@
     suricata_interface: [ens3]
     suricata_pcap_log: False
     netflow_enabled: true
+    hostname: "corpdns"
   pre_tasks:
+    - name: Change hostname
+      ansible.builtin.hostname:
+        name: "{{hostname}}"
     - name: Ensure dynamic hostname is in /etc/hosts with 127.0.1.1
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "127.0.1.1\t\t\t\t{{ ansible_hostname }}" # Uses the system's current hostname
+        line: "127.0.1.1\t\t\t\t{{hostname}}" # Uses the system's current hostname
         state: present
         create: true             # Creates the file if it doesn't exist
         owner: root
@@ -36,12 +40,14 @@
         dnsmasq_config:
               - { name: "logging",  content: "log-queries" }
               - { name: "host-video",  content: "host-record=video.attackbed.com,192.42.0.254" }
+              - { name: "host-mail",  content: "host-record=mail.attackbed.com,192.42.0.254" }
               - { name: "host-firewall",  content: "host-record=fw.attackbed.com,192.42.0.254" }
               - { name: "host-repo",  content: "host-record=repo.attackbed.com,192.42.0.254" }
               - { name: "host-domain",  content: "host-record=attackbed.com,192.42.0.254" }
               - { name: "auth-zone",  content: "auth-zone=attackbed.com,192.42.0.254" }
               - { name: "auth-server",  content: "auth-server=192.42.0.233,,ens3" }
               - { name: "domain",  content: "domain=attackbed.com" }
+              - { name: "mail",  content: "mx-host=attackbed.com,mail.attackbed.com,50" }
               - { name: "local-domain",  content: "local=/attackbed.com/192.42.0.254" }
     - role: filebeat
       vars:
@@ -82,16 +88,4 @@
       ansible.builtin.lineinfile:
         path: /etc/hosts
         line: "192.42.0.254 kafka.attackbed.local"
-        state: present
-  post_tasks:
-    - name: Remove dynamic hostname from /etc/hosts
-      ansible.builtin.lineinfile:
-        path: /etc/hosts
-        regexp: '^127\.0\.1\.1\s+{{ ansible_hostname }}$'
-        state: absent
-      become: true
-    - name: Ensure 127.0.0.1 is present in /etc/hosts
-      ansible.builtin.lineinfile:
-        path: "/etc/hosts"
-        line: "127.0.0.1\tcorpdns"
         state: present
