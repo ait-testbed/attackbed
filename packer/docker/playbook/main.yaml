@@ -19,6 +19,7 @@
         nextcloud_rce_domain: "192.42.0.254:8080"
         nextcloud_mail_image: "ghcr.io/ait-testbed/attackbed/nextcloud-mail:1.0.0"
         nextcloud_rce_docker_compose_template: "docker-compose-mail.yml.j2"
+        nextcloud_rce_configfile: "nc-config.php.j2"
     - role: vulndockerd
       vars:
         vulndockerd_socket: "tcp://0.0.0.0:2375"
@@ -27,6 +28,14 @@
       vars:
             wazuh_manager: 192.168.100.130
             wazuh_localfiles:
+              - log_format: audit
+                location: /var/log/audit/audit.log
+              - log_format: syslog
+                location: /var/log/*.log
+              - log_format: syslog
+                location: /opt/nextcloud/log/*.log
+              - log_format: json
+                location: /opt/nextcloud/nclog/*.log
               - log_format: json
                 location: /var/lib/docker/containers/*/*-json.log          
   tasks:
@@ -35,6 +44,13 @@
         path: "{{ nextcloud_rce_dir }}/mail"
         state: directory
         mode: '0755'
+
+    - name: Ensure nclog directory exists
+      ansible.builtin.file:
+        path: "{{ nextcloud_rce_dir }}/nclog"
+        state: directory
+        mode: '0755'
+        owner: 'www-data'
 
     - name: Ensure mailconfig directories exist
       ansible.builtin.file:
@@ -45,6 +61,11 @@
         - postfix
         - dovecot
         - dovecot/conf.d
+
+    - name: Ensure nextcloud config exist
+      ansible.builtin.file:
+        path: "{{ nextcloud_rce_dir }}/config.php"
+        owner: 'www-data'
 
     - name: Deploy Dovecot/Postfix config files
       ansible.builtin.template:

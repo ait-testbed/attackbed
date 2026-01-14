@@ -24,6 +24,7 @@ services:
       - db
     volumes:
       - ${PWD}/config.php:/var/www/nextcloud/config/config.php
+      - ${PWD}/nclog:/var/www/nextcloud/nclog
     environment:
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=nextcloud

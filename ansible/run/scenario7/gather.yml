@@ -25,6 +25,7 @@
     kyoushi_gather_ignore_errors: yes
     kyoushi_gather_logs:
       - /opt/nextcloud/log
+      - /opt/nextcloud/nclog
       - /var/lib/docker/containers
         recursive: true
       - src: /var/log
