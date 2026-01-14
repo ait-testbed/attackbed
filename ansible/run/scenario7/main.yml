@@ -1,0 +1,135 @@
+
+- name: Retstart dnsmasq on inetdns
+  hosts: inetdns
+  become: true
+  tasks:
+  - name: stop dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: stopped
+    tags:
+      - playbooks
+
+  - name: Configure public DNS
+    ansible.builtin.copy:
+      content: "address=/faaacebook.com/192.42.1.174\n"
+      owner: root
+      dest: /etc/dnsmasq.d/attacker.conf
+        # delegate_to: inetdns
+    tags:
+      - playbooks
+
+  - name: start dnsmasq
+    ansible.builtin.service:
+      name: dnsmasq
+      state: started
+    tags:
+      - playbooks
+
+- name: Install Attacker Host
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+  tasks:
+    - name: get user home directory
+      ansible.builtin.shell: >
+             getent passwd {{ attacker_user }}  | awk -F: '{ print $6 }'
+      changed_when: false
+      register: user_home
+      tags:
+        - metasploit
+        - exploit
+        - config
+        - install
+        - git
+        - attackmate
+        - playbooks
+
+    - name: Ensure delay before commands
+      ansible.builtin.replace:
+        path: /etc/attackmate.yml
+        regexp: 'command_delay: 0'
+        replace: 'command_delay: 15'
+        backup: yes
+      become: true
+      tags:
+        - playbooks
+
+
+- name: Install Attacker Host Part 2
+  hosts: attacker
+  become: true
+  vars:
+    attacker_user: aecid
+    attacker_ip: 192.42.1.174
+      # delay_before_attack: 600
+    delay_before_attack: 0
+  tasks:
+    - name: Install docker.io
+      apt:
+        name: docker.io
+        state: present
+      tags:
+        - playbooks
+
+    - name: Copy smtp-enum
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.copy:
+        src: "smtp-user-enum.pl"
+        dest: "{{user_home.stdout}}/smtp-user-enum.pl"
+        mode: '0755'
+      tags:
+        - playbooks
+
+    - name: Copy smtp-user-wordlist
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.copy:
+        src: "smtp-user.txt"
+        dest: "{{user_home.stdout}}/smtp-user.txt"
+        mode: '0744'
+      tags:
+        - playbooks
+
+    - name: Copy smtp-pass-wordlist
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.copy:
+        src: "smtp-pass.txt"
+        dest: "{{user_home.stdout}}/smtp-pass.txt"
+        mode: '0744'
+      tags:
+        - playbooks
+
+
+    - name: Copy playbooks
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.template:
+          src: "{{ item }}.j2"
+          dest: "{{user_home.stdout}}/{{ item }}.yml"
+          mode: '0755'
+      loop:
+          - scenario_7
+      tags:
+         - metasploit
+         - attackmate
+         - exploit
+         - config
+         - install
+         - playbooks
+
+    - name: "Run Scenario 7"
+      become: True
+      become_user: "{{attacker_user}}"
+      ansible.builtin.shell:
+          cmd: "sleep {{delay_before_attack}} && /usr/local/bin/attackmate-tmux \"--json\" scenario_7.yml"
+          chdir: "{{user_home.stdout}}"
+      tags:
+         - scenario_7
+         - metasploit
+         - attackmate
+         - exploit

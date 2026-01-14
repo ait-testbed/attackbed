@@ -1,0 +1,49 @@
+<?php
+$CONFIG = array (
+  'htaccess.RewriteBase' => '/',
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+  'apps_paths' =>
+  array (
+    0 =>
+    array (
+      'path' => '/var/www/nextcloud/apps',
+      'url' => '/apps',
+      'writable' => false,
+    ),
+    1 =>
+    array (
+      'path' => '/var/www/nextcloud/custom_apps',
+      'url' => '/custom_apps',
+      'writable' => true,
+    ),
+  ),
+  'passwordsalt' => 'iPv6aSpscWlbR178W8jVR21BJ2nph5',
+  'secret' => '+NGIlhsEmuRyQNbNpX6BwiFKV8fv/Bk8FAUd0yhN0Bzllhv4',
+  'trusted_domains' =>
+  array (
+    0 => 'localhost',
+    1 => '{{nextcloud_rce_domain}}',
+  ),
+  'datadirectory' => '/var/www/nextcloud/data',
+  'dbtype' => 'mysql',
+  'version' => '24.0.5.1',
+  'overwrite.cli.url' => 'http://localhost',
+  'dbname' => 'nextcloud',
+  'dbhost' => 'db',
+  'dbport' => '',
+  'dbtableprefix' => 'oc_',
+  'mysql.utf8mb4' => true,
+  'dbuser' => 'root',
+  'dbpassword' => 'root',
+  'installed' => true,
+  'instanceid' => 'oc2g02diujsz',
+  'log_type' => 'file',
+  'logfile' => 'nclog/nextcloud.log',
+  'loglevel' => 0,
+  'log.condition' => [
+        'apps' => ['admin_audit'],
+  ],
+  'log_type_audit' => 'file',
+  'syslog_tag_audit' => 'Nextcloud',
+  'logfile_audit' => 'nclog/audit.log',
+);

