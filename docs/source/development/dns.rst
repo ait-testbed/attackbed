@@ -6,7 +6,7 @@ DNS
 
 DNS is an important part of some attacks of the scenarios. For that reason there is a server named ``corpdns``, which plays the role of the authoritative DNS server for the public domain attackbed.com of the corporate network and which is targeted by the attacker. 
 
-There also is a server named ``inetdns`` (called 'Public DNS' in the diagrams) which plays the analogue of e.g. the Google DNS server 8.8.8.8 in the real world. This server is used by all machines in the AttackBed for actual communication with the Internet and therefore is not manipulated by the attacker. It redirects queries regarding the domain attackbed.com to ``corpdns``.
+There also is a server named ``inetdns`` (called 'Public DNS' in the diagrams) which plays the analogue of e.g. the Google DNS server 8.8.8.8 in the real world. This server is used by all machines in the AttackBed for actual communication with the Internet and therefore is not manipulated by the attacker. It redirects queries regarding the domain attackbed.com to ``corpdns``. All other dns-queries are forwarded to it's resolver(/etc/resolv.conf).
 
 ``corpdns`` holds the records for the domain attackbed.com, and hostnames like fw.attackbed.com. These records point to 192.42.0.254, which is the 'fake internet' address of ``inetfw``, the firewall that is part of the attack scenarios - ``inetfw`` also runs dnsmasq and resolves all queries for the zone attackbed.local. Other DNS queries ``inetfw`` forwards to ``inetdns``.
 
