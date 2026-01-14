@@ -10,7 +10,7 @@ There also is a server named ``inetdns`` (called 'Public DNS' in the diagrams) w
 
 ``corpdns`` holds the records for the domain attackbed.com, and hostnames like fw.attackbed.com. These records point to 192.42.0.254, which is the 'fake internet' address of ``inetfw``, the firewall that is part of the attack scenarios - ``inetfw`` also runs dnsmasq and resolves all queries for the zone attackbed.local. Other DNS queries ``inetfw`` forwards to ``inetdns``.
 
-So for most machines in the scenario ``inetfw`` will be the first DNS server address, which then either resolves the queries (if they're in attackbed.local), or it will forward them to ``inetdns`` - and ``inetdns`` in turn forwards them to ``corpdns``, if they concern attackbed.com, or on to 8.8.8.8.
+So for all machines inside the corporate network, ``inetfw`` will be the first DNS server address, which then either resolves the queries (if they're for attackbed.local), or it will forward them to ``inetdns``.  ``inetdns`` in turn forwards them to ``corpdns``, if they concern the domain-zone attackbed.com. Otherwise queries will be forwarded to the resolver that is configured(for example 8.8.8.8).
 
 ``inetfw``, ``inetdns`` and ``corpdns`` have IP addresses in the public range 192.42.0.0/16, which is not connected to the actual internet directly, to allow a 'fake' internet to be established - so that the attacks can simulate a real world scenario with public IP addresses more realistically. Traffic in this subnet does NOT get routed over the actual internet, and it is not accessible from the internet.
 
