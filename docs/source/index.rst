@@ -52,3 +52,4 @@ AttackBed Documentation
    development/overview 
    development/attacker
    development/firewall
+   development/dns
