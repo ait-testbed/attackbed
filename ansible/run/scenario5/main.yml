@@ -75,13 +75,19 @@
         line: "127.0.0.1\tattacker"
         state: present
 
-    - name: Ensure delay before commands
-      ansible.builtin.replace:
+    - name: Add cmd_config block to end of /etc/attackmate.yml
+      ansible.builtin.blockinfile:
         path: /etc/attackmate.yml
-        regexp: 'command_delay: 0'
-        replace: 'command_delay: 15'
+        block: |
+          cmd_config:
+            command_delay: 15
+        create: true  # Creates the file if it doesn't exist
         backup: yes
-      become: true         
+        insertafter: EOF 
+        marker: "# {mark} ANSIBLE MANAGED BLOCK FOR CMD_CONFIG"
+      become: true
+      tags:
+        - playbooks         
 
     - name: get user home directory
       ansible.builtin.shell: >
