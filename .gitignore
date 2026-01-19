@@ -2,6 +2,7 @@ roles/
 venv/
 .venv/
 .venv/*
+ansible/.venv*
 .env
 .terragrunt-cache/
 .terraform.lock.hcl
