@@ -31,7 +31,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
   - type: shell
@@ -44,7 +43,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
   - type: http-client
@@ -110,7 +108,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
   - type: msf-session
@@ -129,7 +126,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
 
@@ -142,7 +138,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
   - type: shell
@@ -152,6 +147,9 @@ commands:
       tactics: "Defense Evasion,Execution,Persistence,Privilege Escalation,Lateral Movement"
       description: "Attacker mounts etc-directory of the host into a container and creates a cron-job in it that executes the sliver-implant as root outside of the container"
 
+  - type: sleep
+    seconds: 360
+    random: true
 
   - type: sliver-session
     cmd: ls
@@ -165,7 +163,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
   - type: sliver-session
@@ -182,7 +179,6 @@ commands:
 
   - type: sleep
     seconds: 30
-    min_sec: 5
     random: true
 
   - type: sliver-session
@@ -195,3 +191,7 @@ commands:
       tactics: "Credential Access,Collection,Exfiltration"
       technique_name: "OS Credential Dumping: /etc/passwd and /etc/shadow,Exfiltration Over C2 Channel"
       description: "Use sliver to dump /etc/shadow credentials"
+
+  - type: sleep
+    seconds: 30
+
