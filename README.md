@@ -44,7 +44,7 @@ This scenario simulates attacks targeting an end-user workstation, focusing on c
 
 The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
 
-<img src="/docs/images/Szenario1_2_3.png" alt="MITRE Navigator" style="width:600pt;"/>
+<img src="/docs/images/All_Scenarios.png" alt="MITRE Navigator" style="width:600pt;"/>
 
 ## Requirements
 
