@@ -40,6 +40,12 @@ This scenario simulates attacks targeting an end-user workstation, focusing on c
 
 <img src="/docs/images/AttackBed-Client.png" alt="Client Scenario" style="width:600pt;"/>
 
+### Docker Scenario
+
+The attackers enumerate and bruteforce dns, smtp and imap first, to gain credentials that can be used for Nextcloud. Next they exploit a remote code execution vulnerability in Nextcloud to gain access to a docker container. After exploiting an exposed docker-daemon they finally are able to escape to the docker host and persist using the sliver malware.
+
+<img src="https://github.com/ait-testbed/attackbed/blob/main/docs/images/AttackBed-Docker.drawio.png" alt="Docker Scenario" style="width:600pt;"/>
+
 ### MITRE Navigator
 
 The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
