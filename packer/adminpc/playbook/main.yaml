@@ -20,16 +20,82 @@
               owner: "{{ user }}"
               group: "{{ user }}"
               recurse: yes
-          - name: Install Playwright in virtual environment
-            ansible.builtin.shell: |
-              source {{ venv_path }}/bin/activate && playwright install
-            args:
-              executable: /bin/bash
-          - name: Install Playwright dependencies in virtual environment
-            ansible.builtin.shell: |
-              source {{ venv_path }}/bin/activate && playwright install-deps
-            args:
-              executable: /bin/bash
+
+      # Update apt cache so we get the latest packages
+          - name: Update apt cache for Playwright
+            become: true
+            ansible.builtin.apt:
+              update_cache: yes
+              cache_valid_time: 3600
+            when: attackmate_playwright
+            tags:
+              - install
+              - playwright
+
+          # Install the system‐level libraries Playwright needs
+          - name: Install system dependencies for Playwright
+            become: true
+            ansible.builtin.package:
+              name: "{{ playwright_dependencies }}"
+              state: present
+            when: attackmate_playwright
+            tags:
+              - install
+              - playwright
+
+          # Install the Python Playwright package into our virtualenv using uv
+          - name: Install Playwright Python package in venv (uv)
+            become: true
+            ansible.builtin.shell:
+              chdir: "{{ attackmate_dest }}"
+              cmd: "uv pip install --python .venv/bin/python {{ attackmate_playwright_pip_packages | join(' ') }}"
+            when: attackmate_playwright
+            tags:
+              - install
+              - playwright
+              - molecule-idempotence-notest
+
+          - name: Install system dependencies via playwright install-deps
+            command: /usr/local/share/attackmate/.venv/bin/playwright install-deps
+            when: (ansible_distribution != "Debian" or ansible_distribution_major_version != "13") and ansible_distribution != "Kali"
+            tags:
+              - install
+              - playwright
+              - molecule-idempotence-notest
+
+          - name: Ensure shared Playwright browser cache dir exists
+            become: true
+            ansible.builtin.file:
+              path: "{{ attackmate_playwright_browser_cache }}"
+              state: directory
+              mode: '1777'
+            when: attackmate_playwright
+            tags:
+              - playwright
+
+          - name: Install Playwright browsers (shared path)
+            become: true
+            ansible.builtin.shell:
+              chdir: "{{ attackmate_dest }}"
+              cmd: 'PLAYWRIGHT_BROWSERS_PATH="{{ attackmate_playwright_browser_cache }}" {{ attackmate_dest }}/.venv/bin/playwright install'
+            when: attackmate_playwright
+            tags:
+              - install
+              - playwright
+              - molecule-idempotence-notest
+
+          - name: Export PLAYWRIGHT_BROWSERS_PATH system-wide
+            become: true
+            ansible.builtin.copy:
+              dest: /etc/profile.d/playwright_browsers_path.sh
+              content: |
+                export PLAYWRIGHT_BROWSERS_PATH="{{ attackmate_playwright_browser_cache }}"
+              mode: '0644'
+            tags:
+              - playwright
+              - environment
+
+
           - name: Recursively change ownership
             file:
               path:  /usr/local/share/attackmate
