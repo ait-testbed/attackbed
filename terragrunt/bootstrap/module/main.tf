@@ -30,6 +30,10 @@ resource "openstack_networking_subnet_v2" "internet_subnet" {
   cidr       = var.subnet_cidrs["inet"]
   dns_nameservers = var.inet_dns
   ip_version = 4
+  allocation_pool {
+    start = cidrhost(var.subnet_cidrs["inet"],20)
+    end   = cidrhost(var.subnet_cidrs["inet"],200)
+  }
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface_inet" {
