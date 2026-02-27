@@ -12,7 +12,7 @@ roles:
     version: v1.2
     name: zoneminder
   - src: https://github.com/ait-testbed/atb-ansible-debiansnapshot.git
-    version: v1.2
+    version: v1.3
     name: debiansnapshot
   - src: https://github.com/ait-testbed/atb-ansible-logrotten.git
     version: v1.2
