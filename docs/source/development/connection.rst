@@ -212,7 +212,7 @@ configure it as shown below:
 - Select **SOCKS v5**
 - Check **Proxy DNS when using SOCKS v5**
 
-.. figure:: /docs/images/proxy.png
+.. figure:: ../../images/proxy.png
    :alt: Firefox SOCKS proxy configuration
 
    Firefox connection settings configured to use the SSH SOCKS proxy on localhost port 1080.
@@ -228,7 +228,7 @@ With the tunnel running and the proxy configured, open the following URL in Fire
 
 You will be presented with the ZoneMinder login interface:
 
-.. figure:: /docs/images/zoneminder.png
+.. figure:: ../../images/zoneminder.png
    :alt: ZoneMinder login interface
 
    The ZoneMinder web interface on the videoserver, accessed through the SOCKS proxy tunnel.
