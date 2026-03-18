@@ -2,9 +2,9 @@
 Connecting to Virtual Machines
 =========================
 
-All virtual machines in the testbed are deployed on OpenStack/OVH and are not directly reachable
+All virtual machines in the attackbed are deployed on OpenStack/OVH and are not directly reachable
 from the internet. Access is facilitated through a dedicated **management host** (``mgmt``), which
-has *network interfaces in all testbed networks* and is the only machine with a public IP address. 
+has *network interfaces in all attackbed networks* and is the only machine with a public IP address. 
 (This is the floating IP you have allocated to the OpenStack/OVH project previously and named ``mgmt``, 
 which can then be used by terraform on deployment.)
 The management host serves as a jump host for all other machines.
@@ -75,7 +75,7 @@ replacement commands below).
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 
-# used in videoserver scenario
+  # used in videoserver scenario
   Host adminpc1
     HostName 10.12.0.222
     User aecid
@@ -84,7 +84,7 @@ replacement commands below).
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 
-# used in lateral movement scenario
+  # used in lateral movement scenario
   Host adminpc2
     HostName 10.12.0.223
     User aecid
@@ -173,3 +173,62 @@ Once the config is in place, you can connect to any machine by name:
   ssh mgmt
   ssh attacker
   ssh wazuh
+  
+
+Accessing Web Interfaces via SOCKS Proxy
+=========================================
+
+Some machines in the attackbed expose web interfaces that are only reachable within the attackbed
+networks. To access these from a local browser without exposing them to the internet, SSH can
+be used to create a **SOCKS proxy** tunnel. A SOCKS proxy instructs your browser to route all
+its traffic through the SSH connection, making your browser effectively appear to be running
+inside the attackbed network.
+
+The following example shows how to access the **ZoneMinder** video surveillance interface on
+``videoserver`` (``172.17.100.121``).
+
+Setting up the Tunnel
+----------------------
+
+Assuming the SSH config from the previous section is in place, run:
+
+::
+
+  ssh -N -D 127.0.0.1:1080 videoserver
+
+The ``-D`` flag opens a local SOCKS proxy on port ``1080``, and ``-N`` tells SSH not to execute
+a remote command; the connection exists solely to forward traffic. The jump through ``mgmt``
+happens automatically as configured in ~/.ssh/config.
+
+Configuring Firefox
+--------------------
+
+Open Firefox's proxy settings via **Settings → General → Network Settings → Settings...** and
+configure it as shown below:
+
+- Select **Manual proxy configuration**
+- Leave HTTP Proxy and HTTPS Proxy empty
+- Set **SOCKS Host** to ``127.0.0.1`` and **Port** to ``1080``
+- Select **SOCKS v5**
+- Check **Proxy DNS when using SOCKS v5**
+
+.. figure:: /docs/images/proxy.png
+   :alt: Firefox SOCKS proxy configuration
+
+   Firefox connection settings configured to use the SSH SOCKS proxy on localhost port 1080.
+
+Accessing ZoneMinder
+---------------------
+
+With the tunnel running and the proxy configured, open the following URL in Firefox:
+
+::
+
+  http://172.17.100.121/zm/
+
+You will be presented with the ZoneMinder login interface:
+
+.. figure:: /docs/images/zoneminder.png
+   :alt: ZoneMinder login interface
+
+   The ZoneMinder web interface on the videoserver, accessed through the SOCKS proxy tunnel.
