@@ -232,3 +232,47 @@ You will be presented with the ZoneMinder login interface:
    :alt: ZoneMinder login interface
 
    The ZoneMinder web interface on the videoserver, accessed through the SOCKS proxy tunnel.
+
+
+Accessing Desktop Environments via VNC
+=======================================
+
+Some machines in the attackbed have a MATE desktop environment and noVNC installed, providing a
+full graphical interface. This is particularly relevant in client-side attack scenarios, where
+the attacker connects to the ``client`` machine using screen sharing software, allowing you to
+watch or debug the attack in real time directly from your local machine.
+
+The noVNC role used during deployment can be found at
+`<https://github.com/ait-testbed/atb-ansible-novnc>`_. By default, VNC is exposed on port
+``5900``.
+
+Tunneling the VNC Connection
+-----------------------------
+
+Since the machines are not directly reachable from the internet, the VNC port must be forwarded
+through the management host using SSH port forwarding. The following example tunnels the VNC
+port of the ``attacker`` machine to your local machine:
+
+::
+
+  ssh -L 5900:192.42.1.174:5900 -J aecid@<mgmt-ip> aecid@192.42.1.174
+
+The ``-L`` flag maps port ``5900`` on your local machine to port ``5900`` on the remote target,
+routed through the ``mgmt`` jump host. Keep this SSH session open while using the VNC viewer.
+
+Connecting with a VNC Viewer
+-----------------------------
+
+With the tunnel running, open your VNC viewer and connect to:
+
+::
+
+  vncviewer localhost:5900
+
+You will see the live desktop of the target machine and can observe or debug the ongoing attack
+in real time.
+
+.. note::
+
+   If the deployment uses a non-default VNC port, adjust the port number in both the
+   ``-L`` tunnel command and the ``vncviewer`` connection string accordingly.
