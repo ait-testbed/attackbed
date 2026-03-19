@@ -36,7 +36,15 @@
           - "/etc/sv "
       - src: /var/ossec/etc/ossec.conf
 
-- hosts: lanturtle
+
+# NOTE: In scenario 5, the attacker does not use the usual attacker machine
+# (192.42.1.174). Instead, the attack is carried out from a LAN Turtle device
+# (192.168.100.27) deployed inside the LAN network.
+#
+# This means the ansible hosts file must be updated to point the 'attacker' host
+# to 192.168.100.27 instead of the default 192.42.1.174, otherwise Ansible cannot
+# reach the machine and log gathering will fail silently or error out.
+- hosts: attacker
   roles:
     - kyoushi-gather
   vars:
