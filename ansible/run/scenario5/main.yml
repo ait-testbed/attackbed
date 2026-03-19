@@ -159,7 +159,29 @@
     #   become_user: aecid
 
 
-# to run scenario, deploy, wait 10 minutes, then run first attacker, when get_auth.py is executing then run adminpc login.yml playbook manually
-
-
+# IMPORTANT: Manual triggering required for this scenario.
+#
+# Execution order:
+#   1. Run the deployment playbook and wait approximately 10 minutes for all
+#      services to initialize.
+#   2. Start the attacker playbook (scenario_5.yml) on the attacker machine.
+#      Bettercap will begin ARP poisoning the network and get_auth.py will
+#      start listening for a valid ZoneMinder session token.
+#   3. Once get_auth.py is running and waiting for a session token, MANUALLY
+#      trigger the login.yml playbook on adminpc:
+#
+#        attackmate-tmux /home/aecid/login.yml --json
+#
+#      login.yml simulates an authenticated admin user browsing the ZoneMinder
+#      interface (http://172.17.100.121/zm). It logs in with the admin credentials
+#      and then loops through several ZoneMinder pages to keep the session alive.
+#      This active session is intercepted by the attacker via ARP poisoning and
+#      the session token is extracted by get_auth.py.
+#   4. The attacker uses the stolen session token to call the ZoneMinder API
+#      directly, bypassing authentication entirely.
+#
+# The login.yml playbook runs headlessly on adminpc and could not be fully automated
+# because the timing of the admin login must align with the attacker's sniffing
+# window. Triggering it too early (before bettercap is active) means the token
+# will not be captured.
 
