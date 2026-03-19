@@ -274,5 +274,16 @@ in real time.
 
 .. note::
 
-   If the deployment uses a non-default VNC port, adjust the port number in both the
-   ``-L`` tunnel command and the ``vncviewer`` connection string accordingly.
+   Some machines use a different VNC setup based on the TightVNC role at
+   `<https://github.com/ait-testbed/atb-ansible-tightvnc>`_ — for example the ``reposerver``.
+   This role allows configuring a specific user, password, port, and display number during
+   deployment. In scenario 3, the VNC password is deliberately set to a weak value that gets
+   bruteforced as part of the attack. When connecting to such a machine, ``vncviewer`` will
+   prompt for the configured credentials:
+
+   ::
+
+     vncviewer localhost:<port>
+
+   Enter the VNC username and password as configured in the deployment when prompted. Adjust
+   the port in the ``-L`` tunnel command accordingly if a non-default port was chosen.
