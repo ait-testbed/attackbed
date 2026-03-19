@@ -3,9 +3,15 @@
 # Scenario 3 b a
 #
 ####################
-
-# for vnc connection to the display, tunnel with : ssh -J aecid@<mgmt-ip> -L 5901:172.17.100.122:5901 aecid@172.17.100.122
-# then vncviewer localhost:5901
+# VNC access to the reposerver desktop is provided via TightVNC
+# (https://github.com/ait-testbed/atb-ansible-tightvnc), which is configured
+# with a specific user, display, port, and — intentionally — a weak password
+# that is bruteforced as part of this scenario.
+#
+# To watch the reposerver desktop from your local machine, tunnel the VNC port
+# via the management host and connect with a VNC viewer:
+#   ssh -J aecid@<mgmt-ip> -L 5901:172.17.100.122:5901 aecid@172.17.100.122
+#   vncviewer localhost:5901
 
 vars:
   $SERVER_ADDRESS: fw.attackbed.com
