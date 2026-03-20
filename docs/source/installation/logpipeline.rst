@@ -9,8 +9,9 @@ the AttackBed infrastructure. The pipeline enables aggregation and retrieval of 
 
 .. note::
 
-   The usage of the log pipeline is optional to collect additional real-time log data.
-   However, the scenarios can be run without the setup of the log pipeline.
+  The log pipeline is optional and only required if *real-time log collection* is needed.
+  Scenarios can be run without it, with logs collected post-execution via the gather.yml 
+  script and the `atb-kyoushi-gather role <https://github.com/ait-testbed/atb-kyoushi-gather>`_
 
 
 Architecture
