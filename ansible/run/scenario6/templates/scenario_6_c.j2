@@ -1,4 +1,18 @@
-# Client installs a malicious browser plugin that extracts keystrokes, content pasted into browser from clipboard and form submissions
+# Client installs a malicious browser plugin that extracts keystrokes, 
+# content pasted into browser from clipboard and form submissions
+
+# IMPORTANT: The VNC commands in this playbook that interact with the client machine
+# do NOT represent actions initiated by the attacker. Instead, they SIMULATE actions
+# performed by the client user (judy). This models a social engineering attack:
+# the attacker, posing as tech support (telephone phishing / vishing), manipulates
+# the client into performing actions on their own machine — such as installing a
+# browser extension. The attacker merely guides the victim's behavior remotely.
+
+# The SSH tunnel used for VNC in the session: social_engineering
+# is routed via the management host (mgmt) rather than
+# through the normal network path. As a result, this traffic bypasses the firewall
+# and does NOT appear in firewall logs, reflecting a realistic out-of-band access
+# path available to a privileged insider.
 
 vars:
   PAYLOAD: linux/x64/meterpreter/reverse_tcp

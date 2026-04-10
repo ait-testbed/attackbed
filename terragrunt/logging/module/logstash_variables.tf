@@ -6,7 +6,7 @@ variable "logstash_image" {
 variable "logstash_flavor" {
   type        = string
   description = "flavor of the logstash host"
-  default     = "m1.large"
+  default     = "d2-8"
 }
 
 variable "logstash_userdata" {

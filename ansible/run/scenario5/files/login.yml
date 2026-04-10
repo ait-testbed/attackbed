@@ -31,7 +31,7 @@ commands:
   - type: sleep
     seconds: 15
 
-#  press login button
+  # press login button
   - type: browser
     cmd: click
     selector: "button[type='submit']"
@@ -42,7 +42,7 @@ commands:
   - type: sleep
     seconds: 15
     
-# this is only needed when the user logs in for the very first time
+  # this is only needed when the user logs in for the very first time
   # press apply button
   - type: browser
     cmd: click
@@ -53,7 +53,7 @@ commands:
   - type: sleep
     seconds: 15
 
-#from here on run in loop
+  #from here on run in loop
   - type: loop
     cmd: until(3 == 4)
     commands:

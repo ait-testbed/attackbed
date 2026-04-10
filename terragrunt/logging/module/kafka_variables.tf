@@ -6,7 +6,7 @@ variable "kafka_image" {
 variable "kafka_flavor" {
   type        = string
   description = "flavor of the kafka host"
-  default     = "m1.large"
+  default     = "d2-8"
 }
 
 variable "kafka_userdata" {

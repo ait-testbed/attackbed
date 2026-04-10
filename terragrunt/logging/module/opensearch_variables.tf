@@ -6,7 +6,7 @@ variable "opensearch_image" {
 variable "opensearch_flavor" {
   type        = string
   description = "flavor of the opensearch host"
-  default     = "m1.large"
+  default     = "d2-8"
 }
 
 variable "opensearch_userdata" {
