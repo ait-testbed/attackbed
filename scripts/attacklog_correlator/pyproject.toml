@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "attacklog-correlator"
+description = "Correlate AttackMate-style attack logs with heterogeneous Linux host logs."
+readme = "README.md"
+requires-python = ">=3.10"
+
+dynamic = ["version"]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+
+    # Mirrors/tools used by DetectMate-style pre-commit hooks
+    "autoflake==2.3.1",
+    "mypy==1.18.2",
+    "autopep8==2.3.2",
+    "flake8==7.3.0",
+    "docformatter==1.7.7",
+    "bandit==1.8.6",
+
+    # Extra mypy dependencies from DetectMate's hook config
+    "pydantic",
+    "pydantic-settings",
+    "types-PyYAML",
+    "types-requests",
+]
+
+[project.scripts]
+attacklog-correlator = "attacklog_correlator.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
