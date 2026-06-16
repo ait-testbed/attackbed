@@ -171,7 +171,7 @@ COMMON_LOG_STEMS = {
 BINARY_SAMPLE_BYTES = 8192
 BINARY_CONTROL_BYTE_RATIO = 0.30
 # File suffixes considered attack logs during attack discovery.
-ATTACK_LOG_SUFFIXES = {".json", ".jsonl", ".attacklog"}
+ATTACK_LOG_SUFFIXES = {".json"}
 # File suffixes considered text host logs during host-log discovery.
 TEXT_EXTENSIONS = {".log", ".txt", ".json", ".jsonl", ".out", ".err", ".messages", ".syslog", ".csv"}
 # Very common words/commands/protocol labels that are too generic to be useful
