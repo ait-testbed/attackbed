@@ -66,9 +66,9 @@ def restart_instance(instance: str, rootpath: str, vm_map: Dict[str, str]) -> No
     print(f"Resource: openstack_compute_instance_v2.{instance}")
     print(f"Path: {rootpath}/terragrunt/{subdir}")
     os.chdir(os.path.join(rootpath, "terragrunt", subdir))
-    p = subprocess.run(['terragrunt', 'destroy', '--target', f"openstack_compute_instance_v2.{instance}"])
+    p = subprocess.run(['terragrunt', 'destroy', '--auto-approve', '--target', f"openstack_compute_instance_v2.{instance}"])
     if p.returncode == 0:
-        p = subprocess.run(['terragrunt', 'apply'])
+        p = subprocess.run(['terragrunt', 'apply', '--auto-approve'])
     else:
         exit(1)
 
