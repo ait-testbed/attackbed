@@ -72,7 +72,7 @@ variable "corpdns_image" {
 variable "corpdns_flavor" {
   type        = string
   description = "flavor of the corpdns-server host"
-  default     = "d2-8"
+  default     = "d2-2"
 }
 
 variable "corpdns_userdata" {
