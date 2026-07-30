@@ -2889,7 +2889,7 @@ class CorrelationBrowser:
         corr_top = 0
         preview_top = 0
         preview_collapsed = True
-        selected_pane = 1  # 0=attacks, 1=correlations, 2=preview; TAB cycles through them.
+        selected_pane = 0  # 0=attacks, 1=correlations, 2=preview.
         search_query = ""
         search_encoding_idx = 0
         search_status = ""
@@ -2898,7 +2898,7 @@ class CorrelationBrowser:
             max_y, max_x = stdscr.getmaxyx()
             # Recompute layout on every loop so terminal resizes are handled
             # naturally.
-            header = "Attack / Log Correlator  q:quit  TAB:pane  /:search  e:encoding  n:next  up-down:active pane  z:collapse"
+            header = "Attack / Log Correlator  q:quit  TAB/left-right:pane  /:search  e:encoding  n:next  up-down:active pane  z:collapse"
             stdscr.addnstr(0, 0, header.ljust(max_x), max_x - 1, curses.A_STANDOUT)
             mid_w = max(34, max_x // 5)
             side_total = max_x - mid_w
@@ -3002,13 +3002,9 @@ class CorrelationBrowser:
                     search_status = "match selected" if found else "no match"
                     preview_top = 0
             elif ch == curses.KEY_LEFT:
-                self.attack_idx = max(0, self.attack_idx - 1)
-                self.corr_idx = 0
-                preview_top = 0
+                selected_pane = (selected_pane - 1) % 3
             elif ch == curses.KEY_RIGHT:
-                self.attack_idx = min(max(0, len(self.attacks) - 1), self.attack_idx + 1)
-                self.corr_idx = 0
-                preview_top = 0
+                selected_pane = (selected_pane + 1) % 3
             elif ch == curses.KEY_UP:
                 if selected_pane == 0:
                     self.attack_idx = max(0, self.attack_idx - 1)
@@ -3043,9 +3039,11 @@ class CorrelationBrowser:
 # Define the command-line interface and parse arguments.
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Correlate attack logs against heterogeneous host logs.")
-    p.add_argument("--attack-root", help="Root directory containing JSON attack logs")
-    p.add_argument("--log-root", help="Root directory containing nested host logs")
-    p.add_argument("--out-dir", required=True, help="Directory for correlation outputs")
+    p.add_argument(
+        "--root",
+        required=True,
+        help="Working directory containing attacklogs, hostlogs, and output subdirectories",
+    )
     p.add_argument(
         "--view-existing",
         action="store_true",
@@ -3075,6 +3073,25 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def ensure_work_dirs(root: Path) -> tuple[Path, Path, Path]:
+    """
+    Ensure the standard correlator working directories exist below root.
+
+    Returns:
+        (attacklogs_dir, hostlogs_dir, output_dir)
+    """
+    root = root.expanduser().resolve()
+    root.mkdir(parents=True, exist_ok=True)
+
+    attacklogs_dir = root / "attacklogs"
+    hostlogs_dir = root / "hostlogs"
+    output_dir = root / "output"
+
+    for directory in (attacklogs_dir, hostlogs_dir, output_dir):
+        directory.mkdir(parents=True, exist_ok=True)
+
+    return attacklogs_dir, hostlogs_dir, output_dir
+
 # Top-level program flow:
 # parse CLI -> discover/load config -> load attacks/events -> correlate ->
 # export outputs -> optionally open the interactive browser.
@@ -3087,7 +3104,7 @@ def main() -> int:
         return 2
     MAX_TIME_DELTA_SECONDS = float(args.max_time_delta)
 
-    out_dir = Path(args.out_dir).expanduser().resolve()
+    attack_root, log_root, out_dir = ensure_work_dirs(Path(args.root))
     host_config_path = Path(args.host_config).expanduser().resolve() if args.host_config else None
 
     if args.view_existing:
@@ -3108,13 +3125,6 @@ def main() -> int:
                 print("[error] curses UI crashed", file=sys.stderr)
                 traceback.print_exc()
         return 0
-
-    if not args.attack_root or not args.log_root:
-        print("[error] --attack-root and --log-root are required unless --view-existing is used", file=sys.stderr)
-        return 2
-
-    attack_root = Path(args.attack_root).expanduser().resolve()
-    log_root = Path(args.log_root).expanduser().resolve()
 
     # First infer host/attacker names from file layout.  The optional config
     # loaded next can correct or enrich these guesses.

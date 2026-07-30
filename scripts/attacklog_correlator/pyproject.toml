@@ -7,6 +7,9 @@ name = "attacklog-correlator"
 description = "Correlate AttackMate-style attack logs with heterogeneous Linux host logs."
 readme = "README.md"
 requires-python = ">=3.10"
+authors = [
+    { name = "Erik Grafendorfer", email = "erik.grafendorfer@ait.ac.at" },
+]
 
 dynamic = ["version"]
 
@@ -40,6 +43,9 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "attacklog_correlator.metadata.__version__"}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
