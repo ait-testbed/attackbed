@@ -36,7 +36,3 @@ ca.pem
 *.egg-info/
 scripts/*/build/
 
-# ignore working data of attacklog-correlator
-scripts/attacklog_correlator/attacklogs/*
-scripts/attacklog_correlator/hostlogs/*
-scripts/attacklog_correlator/output/*
