@@ -3,4 +3,19 @@ first_valid_uid = 103
 
 namespace inbox {
   inbox = yes
+
+  mailbox Drafts {
+    auto = subscribe
+    special_use = \Drafts
+  }
+
+  mailbox Sent {
+    auto = subscribe
+    special_use = \Sent
+  }
+
+  mailbox Trash {
+    auto = subscribe
+    special_use = \Trash
+  }
 }
