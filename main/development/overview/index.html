@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ait-testbed.github.io/atb-aecid-testbed/main/development/overview/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Overview - AttackBed</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Overview";
+        var mkdocs_page_input_path = "development/overview.md";
+        var mkdocs_page_url = "/atb-aecid-testbed/main/development/overview/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> AttackBed
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/requirements/">Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/repository/">Prepare Repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/configure/">Configure Access to OpenStack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/virtualenv/">Setup Virtualenv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/images/">Deploy Server Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/bootstrap/">Deploy Bootstrap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/logpipeline/">Deploy Log Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/scenario/">Deploy Scenario</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/testbedrun/">Testbedrun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/mitrecounter/">MITRE Technique & Tactic Counter</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Scenarios</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/attacks/">Run Attacks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/gather/">Gather Logs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/videoserver/">Videoserver (Scenario 1)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/linuxmalware/">Linux Malware (Scenario 2)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lateralmovement/">Lateral Movement (Scenario 3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/network/">Network (Scenario 4)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lanturtle/">LAN Turtle (Scenario 5)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/client/">Client (Scenario 6)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/docker/">Docker (Scenario 7)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started-with-development">Getting Started with Development</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attacker/">Attacker Services and Ports</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../firewall/">Firewall Connections Per Scenario</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dns/">DNS</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../connection/">Connecting to Virtual Machines</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">AttackBed</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Development</li>
+      <li class="breadcrumb-item active">Overview</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="overview">Overview</h1>
+<p>This document provides a high-level overview for developers interested in understanding the project structure and contribution process.</p>
+<h2 id="purpose">Purpose</h2>
+<p>This project facilitates the creation, execution, and log collection of automated attack simulations within a defined virtual environment.</p>
+<h2 id="project-structure">Project Structure</h2>
+<p>The codebase is generally organized as follows:</p>
+<ul>
+<li><code>ansible/</code>: Contains Ansible playbooks defining the scenario setup and the attack playbooks.</li>
+<li><code>docs/</code>: Contains the MkDocs documentation source files.</li>
+<li><code>scripts/</code>: Contains helper scripts</li>
+<li><code>packer/</code>: Contains Packer templates (e.g., <code>.pkr.hcl</code> or <code>.json</code> files) and associated scripts used to build the base virtual machine images for the simulation environment components (e.g., attacker, victim, server machines).</li>
+<li><code>terragrunt/</code>: Contains Terragrunt configuration files (<code>terragrunt.hcl</code>) used to orchestrate the deployment and management of the underlying infrastructure (virtual machines, networks, etc.).</li>
+</ul>
+<h2 id="getting-started-with-development">Getting Started with Development</h2>
+<ol>
+<li><strong>Prerequisites:</strong> Ensure you have the necessary base software installed, such as OpenStack, OpenTofu, Ansible, Terragrunt (see <a href="../../installation/requirements/">Requirements</a>)</li>
+<li><strong>Setup:</strong> Clone the repository and follow the instructions in the Installation section to build the base environment</li>
+</ol>
+<h2 id="contributing">Contributing</h2>
+<p>Contributions to enhance scenarios, improve tooling, or fix bugs are welcome, following standard Git practices:</p>
+<ol>
+<li>Fork the repository.</li>
+<li>Create a descriptive feature branch (e.g., <code>feat/add-new-scenario</code> or <code>fix/resolve-ssh-issue</code>).</li>
+<li>Implement your changes, adhering to existing code style.</li>
+<li>Test your changes thoroughly.</li>
+<li>Update documentation (in <code>docs/</code>) if necessary.</li>
+<li>Submit a Pull Request against the main branch for review.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../scenarios/docker/" class="btn btn-neutral float-left" title="Docker (Scenario 7)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../attacker/" class="btn btn-neutral float-right" title="Attacker Services and Ports">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../scenarios/docker/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../attacker/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

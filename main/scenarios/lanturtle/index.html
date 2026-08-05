@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ait-testbed.github.io/atb-aecid-testbed/main/scenarios/lanturtle/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>LAN Turtle (Scenario 5) - AttackBed</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "LAN Turtle (Scenario 5)";
+        var mkdocs_page_input_path = "scenarios/lanturtle.md";
+        var mkdocs_page_url = "/atb-aecid-testbed/main/scenarios/lanturtle/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> AttackBed
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/requirements/">Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/repository/">Prepare Repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/configure/">Configure Access to OpenStack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/virtualenv/">Setup Virtualenv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/images/">Deploy Server Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/bootstrap/">Deploy Bootstrap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/logpipeline/">Deploy Log Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/scenario/">Deploy Scenario</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/testbedrun/">Testbedrun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/mitrecounter/">MITRE Technique & Tactic Counter</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Scenarios</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attacks/">Run Attacks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gather/">Gather Logs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../videoserver/">Videoserver (Scenario 1)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linuxmalware/">Linux Malware (Scenario 2)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../lateralmovement/">Lateral Movement (Scenario 3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../network/">Network (Scenario 4)</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">LAN Turtle (Scenario 5)</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#attacker-steps">Attacker Steps:</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#manual-walkthrough">Manual Walkthrough</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verification-of-attack-success">Verification of Attack Success</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../client/">Client (Scenario 6)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../docker/">Docker (Scenario 7)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/attacker/">Attacker Services and Ports</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/firewall/">Firewall Connections Per Scenario</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/dns/">DNS</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/connection/">Connecting to Virtual Machines</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">AttackBed</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Scenarios</li>
+      <li class="breadcrumb-item active">LAN Turtle (Scenario 5)</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="lan-turtle-scenario-5">LAN Turtle (Scenario 5)</h1>
+<p><img alt="image" src="../../images/AttackBed-Lanturtle.png" /></p>
+<h2 id="attacker-steps">Attacker Steps:</h2>
+<ol>
+<li>Attacker joins the network with a new machine (Lanturtle) (T1200)</li>
+<li>Attacker executes arp-spoofing against client + firewall (T1557.002)</li>
+<li>Client (AdminPC) connects via http to server in dmz</li>
+<li>Attacker performs sslstrip-attack and gains auth hash (T1040, T1528)</li>
+<li>Attacker uses auth hash to make API request (T1550.001)</li>
+</ol>
+<h3 id="manual-walkthrough">Manual Walkthrough</h3>
+<p>All steps of the scenario can be executed automatically as an ansible playbook.
+However for a manual inspection, the detailed steps are described below.</p>
+<p>1. Attacker joins the network with a new machine (Lanturtle) (T1200)</p>
+<p>This step is part of the initial setup, an attacker machine is already placed inside
+the LAN network with terragrunt.</p>
+<p>2. Attacker executes arp-spoofing against client + firewall (T1557.002)</p>
+<p>For this step, bettercap is used. There is a <code>ansible/run/scenario5/files/bettercap.cap</code> file defined with the target IP of the AdminPC:</p>
+<pre><code>net.probe on
+set arp.spoof.targets 192.168.100.222
+arp.spoof on
+set http.proxy.sslstrip true
+http.proxy on
+</code></pre>
+<p>To manually start the APR spoofing, run <code>sudo bettercap -caplet bettercap.cap</code>.</p>
+<p>3. Clients connects via http to server in dmz</p>
+<p>This step is automated with the browser executor of AttackMate. The steps are defined in the playbook.yml file.
+Ee can just connect to the AdminPC via a terminal and run:</p>
+<pre><code>attackm8 playbook.yml
+</code></pre>
+<p>To connect to the machine via the browser, first we have to have a terminal open for tunneling:</p>
+<pre><code>ssh -D 9999 aecid@&lt;MGMT_IP&gt;
+</code></pre>
+<p>And in the settings of the local browser, set a manual proxy on port 9999 (found in the network settings.)</p>
+<p>We can observe it on the videoserver machine, that requests are really arriving, by inspecting
+the following file: <code>/var/www/default/log/access.log</code>.</p>
+<p>4. Attacker performs sslstrip-attack and gains auth hash from the html response of the videoserver (T1040, T1528)</p>
+<p>The process for this is defined in the <code>ansible/run/scenario5/files/get_auth.py</code> file.</p>
+<p>5. Attacker uses auth hash to send a request to the zoneminder API (T1550.001)</p>
+<p>(see <code>ansible/run/scenario5/files/login.yml</code>).</p>
+<h3 id="verification-of-attack-success">Verification of Attack Success</h3>
+<p>To verify if the attack was successful, the fastest way is to check the output of Attackmate, which can be found in
+the <code>output.log</code> file. This file should contain the API response.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The attacker needds to intercept a packet that contains the videoserver response with the section of the html containing the auth_hash.
+If the attack was not successfull try to adjust the timing or manually start the attacker, wait until it reaches the get_auth step
+and then start the client playbook.</p>
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../network/" class="btn btn-neutral float-left" title="Network (Scenario 4)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../client/" class="btn btn-neutral float-right" title="Client (Scenario 6)">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../network/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../client/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

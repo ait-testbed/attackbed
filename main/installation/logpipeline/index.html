@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ait-testbed.github.io/atb-aecid-testbed/main/installation/logpipeline/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Deploy Log Pipeline - AttackBed</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Deploy Log Pipeline";
+        var mkdocs_page_input_path = "installation/logpipeline.md";
+        var mkdocs_page_url = "/atb-aecid-testbed/main/installation/logpipeline/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> AttackBed
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../requirements/">Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Prepare Repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configure/">Configure Access to OpenStack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../virtualenv/">Setup Virtualenv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../images/">Deploy Server Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../bootstrap/">Deploy Bootstrap</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Deploy Log Pipeline</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#filebeat">Filebeat</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kafka">Kafka</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#logstash">Logstash</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#opensearch">OpenSearch</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#deployment">Deployment</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../scenario/">Deploy Scenario</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/testbedrun/">Testbedrun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/mitrecounter/">MITRE Technique & Tactic Counter</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Scenarios</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/attacks/">Run Attacks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/gather/">Gather Logs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/videoserver/">Videoserver (Scenario 1)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/linuxmalware/">Linux Malware (Scenario 2)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lateralmovement/">Lateral Movement (Scenario 3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/network/">Network (Scenario 4)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lanturtle/">LAN Turtle (Scenario 5)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/client/">Client (Scenario 6)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/docker/">Docker (Scenario 7)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/attacker/">Attacker Services and Ports</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/firewall/">Firewall Connections Per Scenario</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/dns/">DNS</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/connection/">Connecting to Virtual Machines</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">AttackBed</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Installation</li>
+      <li class="breadcrumb-item active">Deploy Log Pipeline</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="deploy-log-pipeline">Deploy log pipeline</h1>
+<p>The log pipeline consists of several integrated tools that collect, process, and store logs from various components of
+the AttackBed infrastructure. The pipeline enables aggregation and retrieval of logs for analysis.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The log pipeline is optional and only required if <em>real-time log collection</em> is needed.
+Scenarios can be run without it, with logs collected post-execution via the gather.yml
+script and the <a href="https://github.com/ait-testbed/atb-kyoushi-gather">atb-kyoushi-gather role</a></p>
+</div>
+<h2 id="architecture">Architecture</h2>
+<p><img alt="image" src="../../images/AttackBed-Logpipe.drawio.png" /></p>
+<ol>
+<li>Filebeat:<ul>
+<li>Collects logs locally from individual hosts and forwards them to Kafka.</li>
+<li>Pre-installed but disabled by default on the VideoServer, Firewall, and Corp DNS.</li>
+</ul>
+</li>
+<li>Kafka:<ul>
+<li>Acts as a message broker, receiving logs from Filebeat.</li>
+<li>Makes sure that logs are available for processing even under high load.</li>
+</ul>
+</li>
+<li>Logstash:<ul>
+<li>Consumes logs from Kafka.</li>
+<li>Transforms the raw logs into structured data and prepares them for indexing.</li>
+</ul>
+</li>
+<li>OpenSearch:<ul>
+<li>Stores processed logs for querying and visualization.</li>
+</ul>
+</li>
+</ol>
+<h2 id="configuration">Configuration</h2>
+<p>To enable the components to communicate with each other, it's important to configure them properly.
+These configurations can be set in each of their corresponding ansible role when building the images with packer.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These settings are pre-configured in the <a href="https://github.com/ait-testbed/attackbed">AttackBed</a>, and the pipeline
+should work out of the box after enabling <a href="#filebeat">Filebeat</a> and following the steps in the <a href="#deployment">Deployment</a> section.
+The purpose of this section is to give information about how the tools are integrated together.</p>
+</div>
+<h3 id="filebeat">Filebeat</h3>
+<p>Filebeat is pre-installed on the VideoServer, Firewall, and Corp DNS packer images.
+However, the <strong>Filebeat service is disabled by default</strong> in the provided playbooks.
+To enable the Filebeat service so that it starts automatically on system boot,
+you need to update the <code>filebeat_service_enabled</code> variable to <code>true</code> in the playbook:</p>
+<pre><code>- role: filebeat
+  vars:
+    filebeat_service_enabled: true
+</code></pre>
+<h3 id="kafka">Kafka</h3>
+<p>In the kafka role, the <code>kafka_auto_create_topics</code> is set to <code>true</code> by default.
+This means, we don't have to separately create a listener, but any of the following scenarios
+can trigger the automatic creation of a topic:</p>
+<ul>
+<li>A producer sends a message to a topic that does not yet exist.</li>
+<li>A consumer attempts to consume from a topic that does not yet exist.</li>
+</ul>
+<p><strong>Manual inspection:</strong>
+To check that kafka is getting the logs from filebeat, we can ssh into the kafka machine using the jump host:</p>
+<pre><code>ssh -J aecid@&lt;your_mgmt_ip&gt; ubuntu@192.168.100.10
+</code></pre>
+<p>And start a listener to see if the logs are coming in:</p>
+<pre><code>cd /usr/local/kafka
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --consumer.config config/consumer.properties --topic logs
+</code></pre>
+<h3 id="logstash">Logstash</h3>
+<p><strong>Input Configuration:</strong>
+Logstash must be configured to consume logs from Kafka. This is done when building the image with packer,
+by setting the following role variable:</p>
+<pre><code>- role: logstash
+  vars:
+    logstash_kafka_topics: [ "logs" ]
+</code></pre>
+<p><strong>Output Configuration:</strong>
+Logs are then sent to OpenSearch. The output configuration is defined in the role's <code>templates/31-opensearch-output.conf.j2</code> file.</p>
+<p><strong>Manual inspection:</strong>
+To check the logstash configuration manually, we can ssh into the logstash machine using the jump host:</p>
+<pre><code>ssh -J aecid@&lt;your_mgmt_ip&gt; ubuntu@192.168.100.12
+</code></pre>
+<p>On the machine, the input and output config files are found in the <code>/etc/logstash/conf.d/</code> directory.
+For debugging purposes, we can tail the logstash logs with <code>tail -f /var/log/logstash/logstash-plain.log</code>.</p>
+<p>To check if the connection to OpenSearch is working, we can use curl to send a request to the OpenSearch cluster:</p>
+<pre><code>curl -u admin:myStrongPassword@123! -X GET "https://search.attackbed.local:9200" --cacert /opt/ca.pem
+</code></pre>
+<p>If a json is returned with opensearch cluster information, the connection was successfully established.</p>
+<h3 id="opensearch">OpenSearch</h3>
+<p>The Opensearch Dashboard is hosted inside the AttackBed infrastructure. This means, to access the dashboard locally,
+we have to use port forwarding via our jump host. Open a terminal and run the following:</p>
+<pre><code>ssh -D 9999 aecid@&lt;your_mgmt_ip&gt;
+</code></pre>
+<p>Next, open a browser and in the settings enable a SOCKS Host proxy on port <code>9999</code>. Now the Dashboard is available
+under <a href="http://192.168.100.11:5601">http://192.168.100.11:5601</a>.</p>
+<p>Default admin login credentials are:</p>
+<ul>
+<li>Username: <code>admin</code></li>
+<li>Password: <code>myStrongPassword@123!</code></li>
+</ul>
+<p>User login credentials are (this user doesn't have permissions for reading indices by default):</p>
+<ul>
+<li>Username: <code>kibanaserver</code></li>
+<li>Password: <code>Test@6789</code></li>
+</ul>
+<h3 id="deployment">Deployment</h3>
+<p>Build the images with packer, as described in the <a href="../images/#build-server-images-manually">Build server images manually</a> section.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Always <strong>build the OpenSearch image before building the Logstash image!</strong> Logstash requires the CA certificate from OpenSearch
+to function properly. However, you don't need to worry about handling this manually because the provided playbooks take care of
+it. The <code>ca.pem</code> file is automatically saved in the <code>packer/logstash/playbook/files</code> directory during the process and is copied
+to the Logstash image.</p>
+</div>
+<p>After building the images, create a <code>terraform.tfvars</code> file in the <code>terragrunt/logging</code> folder
+with the following variables:</p>
+<pre><code>sshkey = "your-ssh-key"
+opensearch_image = "your-opensearch-image"
+kafka_image = "your-kafka-image"
+logstash_image= "your-logstash-image"
+</code></pre>
+<p>After these steps the log pipeline can be deployed:</p>
+<pre><code>cd terragrunt/logging
+terragrunt apply
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../bootstrap/" class="btn btn-neutral float-left" title="Deploy Bootstrap"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../scenario/" class="btn btn-neutral float-right" title="Deploy Scenario">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../bootstrap/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../scenario/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

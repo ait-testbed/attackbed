@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ait-testbed.github.io/atb-aecid-testbed/main/development/dns/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>DNS - AttackBed</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "DNS";
+        var mkdocs_page_input_path = "development/dns.md";
+        var mkdocs_page_url = "/atb-aecid-testbed/main/development/dns/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> AttackBed
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/requirements/">Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/repository/">Prepare Repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/configure/">Configure Access to OpenStack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/virtualenv/">Setup Virtualenv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/images/">Deploy Server Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/bootstrap/">Deploy Bootstrap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/logpipeline/">Deploy Log Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/scenario/">Deploy Scenario</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/testbedrun/">Testbedrun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/mitrecounter/">MITRE Technique & Tactic Counter</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Scenarios</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/attacks/">Run Attacks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/gather/">Gather Logs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/videoserver/">Videoserver (Scenario 1)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/linuxmalware/">Linux Malware (Scenario 2)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lateralmovement/">Lateral Movement (Scenario 3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/network/">Network (Scenario 4)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lanturtle/">LAN Turtle (Scenario 5)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/client/">Client (Scenario 6)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/docker/">Docker (Scenario 7)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attacker/">Attacker Services and Ports</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../firewall/">Firewall Connections Per Scenario</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">DNS</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../connection/">Connecting to Virtual Machines</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">AttackBed</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Development</li>
+      <li class="breadcrumb-item active">DNS</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="dns">DNS</h1>
+<p>DNS is an important part of some attacks of the scenarios. For that reason there is a server named <code>corpdns</code>, which plays the role of the authoritative DNS server for the public domain attackbed.com of the corporate network and which is targeted by the attacker.</p>
+<p>There also is a server named <code>inetdns</code> (called 'Public DNS' in the diagrams) which plays the analogue of e.g. the Google DNS server 8.8.8.8 in the real world. This server is used by all machines in the AttackBed for actual communication with the Internet and therefore is not manipulated by the attacker. It redirects queries regarding the domain attackbed.com to <code>corpdns</code>. All other dns-queries are forwarded to it's resolver(/etc/resolv.conf).</p>
+<p><code>corpdns</code> is the authoritative dns-server for the domain attackbed.com and hosts records like fw.attackbed.com. These records point to 192.42.0.254, which is the 'fake internet' address of <code>inetfw</code>, the firewall that is part of the attack scenarios - <code>inetfw</code> also runs dnsmasq and resolves all queries for the zone attackbed.local. Other DNS queries <code>inetfw</code> forwards to <code>inetdns</code>.</p>
+<p>So for all machines inside the corporate network, <code>inetfw</code> will be the first DNS server address, which then either resolves the queries (if they're for attackbed.local), or it will forward them to <code>inetdns</code>. <code>inetdns</code> in turn forwards them to <code>corpdns</code>, if they concern the domain-zone attackbed.com. Otherwise queries will be forwarded to the resolver that is configured(for example 8.8.8.8).</p>
+<p><code>inetfw</code>, <code>inetdns</code> and <code>corpdns</code> have IP addresses in the public range 192.42.0.0/16, which is not connected to the actual internet directly, to allow a 'fake' internet to be established - so that the attacks can simulate a real world scenario with public IP addresses more realistically. Traffic in this subnet does NOT get routed over the actual internet, and it is not accessible from the internet.</p>
+<p>Example query:</p>
+<p>Host puppet wants to know attackbed.com:
+The DNS query goes to <code>inetfw</code>, <code>inetfw</code> forwards it to <code>inetdns</code>, which forwards the query for attackbed.com to <code>corpdns</code>. This returns the IP address back through the chain to host puppet.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../firewall/" class="btn btn-neutral float-left" title="Firewall Connections Per Scenario"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../connection/" class="btn btn-neutral float-right" title="Connecting to Virtual Machines">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../firewall/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../connection/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
