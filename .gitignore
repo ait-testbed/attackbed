@@ -7,10 +7,13 @@ ansible/.venv*
 .terragrunt-cache/
 .terraform.lock.hcl
 collections
-docs/build/
+
 *.qcow2
 .mypy_cache/
 *.tfstate
+
+# mkdocs documentation
+/site
 
 # temporary packer-key(debug)
 os_builder.pem
