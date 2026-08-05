@@ -54,7 +54,7 @@ The process for this is defined in the `ansible/run/scenario5/files/get_auth.py`
 
 5\. Attacker uses auth hash to send a request to the zoneminder API (T1550.001)
 
-(see `ansible/run/scenario5/files/playbook.yml`).
+(see `ansible/run/scenario5/files/login.yml`).
 
 ### Verification of Attack Success
 
