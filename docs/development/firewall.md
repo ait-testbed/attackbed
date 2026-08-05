@@ -49,7 +49,7 @@ This scenario targets the ZoneMinder service running on the `VIDEOSERVER` in the
         `inet (Attacker) -> fw` | TCP Top 100 Ports | Attacker performs nmap scan to firewall IP (top 100 ports even if fhe ports are not open)
 
   -   - **Reconaissance (DNS Enumeration):**  
-        `inet (Attacker) -> inet (CorpsDNS)` | UDP/TCP Port 53 | Attacker performs DNS enumeration
+        `inet (Attacker) -> inet (corpdns)` | UDP/TCP Port 53 | Attacker performs DNS enumeration
 
   -   - **Initial Access & Exploitation:**  
         `inet (Attacker) -> dmz (VIDEOSERVER)` | TCP Port 80 | (DNAT) - Attacker accesses the ZoneMinder web interface via the firewall's public IP, forwarded to the `VIDEOSERVER`.
@@ -97,7 +97,7 @@ This scenario targets the ZoneMinder service running on the `VIDEOSERVER` in the
 <tr class="even">
 <td>Reconaissance</td>
 <td><code>inet (Attacker)</code></td>
-<td><code>inet (CorpsDNS)</code></td>
+<td><code>inet (corpdns)</code></td>
 <td>TCP 53</td>
 <td>Intra-zone</td>
 </tr>
@@ -292,7 +292,7 @@ Scenario 6 Firewall Connections
 In this scenario attacker gains remote code execution via a nextcloud exploit inside a docker container and elevates the privileges using an exposed docker-daemon to gain root access on the docker host.
 
   -   - **Reconaissance (DNS Enumeration):**  
-        `inet (Attacker) -> inet (CorpsDNS)` | UDP/TCP Port 53 | Attacker performs DNS enumeration
+        `inet (Attacker) -> inet (corpdns)` | UDP/TCP Port 53 | Attacker performs DNS enumeration
 
   -   - **Reconaissance (SMTP Enumeration):**  
         `inet (Attacker) -> fw` | TCP Port 25 | Attacker enumerates possible usernames using SMTP
@@ -323,7 +323,7 @@ In this scenario attacker gains remote code execution via a nextcloud exploit in
 
 | Phase / Action           | Source            | Destination           | Protocol / Port | Firewall Rule/Policy         |
 | ------------------------ | ----------------- | --------------------- | --------------- | ---------------------------- |
-| Reconaissance            | `inet (Attacker)` | `inet (CorpsDNS)`     | TCP 53          | N/A                          |
+| Reconaissance            | `inet (Attacker)` | `inet (corpdns)`     | TCP 53          | N/A                          |
 | Reconaissance            | `inet (Attacker)` | `dmz (CLOUD)`         | TCP 25          | DNAT                         |
 | Initial Access           | `inet (Attacker)` | `dmz (CLOUD)`         | TCP 143         | DNAT                         |
 | Reconaissance            | `inet (Attacker)` | `dmz (CLOUD)`         | TCP 8080        | DNAT                         |
