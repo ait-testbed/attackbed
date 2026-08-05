@@ -35,22 +35,25 @@ This tool, `tt_counter.py`, reads text files, identifies MITRE ATT&CK® techniqu
     ```
 
     !!! note
-        The script requires the `enterprise-attack.json` file (or the file specified as the second argument) to be accessible from where the script is run. The symbolic link step above makes it available under the default name in the current directory.
+        The script requires the `enterprise-attack.json` file (or the file specified via `--stix`) to be accessible from where the script is run. The symbolic link step above makes it available under the default name in the current directory.
 
 ## Usage
 
 Execute the script from your terminal using Python 3:
 
 ``` bash
-./tt_counter.py <input_text_file> [mitre_json_file]
+./tt_counter.py [--stix mitre_json_file] <input_text_file> [<input_text_file> ...]
 ```
 
 ## Arguments
 
-  - `<input_text_file>` (Required):
-    The path to the text file you want to scan for MITRE technique IDs. This file can be any text-based format (e.g., `.rst`, `.md`, `.txt`) that contains strings matching the pattern `Txxxx` (T followed by four digits).
-  - `[mitre_json_file]` (Optional):
+  - `<input_text_file>` (Required, one or more):
+    The path to a text file you want to scan for MITRE technique IDs. This file can be any text-based format (e.g., `.rst`, `.md`, `.txt`) that contains strings matching the pattern `Txxxx` (T followed by four digits). Multiple files can be passed at once.
+  - `--stix <mitre_json_file>` (Optional):
     The path to the MITRE ATT&CK Enterprise STIX JSON file. If omitted, the script defaults to looking for a file named `enterprise-attack.json` in the current working directory.
+
+!!! warning
+    `mitre_json_file` must be passed via `--stix`, not as a second positional argument. Since the script accepts multiple input files, a bare trailing filename is treated as another file to scan rather than the STIX data source.
 
 ## Output
 
@@ -68,7 +71,7 @@ The script prints the following information to standard output:
 **Command:**
 
 ``` bash
-./tt_counter.py ../attackbed/docs/scenarios/videoserver.md enterprise-attack.json
+./tt_counter.py --stix enterprise-attack.json ../attackbed/docs/scenarios/videoserver.md
 ```
 
 **Sample Output:**
