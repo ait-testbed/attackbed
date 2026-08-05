@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ait-testbed.github.io/atb-aecid-testbed/1.1.2/development/connection/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Connecting to Virtual Machines - AttackBed</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Connecting to Virtual Machines";
+        var mkdocs_page_input_path = "development/connection.md";
+        var mkdocs_page_url = "/atb-aecid-testbed/1.1.2/development/connection/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> AttackBed
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/requirements/">Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/repository/">Prepare Repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/configure/">Configure Access to OpenStack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/virtualenv/">Setup Virtualenv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/images/">Deploy Server Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/bootstrap/">Deploy Bootstrap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/logpipeline/">Deploy Log Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/scenario/">Deploy Scenario</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/testbedrun/">Testbedrun</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/mitrecounter/">MITRE Technique & Tactic Counter</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Scenarios</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/attacks/">Run Attacks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/gather/">Gather Logs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/videoserver/">Videoserver (Scenario 1)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/linuxmalware/">Linux Malware (Scenario 2)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lateralmovement/">Lateral Movement (Scenario 3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/network/">Network (Scenario 4)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lanturtle/">LAN Turtle (Scenario 5)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/client/">Client (Scenario 6)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/docker/">Docker (Scenario 7)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attacker/">Attacker Services and Ports</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../firewall/">Firewall Connections Per Scenario</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dns/">DNS</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Connecting to Virtual Machines</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#direct-access-to-the-management-host">Direct Access to the Management Host</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#accessing-other-machines-via-jump-host">Accessing Other Machines via Jump Host</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ssh-config-for-convenient-access">SSH Config for Convenient Access</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#replacing-placeholders-with-actual-values">Replacing Placeholders with Actual Values</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#accessing-web-interfaces-via-socks-proxy">Accessing Web Interfaces via SOCKS Proxy</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#setting-up-the-tunnel">Setting up the Tunnel</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuring-firefox">Configuring Firefox</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#accessing-zoneminder">Accessing ZoneMinder</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#accessing-desktop-environments-via-vnc">Accessing Desktop Environments via VNC</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#tunneling-the-vnc-connection">Tunneling the VNC Connection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#connecting-with-a-vnc-viewer">Connecting with a VNC Viewer</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">AttackBed</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Development</li>
+      <li class="breadcrumb-item active">Connecting to Virtual Machines</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="connecting-to-virtual-machines">Connecting to Virtual Machines</h1>
+<p>All virtual machines in the attackbed are deployed on OpenStack/OVH and are not directly reachable
+from the internet. Access is facilitated through a dedicated <strong>management host</strong> (<code>mgmt</code>), which
+has <em>network interfaces in all attackbed networks</em> and is the only machine with a public IP address.
+(This is the floating IP you have allocated to the OpenStack/OVH project previously and named <code>mgmt</code>,
+which can then be used by terraform on deployment.)
+The management host serves as a jump host for all other machines.</p>
+<p>All machines are configured with the <strong>testbed key</strong> during deployment, and the Linux user is
+always <code>aecid</code>.</p>
+<h2 id="direct-access-to-the-management-host">Direct Access to the Management Host</h2>
+<pre><code>ssh -i &lt;testbed-key&gt; aecid@&lt;mgmt-ip&gt;
+</code></pre>
+<h2 id="accessing-other-machines-via-jump-host">Accessing Other Machines via Jump Host</h2>
+<p>To reach any other machine directly from your local system, use the <code>-J</code> (ProxyJump) flag:</p>
+<pre><code>ssh -i &lt;testbed-key&gt; -J aecid@&lt;mgmt-ip&gt; aecid@&lt;target-ip&gt;
+</code></pre>
+<p>For example, to connect to the <code>attacker</code> machine:</p>
+<pre><code>ssh -i &lt;testbed-key&gt; -J aecid@&lt;mgmt-ip&gt; aecid@192.42.1.174
+</code></pre>
+<h2 id="ssh-config-for-convenient-access">SSH Config for Convenient Access</h2>
+<p>To avoid typing jump host arguments every time, add the following block to your <code>~/.ssh/config</code>.
+Replace <code>&lt;mgmt-ip&gt;</code> and <code>&lt;testbed-key&gt;</code> with the actual values for your project (see
+replacement commands below).</p>
+<pre><code>Host mgmt
+  HostName &lt;mgmt-ip&gt;
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host attacker
+  HostName 192.42.1.174
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host lanturtle
+  HostName 192.168.100.27
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host reposerver
+  HostName 172.17.100.122
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+# used in videoserver scenario
+Host adminpc1
+  HostName 10.12.0.222
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+# used in lateral movement scenario
+Host adminpc2
+  HostName 10.12.0.223
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host inetfw
+  HostName 172.17.100.254
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host inetdns
+  HostName 192.42.2.2
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host client
+  HostName 192.168.50.100
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host linuxshare
+  HostName 192.168.100.23
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host videoserver
+  HostName 172.17.100.121
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host corpdns
+  HostName 192.42.0.233
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host wazuh
+  HostName 192.168.100.130
+  User aecid
+  IdentityFile &lt;testbed-key&gt;
+  ProxyJump mgmt
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+</code></pre>
+<h3 id="replacing-placeholders-with-actual-values">Replacing Placeholders with Actual Values</h3>
+<p>After copying the config, run the following two commands to substitute the placeholders with the
+real management host IP and path to your testbed key:</p>
+<pre><code>sed -i 's/&lt;mgmt-ip&gt;/YOUR.MGMT.IP.HERE/g' ~/.ssh/config
+sed -i 's|&lt;testbed-key&gt;|/path/to/your/testbed-key|g' ~/.ssh/config
+</code></pre>
+<p>Replace <code>YOUR.MGMT.IP.HERE</code> with the actual public IP assigned to <code>mgmt</code> in your project, and
+<code>/path/to/your/testbed-key</code> with the actual path to your private key file (e.g. <code>~/.ssh/testbed</code>).</p>
+<h3 id="usage">Usage</h3>
+<p>Once the config is in place, you can connect to any machine by name:</p>
+<pre><code>ssh mgmt
+ssh attacker
+ssh wazuh
+</code></pre>
+<h2 id="accessing-web-interfaces-via-socks-proxy">Accessing Web Interfaces via SOCKS Proxy</h2>
+<p>Some machines in the attackbed expose web interfaces that are only reachable within the attackbed
+networks. To access these from a local browser without exposing them to the internet, SSH can
+be used to create a <strong>SOCKS proxy</strong> tunnel. A SOCKS proxy instructs your browser to route all
+its traffic through the SSH connection, making your browser effectively appear to be running
+inside the attackbed network.</p>
+<p>The following example shows how to access the <strong>ZoneMinder</strong> video surveillance interface on
+<code>videoserver</code> (<code>172.17.100.121</code>).</p>
+<h3 id="setting-up-the-tunnel">Setting up the Tunnel</h3>
+<p>Assuming the SSH config from the previous section is in place, run:</p>
+<pre><code>ssh -N -D 127.0.0.1:1080 videoserver
+</code></pre>
+<p>The <code>-D</code> flag opens a local SOCKS proxy on port <code>1080</code>, and <code>-N</code> tells SSH not to execute
+a remote command; the connection exists solely to forward traffic. The jump through <code>mgmt</code>
+happens automatically as configured in <code>~/.ssh/config</code>.</p>
+<h3 id="configuring-firefox">Configuring Firefox</h3>
+<p>Open Firefox's proxy settings via <strong>Settings → General → Network Settings → Settings...</strong> and
+configure it as shown below:</p>
+<ul>
+<li>Select <strong>Manual proxy configuration</strong></li>
+<li>Leave HTTP Proxy and HTTPS Proxy empty</li>
+<li>Set <strong>SOCKS Host</strong> to <code>127.0.0.1</code> and <strong>Port</strong> to <code>1080</code></li>
+<li>Select <strong>SOCKS v5</strong></li>
+<li>Check <strong>Proxy DNS when using SOCKS v5</strong></li>
+</ul>
+<p><img alt="Firefox connection settings configured to use the SSH SOCKS proxy on localhost port 1080." src="../../images/proxy.png" /></p>
+<h3 id="accessing-zoneminder">Accessing ZoneMinder</h3>
+<p>With the tunnel running and the proxy configured, open the following URL in Firefox:</p>
+<pre><code>http://172.17.100.121/zm/
+</code></pre>
+<p>You will be presented with the ZoneMinder login interface:</p>
+<p><img alt="The ZoneMinder web interface on the videoserver, accessed through the SOCKS proxy tunnel." src="../../images/zoneminder.png" /></p>
+<h2 id="accessing-desktop-environments-via-vnc">Accessing Desktop Environments via VNC</h2>
+<p>Some machines in the attackbed have a MATE desktop environment and noVNC installed, providing a
+full graphical interface. This is particularly relevant in client-side attack scenarios, where
+the attacker connects to the <code>client</code> machine using screen sharing software, allowing you to
+watch or debug the attack in real time directly from your local machine.</p>
+<p>The noVNC role used during deployment can be found at
+<a href="https://github.com/ait-testbed/atb-ansible-novnc">https://github.com/ait-testbed/atb-ansible-novnc</a>. By default, VNC is exposed on port
+<code>5900</code>.</p>
+<h3 id="tunneling-the-vnc-connection">Tunneling the VNC Connection</h3>
+<p>Since the machines are not directly reachable from the internet, the VNC port must be forwarded
+through the management host using SSH port forwarding. The following example tunnels the VNC
+port of the <code>attacker</code> machine to your local machine:</p>
+<pre><code>ssh -L 5900:192.42.1.174:5900 -J aecid@&lt;mgmt-ip&gt; aecid@192.42.1.174
+</code></pre>
+<p>The <code>-L</code> flag maps port <code>5900</code> on your local machine to port <code>5900</code> on the remote target,
+routed through the <code>mgmt</code> jump host. Keep this SSH session open while using the VNC viewer.</p>
+<h3 id="connecting-with-a-vnc-viewer">Connecting with a VNC Viewer</h3>
+<p>With the tunnel running, open your VNC viewer and connect to:</p>
+<pre><code>vncviewer localhost:5900
+</code></pre>
+<p>You will see the live desktop of the target machine and can observe or debug the ongoing attack
+in real time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some machines use a different VNC setup based on the TightVNC role at
+<a href="https://github.com/ait-testbed/atb-ansible-tightvnc">https://github.com/ait-testbed/atb-ansible-tightvnc</a> — for example the <code>reposerver</code>.
+This role allows configuring a specific user, password, port, and display number during
+deployment. In scenario 3, the VNC password is deliberately set to a weak value that gets
+bruteforced as part of the attack. When connecting to such a machine, <code>vncviewer</code> will
+prompt for the configured credentials:</p>
+<pre><code>vncviewer localhost:&lt;port&gt;
+</code></pre>
+<p>Enter the VNC username and password as configured in the deployment when prompted. Adjust
+the port in the <code>-L</code> tunnel command accordingly if a non-default port was chosen.</p>
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../dns/" class="btn btn-neutral float-left" title="DNS"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../dns/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

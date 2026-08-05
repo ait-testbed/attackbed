@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ait-testbed.github.io/atb-aecid-testbed/1.1.2/tools/mitrecounter/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>MITRE Technique & Tactic Counter - AttackBed</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "MITRE Technique \u0026 Tactic Counter";
+        var mkdocs_page_input_path = "tools/mitrecounter.md";
+        var mkdocs_page_url = "/atb-aecid-testbed/1.1.2/tools/mitrecounter/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> AttackBed
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/requirements/">Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/repository/">Prepare Repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/configure/">Configure Access to OpenStack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/virtualenv/">Setup Virtualenv</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/images/">Deploy Server Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/bootstrap/">Deploy Bootstrap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/logpipeline/">Deploy Log Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../installation/scenario/">Deploy Scenario</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../testbedrun/">Testbedrun</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">MITRE Technique & Tactic Counter</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#arguments">Arguments</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#output">Output</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Scenarios</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/attacks/">Run Attacks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/gather/">Gather Logs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/videoserver/">Videoserver (Scenario 1)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/linuxmalware/">Linux Malware (Scenario 2)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lateralmovement/">Lateral Movement (Scenario 3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/network/">Network (Scenario 4)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/lanturtle/">LAN Turtle (Scenario 5)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/client/">Client (Scenario 6)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenarios/docker/">Docker (Scenario 7)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/overview/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/attacker/">Attacker Services and Ports</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/firewall/">Firewall Connections Per Scenario</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/dns/">DNS</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../development/connection/">Connecting to Virtual Machines</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">AttackBed</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tools</li>
+      <li class="breadcrumb-item active">MITRE Technique & Tactic Counter</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="mitre-technique-tactic-counter">MITRE Technique &amp; Tactic Counter</h1>
+<p>This tool, <code>tt_counter.py</code>, reads text files, identifies MITRE ATT&amp;CK® technique IDs (e.g., <code>T1234</code>), and counts their occurrences. It utilizes the <a href="https://github.com/mitre-attack/mitreattack-python">mitreattack-python</a> library to retrieve and display the associated tactics for each identified technique based on the official MITRE ATT&amp;CK CTI data.</p>
+<h2 id="installation">Installation</h2>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>Python 3 and pip</li>
+<li>Network access to download dependencies and the ATT&amp;CK CTI data.</li>
+</ul>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>
+<p><strong>Install Python Dependencies:</strong>
+    Navigate to the directory <code>scripts/MitreTTP</code> containing the <code>tt_counter.py</code> script and the <code>requirements.txt</code> file. Run:</p>
+<pre class="highlight"><code class="language-bash">pip3 install -r requirements.txt</code></pre>
+</li>
+<li>
+<p><strong>Download and Extract MITRE ATT&amp;CK CTI Data:</strong>
+    The script requires the official MITRE ATT&amp;CK Enterprise data in STIX format. Download and prepare it using the following commands:</p>
+<pre class="highlight"><code class="language-bash"># Download the specific ATT&amp;CK version archive (adjust version tag if needed)
+wget https://github.com/mitre/cti/archive/refs/tags/ATT&amp;CK-v16.1.tar.gz
+
+# Extract the archive
+tar xvfz ATT&amp;CK-v16.1.tar.gz
+
+# Create a symbolic link for the default filename expected by the script
+# This links the actual JSON file to the name 'enterprise-attack.json'
+# in the current directory.
+ln -s cti-ATT&amp;CK-v16.1/enterprise-attack/enterprise-attack.json .</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The script requires the <code>enterprise-attack.json</code> file (or the file specified via <code>--stix</code>) to be accessible from where the script is run. The symbolic link step above makes it available under the default name in the current directory.</p>
+</div>
+</li>
+</ol>
+<h2 id="usage">Usage</h2>
+<p>Execute the script from your terminal using Python 3:</p>
+<pre class="highlight"><code class="language-bash">./tt_counter.py [--stix mitre_json_file] &lt;input_text_file&gt; [&lt;input_text_file&gt; ...]</code></pre>
+<h2 id="arguments">Arguments</h2>
+<ul>
+<li><code>&lt;input_text_file&gt;</code> (Required, one or more):
+    The path to a text file you want to scan for MITRE technique IDs. This file can be any text-based format (e.g., <code>.rst</code>, <code>.md</code>, <code>.txt</code>) that contains strings matching the pattern <code>Txxxx</code> (T followed by four digits). Multiple files can be passed at once.</li>
+<li><code>--stix &lt;mitre_json_file&gt;</code> (Optional):
+    The path to the MITRE ATT&amp;CK Enterprise STIX JSON file. If omitted, the script defaults to looking for a file named <code>enterprise-attack.json</code> in the current working directory.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>mitre_json_file</code> must be passed via <code>--stix</code>, not as a second positional argument. Since the script accepts multiple input files, a bare trailing filename is treated as another file to scan rather than the STIX data source.</p>
+</div>
+<h2 id="output">Output</h2>
+<p>The script prints the following information to standard output:</p>
+<ol>
+<li>For each unique technique ID found:<ul>
+<li>The technique ID (e.g., <code>T1590</code>)</li>
+<li>The number of times it occurred in the input file.</li>
+<li>A Python list containing the names of the associated MITRE ATT&amp;CK Tactic(s).</li>
+</ul>
+</li>
+<li>A summary line showing the total count of all technique ID occurrences found.</li>
+<li>A summary line showing the count of unique technique IDs found.</li>
+</ol>
+<h2 id="example">Example</h2>
+<p><strong>Command:</strong></p>
+<pre class="highlight"><code class="language-bash">./tt_counter.py --stix enterprise-attack.json ../attackbed/docs/scenarios/videoserver.md</code></pre>
+<p><strong>Sample Output:</strong></p>
+<pre class="highlight"><code class="language-text">T1590: 1 ['Reconnaissance']
+T1591: 1 ['Reconnaissance']
+T1595: 2 ['Reconnaissance']
+T1592: 1 ['Reconnaissance']
+T1594: 1 ['Reconnaissance']
+T1190: 1 ['Initial Access']
+T1059: 1 ['Execution']
+T1574: 2 ['Persistence', 'Privilege Escalation', 'Defense Evasion']
+T1104: 1 ['Command and Control']
+T1055: 1 ['Privilege Escalation', 'Defense Evasion']
+T1105: 1 ['Command and Control']
+T1087: 1 ['Discovery']
+T1083: 1 ['Discovery']
+T1201: 1 ['Discovery']
+T1069: 1 ['Discovery']
+T1057: 1 ['Discovery']
+T1518: 1 ['Discovery']
+T1082: 1 ['Discovery']
+T1614: 1 ['Discovery']
+T1016: 1 ['Discovery']
+T1049: 1 ['Discovery']
+T1033: 1 ['Discovery']
+T1007: 1 ['Discovery']
+T1615: 1 ['Discovery']
+T1068: 1 ['Privilege Escalation']
+T1546: 2 ['Persistence', 'Privilege Escalation']
+T1548: 1 ['Privilege Escalation', 'Defense Evasion']
+T1547: 1 ['Persistence', 'Privilege Escalation']
+T1053: 1 ['Execution', 'Persistence', 'Privilege Escalation']
+T1078: 1 ['Persistence', 'Privilege Escalation', 'Defense Evasion', 'Initial Access']
+T1098: 1 ['Persistence', 'Privilege Escalation']
+T1136: 1 ['Persistence']
+T1556: 1 ['Credential Access', 'Persistence', 'Defense Evasion']
+T1218: 1 ['Defense Evasion']
+T1555: 1 ['Credential Access']
+T1046: 1 ['Discovery']
+T1120: 1 ['Discovery']
+T1124: 1 ['Discovery']
+T1497: 1 ['Defense Evasion', 'Discovery']
+Summary: 42
+Unique: 39</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../testbedrun/" class="btn btn-neutral float-left" title="Testbedrun"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../scenarios/overview/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../testbedrun/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../scenarios/overview/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
