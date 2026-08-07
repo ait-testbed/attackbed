@@ -64,23 +64,6 @@ variable "mgmt_flavor" {
   default     = "d2-2"
 }
 
-variable "corpdns_image" {
-  type        = string
-  description = "image of the corpdns-server host"
-}
-
-variable "corpdns_flavor" {
-  type        = string
-  description = "flavor of the corpdns-server host"
-  default     = "d2-2"
-}
-
-variable "corpdns_userdata" {
-  type        = string
-  description = "Userdata for the corpdns-server virtual machine"
-  default     = null
-}
-
 variable "inet_dns" {
   type        = list(string)
   description = "dns servers to configure for the internet"
