@@ -54,7 +54,7 @@ def choose_machines(vm_map: Dict[str, str]) -> List[str]:
     answers = inquirer.prompt(questions)
     return answers['vms']
 
-def restart_instance(instance: str, rootpath: str, vm_map: Dict[str, str]) -> None:
+def recreate_instance(instance: str, rootpath: str, vm_map: Dict[str, str], auto_approve: bool = True) -> None:
     """
     Restart a specified instance using Terragrunt.
     
@@ -66,9 +66,16 @@ def restart_instance(instance: str, rootpath: str, vm_map: Dict[str, str]) -> No
     print(f"Resource: openstack_compute_instance_v2.{instance}")
     print(f"Path: {rootpath}/terragrunt/{subdir}")
     os.chdir(os.path.join(rootpath, "terragrunt", subdir))
-    p = subprocess.run(['terragrunt', 'destroy', '--target', f"openstack_compute_instance_v2.{instance}"])
+    destroy_cmd = ['terragrunt', 'destroy']
+    if auto_approve:
+        destroy_cmd.append('--auto-approve')
+    destroy_cmd.extend(['--target', f"openstack_compute_instance_v2.{instance}"])
+    p = subprocess.run(destroy_cmd)
     if p.returncode == 0:
-        p = subprocess.run(['terragrunt', 'apply'])
+        apply_cmd = ['terragrunt', 'apply']
+        if auto_approve:
+            apply_cmd.append('--auto-approve')
+        p = subprocess.run(apply_cmd)
     else:
         exit(1)
 
@@ -80,6 +87,13 @@ def main():
         type=str, 
         help="Path to the YAML file containing the VM map."
     )
+    parser.add_argument(
+        '--no-auto-approve',
+        action='store_false',
+        dest='auto_approve',
+        default=True,
+        help='Disable terragrunt --auto-approve and require interactive confirmation.'
+    )
     args = parser.parse_args()
 
     vm_map = load_vm_map(args.yaml_file)
@@ -89,7 +103,7 @@ def main():
         return 1
     print(rootpath)
     for instance in choose_machines(vm_map):
-        restart_instance(instance, rootpath, vm_map)
+        recreate_instance(instance, rootpath, vm_map, auto_approve=args.auto_approve)
 
 
 

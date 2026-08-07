@@ -10,7 +10,7 @@ The testbed comprises three segments connected via a firewall: Internet (contain
 
 In the video server scenario, an attacker first scans the network for vulnerabilities. After disclosing a vulnerable CCTV software on a video server, the attacker gains access to the DMZ through unauthenticated remote code execution. Subsequently, one of several vulnerabilities is used by the attacker to escalate privileges. Finally, using root permissions, the attacker is able to pause the CCTV image momentarily, potentially allowing intruders to physically invade the enterprise without being recorded.
 
-<img src="/docs/images/AttackBed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
+<img src="/images/AttackBed-Videoserver.png" alt="Videoserver Scenario" style="width:600pt;"/>
 
 ### Linux Malware Scenario
 
@@ -20,37 +20,37 @@ The Linux malware scenario uses the same network components as the video server 
 
 In the lateral movement scenario, the attacker gains access to a repository server in the DMZ through various remote services. By sniffing network connections, they obtain access credentials that provide administrator permissions. Next, the malicious actor gains access to a linux share in the local network through various vulnerabilities. Finally, the attacker executes various malicious payloads (such as a ransomware attack) on the target system. 
 
-<img src="/docs/images/AttackBed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
+<img src="/images/AttackBed-LateralMovement.png" alt="Lateral Movement Scenario" style="width:600pt;"/>
 
 ### Network Scenario
 
 In this network scenario, the attacker starts with access to a repository server in the DMZ. By reusing stolen credentials, they gain SSH access to the firewall and install malware with port knocking to establish persistence and evade detection. A knock sequence triggers a script that downloads and runs Sliver malware, allowing the attacker to remotely control the firewall. They then modify iptables rules, enabling the DMZ host to connect to the internal network. Using the DMZ host as a pivot, the attacker gains access to a Linux fileshare server in the LAN through credential reuse. 
 
-<img src="/docs/images/AttackBed-Network.png" alt="Network Scenario" style="width:600pt;"/>
+<img src="/images/AttackBed-Network.png" alt="Network Scenario" style="width:600pt;"/>
 
 ### LAN Turtle Scenario
 
 In the LAN Turtle scenario, an attacker introduces a rogue device into the internal network and performs an ARP spoofing attack to intercept traffic between a client (AdminPC) and the firewall. When the client connects to the VideoServer in the DMZ over HTTP, the attacker launches an SSL stripping attack to hijack the session. By stealing the session cookie, the attacker is able to impersonate the user and gain unauthorized access to the VideoServer's web interface in the DMZ.
 
-<img src="/docs/images/AttackBed-Lanturtle.png" alt="LAN Turtle Scenario" style="width:600pt;"/>
+<img src="/images/AttackBed-Lanturtle.png" alt="LAN Turtle Scenario" style="width:600pt;"/>
 
 ### Client Scenario
 
 This scenario simulates attacks targeting an end-user workstation, focusing on common methods used to gain initial access and establish persistence on a client machine. The attacker gains initial access through social engineering, either by persuading the user to open a malicious Office document containing a harmful macro or by tricking them into installing and granting access via a remote access software (a screen sharing tool). Once access is achieved, the attacker establishes persistence by replacing commonly used application binaries (a web browser), with a malicious version or by scheduling malicious tasks using user-level cron jobs. An alternative vector involves the installation of a malicious browser plugin, which then enables the theft of sensitive user information such as keystrokes, form data from the browser and clipboard contents.
 
-<img src="/docs/images/AttackBed-Client.png" alt="Client Scenario" style="width:600pt;"/>
+<img src="/images/AttackBed-Client.png" alt="Client Scenario" style="width:600pt;"/>
 
 ### Docker Scenario
 
 The attackers enumerate and bruteforce dns, smtp and imap first, to gain credentials that can be used for Nextcloud. Next they exploit a remote code execution vulnerability in Nextcloud to gain access to a docker container. After exploiting an exposed docker-daemon they finally are able to escape to the docker host and persist using the sliver malware.
 
-<img src="https://github.com/ait-testbed/attackbed/blob/main/docs/images/AttackBed-Docker.drawio.png" alt="Docker Scenario" style="width:600pt;"/>
+<img src="https://github.com/ait-testbed/attackbed/blob/main/images/AttackBed-Docker.drawio.png" alt="Docker Scenario" style="width:600pt;"/>
 
 ### MITRE Navigator
 
 The following figure shows which tactics and techniques are currently covered by the aforementioned scenarios:
 
-<img src="/docs/images/All_Scenarios.png" alt="MITRE Navigator" style="width:600pt;"/>
+<img src="/images/All_Scenarios.png" alt="MITRE Navigator" style="width:600pt;"/>
 
 ## Requirements
 
@@ -61,8 +61,8 @@ The following figure shows which tactics and techniques are currently covered by
 
 ## Documentation
 
-* [Installation](https://aeciddocs.ait.ac.at/attackbed/current/installation/overview.html)
-* [Documentation](https://aeciddocs.ait.ac.at/attackbed/current/)
+* [Documentation](https://ait-testbed.github.io/atb-aecid-testbed/latest)
+* [Installation](https://ait-testbed.github.io/atb-aecid-testbed/latest/installation/overview/)
 
 ## Publications
 

@@ -17,7 +17,7 @@ $ ln -s cti-ATT-CK-v16.1/enterprise-attack/enterprise-attack.json .
 # Usage
 
 ```
-$ ./tt_counter.py ../attackbed/docs/source/scenarios/videoserver.rst enterprise-attack.json
+$ ./tt_counter.py ../attackbed/docs/scenarios/videoserver.md enterprise-attack.json
 T1590: 1 ['Reconnaissance']
 T1591: 1 ['Reconnaissance']
 T1595: 2 ['Reconnaissance']

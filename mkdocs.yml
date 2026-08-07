@@ -1,0 +1,42 @@
+site_name: AttackBed
+site_url: https://ait-testbed.github.io/atb-aecid-testbed/
+
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - Installation:
+    - Overview: installation/overview.md
+    - Requirements: installation/requirements.md
+    - Prepare Repository: installation/repository.md
+    - Configure Access to OpenStack: installation/configure.md
+    - Setup Virtualenv: installation/virtualenv.md
+    - Deploy Server Images: installation/images.md
+    - Deploy Bootstrap: installation/bootstrap.md
+    - Deploy Log Pipeline: installation/logpipeline.md
+    - Deploy Scenario: installation/scenario.md
+  - Tools:
+    - Testbedrun: tools/testbedrun.md
+    - MITRE Technique & Tactic Counter: tools/mitrecounter.md
+  - Scenarios:
+    - Overview: scenarios/overview.md
+    - Run Attacks: scenarios/attacks.md
+    - Gather Logs: scenarios/gather.md
+    - Videoserver (Scenario 1): scenarios/videoserver.md
+    - Linux Malware (Scenario 2): scenarios/linuxmalware.md
+    - Lateral Movement (Scenario 3): scenarios/lateralmovement.md
+    - Network (Scenario 4): scenarios/network.md
+    - LAN Turtle (Scenario 5): scenarios/lanturtle.md
+    - Client (Scenario 6): scenarios/client.md
+    - Docker (Scenario 7): scenarios/docker.md
+  - Development:
+    - Overview: development/overview.md
+    - Attacker Services and Ports: development/attacker.md
+    - Firewall Connections Per Scenario: development/firewall.md
+    - DNS: development/dns.md
+    - Connecting to Virtual Machines: development/connection.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
