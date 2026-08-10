@@ -61,8 +61,8 @@ The following figure shows which tactics and techniques are currently covered by
 
 ## Documentation
 
-* [Documentation](https://ait-testbed.github.io/atb-aecid-testbed/latest)
-* [Installation](https://ait-testbed.github.io/atb-aecid-testbed/latest/installation/overview/)
+* [Documentation](https://ait-testbed.github.io/attackbed/latest)
+* [Installation](https://ait-testbed.github.io/attackbed/latest/installation/overview/)
 
 ## Publications
 
