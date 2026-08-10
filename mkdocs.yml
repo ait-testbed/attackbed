@@ -1,5 +1,5 @@
 site_name: AttackBed
-site_url: https://ait-testbed.github.io/atb-aecid-testbed/
+site_url: https://ait-testbed.github.io/attackbed/
 
 theme:
   name: readthedocs
