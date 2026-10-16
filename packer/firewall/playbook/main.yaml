@@ -44,11 +44,6 @@
         line="startup=1"
         regexp="^startup="
         state=present
-    - name: Add kafka host entry in /etc/hosts
-      ansible.builtin.lineinfile:
-        path: /etc/hosts
-        line: "192.168.100.10 kafka.attackbed.local"
-        state: present
 
   roles:
     - role: squidproxy

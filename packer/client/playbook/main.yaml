@@ -218,6 +218,15 @@
         insertafter: EOF 
       notify: Restart auditd
 
+  post_tasks:
+    # Switch DNS after all package installs and downloads have finished.
+    - name: Disable systemd-resolved and configure client DNS
+      ansible.builtin.import_role:
+        name: disableresolved
+      vars:
+        disableresolved_nameservers:
+          - "192.168.50.254"
+
   handlers:
     - name: Restart auditd
       ansible.builtin.service:

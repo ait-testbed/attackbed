@@ -22,7 +22,9 @@ $CONFIG = array (
   'trusted_domains' =>
   array (
     0 => 'localhost',
-    1 => '{{nextcloud_rce_domain}}',
+{% for domain in nextcloud_rce_domain %}
+    {{ loop.index }} => '{{ domain }}',
+{% endfor %}
   ),
   'datadirectory' => '/var/www/nextcloud/data',
   'dbtype' => 'mysql',
