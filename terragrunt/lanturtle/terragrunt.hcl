@@ -7,13 +7,13 @@ terraform {
     }
 }
 
-inputs = {
-  sshkey = "testbed-key"
-  videoserver_image = "atb-videoserver-image-2024-07-09T11-00-42Z"
-  adminpc_image = "atb-adminpc-image-2024-07-03T11-47-38Z"
-  attacker_image = "atb-attacker-image-2024-07-03T11-58-41Z"
+dependency "bootstrap" {
+  config_path = "../bootstrap"
 }
 
+inputs = {
+  network_ids = dependency.bootstrap.outputs.network_ids
+}
 
 include {
   path = find_in_parent_folders("root.hcl")

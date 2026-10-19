@@ -22,6 +22,12 @@ data "template_cloudinit_config" "cloudinitattacker" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_attacker.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: attacker\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "attacker-image" {
@@ -30,7 +36,7 @@ data "openstack_images_image_v2" "attacker-image" {
 }
 
 resource "openstack_compute_instance_v2" "attacker" {
-  name        = "attacker"
+  name        = "${var.deployment_id}-attacker"
   flavor_name = var.attacker_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.attacker-image.id
@@ -41,7 +47,7 @@ resource "openstack_compute_instance_v2" "attacker" {
   }
   
   network {
-    name = "lan"
+    uuid        = var.network_ids["lan"]
     fixed_ip_v4 = "192.168.100.27"
   }
 

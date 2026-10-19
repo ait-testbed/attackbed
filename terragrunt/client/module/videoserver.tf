@@ -20,6 +20,12 @@ data "template_cloudinit_config" "cloudinitvideoserver" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_videoserver.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: videoserver\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "videoserver-image" {
@@ -28,7 +34,7 @@ data "openstack_images_image_v2" "videoserver-image" {
 }
 
 resource "openstack_compute_instance_v2" "videoserver" {
-  name        = "videoserver"
+  name        = "${var.deployment_id}-videoserver"
   flavor_name = var.videoserver_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.videoserver-image.id
@@ -39,7 +45,7 @@ resource "openstack_compute_instance_v2" "videoserver" {
   }
   
   network {
-    name = "dmz"
+    uuid        = var.network_ids["dmz"]
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["dmz"],121)
   }
 

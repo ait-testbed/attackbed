@@ -20,6 +20,12 @@ data "template_cloudinit_config" "cloudinitwazuh" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_wazuh.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: wazuh\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "wazuh-image" {
@@ -28,7 +34,7 @@ data "openstack_images_image_v2" "wazuh-image" {
 }
 
 resource "openstack_compute_instance_v2" "wazuh" {
-  name        = "wazuh"
+  name        = "${var.deployment_id}-wazuh"
   flavor_name = var.wazuh_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.wazuh-image.id
@@ -39,7 +45,7 @@ resource "openstack_compute_instance_v2" "wazuh" {
   }
   
   network {
-    name = "lan"
+    uuid        = var.network_ids["lan"]
     fixed_ip_v4 = cidrhost(var.lan_cidr,130)
   }
 

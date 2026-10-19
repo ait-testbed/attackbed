@@ -7,11 +7,13 @@ terraform {
     }
 }
 
-inputs = {
-  sshkey = "testbed-key"
-  reposerver_image = "atb-repository-image-2023-10-11T12-22-24Z"
-} 
+dependency "bootstrap" {
+  config_path = "../bootstrap"
+}
 
+inputs = {
+  network_ids = dependency.bootstrap.outputs.network_ids
+}
 
 include {
   path = find_in_parent_folders("root.hcl")

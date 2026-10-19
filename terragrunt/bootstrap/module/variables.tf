@@ -21,11 +21,6 @@ variable "ext_dns_userdata" {
   default     = null
 }
 
-variable "ext_router" {
-  type        = string
-  description = "name of the external router"
-}
-
 variable "inetdns_flavor" {
   type        = string
   description = "flavor of the internet dns server"

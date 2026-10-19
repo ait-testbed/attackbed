@@ -7,12 +7,13 @@ terraform {
     }
 }
 
-inputs = {
-  ext_router = "taq-router" 
-  sshkey = "testbed-key"
-  client_image=""
-} 
+dependency "bootstrap" {
+  config_path = "../bootstrap"
+}
 
+inputs = {
+  network_ids = dependency.bootstrap.outputs.network_ids
+}
 
 include {
   path = find_in_parent_folders("root.hcl")

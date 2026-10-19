@@ -9,11 +9,6 @@ variable "client_userdata" {
   default     = null
 }
 
-variable "ext_router" {
-  type        = string
-  description = "name of the external router"
-}
-
 variable "client_flavor" {
   type        = string
   description = "flavor of the client"

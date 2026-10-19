@@ -7,13 +7,13 @@ terraform {
     }
 }
 
-inputs = {
-  sshkey = "testbed-key"
-  opensearch_image = "atb-opensearch-image-2024-11-18T17-51-20Z"
-  kafka_image = "atb-kafka-image-2024-11-19T14-15-49Z"
-  logstash_image = "atb-logstash-image-2024-12-05T12-51-50Z"
+dependency "bootstrap" {
+  config_path = "../bootstrap"
 }
 
+inputs = {
+  network_ids = dependency.bootstrap.outputs.network_ids
+}
 
 include {
   path = find_in_parent_folders("root.hcl")

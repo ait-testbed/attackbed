@@ -22,6 +22,12 @@ data "template_cloudinit_config" "cloudinitlogstash" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_logstash.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: logstash\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "logstash-image" {
@@ -30,7 +36,7 @@ data "openstack_images_image_v2" "logstash-image" {
 }
 
 resource "openstack_compute_instance_v2" "logstash" {
-  name        = "logstash"
+  name        = "${var.deployment_id}-logstash"
   flavor_name = var.logstash_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.logstash-image.id
@@ -41,7 +47,7 @@ resource "openstack_compute_instance_v2" "logstash" {
   }
   
   network {
-    name = "lan"
+    uuid        = var.network_ids["lan"]
     fixed_ip_v4 = cidrhost(var.lan_cidr,12)
   }
 

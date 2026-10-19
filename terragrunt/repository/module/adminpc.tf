@@ -23,6 +23,12 @@ data "template_cloudinit_config" "cloudinitadminpc" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_adminpc.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: adminpc2\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "adminpc-image" {
@@ -31,7 +37,7 @@ data "openstack_images_image_v2" "adminpc-image" {
 }
 
 resource "openstack_compute_instance_v2" "adminpc2" {
-  name        = "adminpc2"
+  name        = "${var.deployment_id}-adminpc2"
   flavor_name = var.adminpc_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.adminpc-image.id
@@ -42,7 +48,7 @@ resource "openstack_compute_instance_v2" "adminpc2" {
   }
 
   network {
-    name = "admin"
+    uuid        = var.network_ids["admin"]
     fixed_ip_v4 = cidrhost(var.admin_cidr,223)
   }
 

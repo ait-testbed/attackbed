@@ -7,11 +7,13 @@ terraform {
     }
 }
 
-inputs = {
-  sshkey = "testbed-key"
-  attacker_image = "atb-attacker-image-2023-08-24T12-53-52Z"
-} 
+dependency "bootstrap" {
+  config_path = "../bootstrap"
+}
 
+inputs = {
+  network_ids = dependency.bootstrap.outputs.network_ids
+}
 
 include {
   path = find_in_parent_folders("root.hcl")
