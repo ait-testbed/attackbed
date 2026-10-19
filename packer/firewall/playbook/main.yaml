@@ -233,6 +233,16 @@
                 location: /var/log/squid/*.log
 
   post_tasks:
+    - name: Use local dnsmasq for firewall DNS resolution
+      ansible.builtin.copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 127.0.0.1
+        follow: false
+        owner: root
+        group: root
+        mode: '0644'
+
     - name: Remove dynamic hostname from /etc/hosts
       ansible.builtin.lineinfile:
         path: /etc/hosts

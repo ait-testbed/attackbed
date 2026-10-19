@@ -57,7 +57,7 @@ write_files:
     permissions: '0644'
  
 bootcmd:
-  - echo "nameserver ${dns_server_address}" > /etc/resolv.conf
+  - echo "nameserver ${dns_server_address}" > /etc/resolv.conf-dnsmasq
 
 
 runcmd:
