@@ -16,12 +16,32 @@ data "openstack_networking_network_v2" "external" {
 }
 
 resource "openstack_networking_router_v2" "router" {
-  name                = "${var.deployment_id}-router"
-  external_network_id = data.openstack_networking_network_v2.external.id
-  admin_state_up      = true
+  name           = "${var.deployment_id}-router"
+  admin_state_up = true
+}
 
-  vendor_options {
-    set_router_gateway_after_create = true
+# Retry Neutron gateway updates separately from router creation.
+resource "terraform_data" "router_gateway" {
+  triggers_replace = {
+    router_id  = openstack_networking_router_v2.router.id
+    network_id = data.openstack_networking_network_v2.external.id
+  }
+
+  provisioner "local-exec" {
+    command = "python3 \"${path.module}/scripts/router_gateway.py\" attach"
+    environment = {
+      ROUTER_ID  = self.triggers_replace.router_id
+      NETWORK_ID = self.triggers_replace.network_id
+    }
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "python3 \"${path.module}/scripts/router_gateway.py\" detach"
+    environment = {
+      ROUTER_ID  = self.triggers_replace.router_id
+      NETWORK_ID = self.triggers_replace.network_id
+    }
   }
 }
 
@@ -48,8 +68,9 @@ resource "openstack_networking_subnet_v2" "internet_subnet" {
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface_inet" {
-  router_id = openstack_networking_router_v2.router.id
-  subnet_id = "${openstack_networking_subnet_v2.internet_subnet.id}"
+  router_id  = openstack_networking_router_v2.router.id
+  subnet_id  = "${openstack_networking_subnet_v2.internet_subnet.id}"
+  depends_on = [terraform_data.router_gateway]
 }
 
 ####################################################################
@@ -392,6 +413,7 @@ data "openstack_networking_port_v2" "mgmt" {
 resource "openstack_networking_floatingip_v2" "mgmt" {
   pool        = var.floating_pool
   description = "${var.deployment_id}-mgmt"
+  depends_on  = [terraform_data.router_gateway]
 }
 
 resource "openstack_networking_floatingip_associate_v2" "mgmt" {
