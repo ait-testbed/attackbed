@@ -5,6 +5,7 @@ venv/
 ansible/.venv*
 .env
 .terragrunt-cache/
+terragrunt/deployments
 .terraform.lock.hcl
 collections
 

@@ -1,0 +1,27 @@
+core:
+  - bootstrap
+attack:
+  - bootstrap
+  - attacker
+video:
+  - bootstrap
+  - videoserver
+demo:
+  - bootstrap
+  - attacker
+  - videoserver
+repository:
+  - bootstrap
+  - attacker
+  - repository
+client:
+  - bootstrap
+  - attacker
+  - client
+lanturtle:
+  - bootstrap
+  - lanturtle
+docker:
+  - bootstrap
+  - attacker
+  - docker
