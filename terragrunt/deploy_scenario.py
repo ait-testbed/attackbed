@@ -34,10 +34,12 @@ def scenario_units(root, scenario):
     return units
 
 
-def run_unit(root, deployment_id, unit, action):
+def run_unit(root, deployment_id, unit, action, tofu_parallelism=None):
     env = os.environ.copy()
     env["ATTACKBED_DEPLOYMENT_ID"] = deployment_id
     cmd = ["terragrunt", action, "--non-interactive"]
+    if tofu_parallelism is not None:
+        cmd.append(f"-parallelism={tofu_parallelism}")
     if action in ("apply", "destroy"):
         cmd.append("-auto-approve")
 
@@ -65,10 +67,10 @@ def run_unit(root, deployment_id, unit, action):
         return 1
 
 
-def run_deployment(root, deployment_id, units, action, runner=run_unit):
+def run_deployment(root, deployment_id, units, action, runner=run_unit, tofu_parallelism=None):
     order = reversed(units) if action == "destroy" else units
     for unit in order:
-        if runner(root, deployment_id, unit, action) != 0:
+        if runner(root, deployment_id, unit, action, tofu_parallelism) != 0:
             print(f"[{deployment_id}] Stopped after failed {unit} {action}", file=sys.stderr)
             return 1
     return 0
@@ -82,14 +84,17 @@ def main(argv=None, root=ROOT):
     selection.add_argument("--copies", type=int, help="Select PREFIX-001 through PREFIX-N")
     selection.add_argument("--deployment", action="append", help="Deployment ID (repeatable)")
     parser.add_argument("--prefix", default="lab", help="Prefix for --copies")
-    parser.add_argument("--parallelism", type=int, default=4, help="Concurrent deployments")
+    parser.add_argument("--parallel-copies", type=int, default=4, help="Concurrent deployments")
+    parser.add_argument("--tofu-parallelism", type=int, help="OpenTofu operations per unit")
     parser.add_argument("--yes", action="store_true", help="Confirm apply or destroy")
     args = parser.parse_args(argv)
 
     if args.copies is not None and args.copies < 1:
         parser.error("--copies must be positive")
-    if args.parallelism < 1:
-        parser.error("--parallelism must be positive")
+    if args.parallel_copies < 1:
+        parser.error("--parallel-copies must be positive")
+    if args.tofu_parallelism is not None and args.tofu_parallelism < 1:
+        parser.error("--tofu-parallelism must be positive")
     if args.action in ("apply", "destroy") and not args.yes:
         parser.error("apply and destroy require --yes")
     for variable in ("TG_DOWNLOAD_DIR", "TF_DATA_DIR"):
@@ -104,9 +109,11 @@ def main(argv=None, root=ROOT):
     names = list(dict.fromkeys(names))
     units = scenario_units(root, args.scenario)
 
-    with ThreadPoolExecutor(max_workers=args.parallelism) as executor:
+    with ThreadPoolExecutor(max_workers=args.parallel_copies) as executor:
         results = list(executor.map(
-            lambda name: run_deployment(root, name, units, args.action), names
+            lambda name: run_deployment(
+                root, name, units, args.action, tofu_parallelism=args.tofu_parallelism
+            ), names
         ))
     return int(any(results))
 

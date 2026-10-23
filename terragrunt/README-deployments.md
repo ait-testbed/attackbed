@@ -18,16 +18,17 @@ lab run sequentially; different labs run in parallel.
 From the repository root:
 
 ```sh
-python3 terragrunt/deploy_scenario.py demo apply --copies 3 --parallelism 2 --yes
+python3 terragrunt/deploy_scenario.py demo apply --copies 3 --parallel-copies 2 --tofu-parallelism 3 --yes
 python3 terragrunt/deploy_scenario.py demo plan --deployment lab-002
-python3 terragrunt/deploy_scenario.py demo destroy --copies 3 --parallelism 2 --yes
+python3 terragrunt/deploy_scenario.py demo destroy --copies 3 --parallel-copies 2 --tofu-parallelism 3 --yes
 ```
 
 Use `--deployment` repeatedly to select explicit IDs, or use `--copies N` and
-`--prefix` for IDs such as `lab-001` through `lab-00N`. `--parallelism` limits
-the number of concurrent deployment workers, and thus concurrent Terragrunt
-processes. Each Terragrunt process retains OpenTofu's usual resource-level
-parallelism.
+`--prefix` for IDs such as `lab-001` through `lab-00N`. `--parallel-copies`
+limits the number of concurrent deployments.
+`--tofu-parallelism` passes OpenTofu's `-parallelism=N` directly to each
+unit's `plan`, `apply`, or `destroy` command. If omitted, OpenTofu uses its
+default (10). These two settings are independent.
 
 A new lab's workload plans may require bootstrap outputs to exist first. To
 plan bootstrap alone, run Terragrunt directly in `terragrunt/bootstrap` with
