@@ -12,6 +12,8 @@ locals {
     "inetdns_flavor", "inetfw_flavor", "mgmt_flavor", "videoserver_flavor",
     "wazuh_flavor", "webcam_flavor",
   ]
+  image_file    = get_env("ATTACKBED_IMAGES_FILE", "")
+  image_choices = local.image_file == "" ? {} : jsondecode(file(local.image_file))
 }
 
 download_dir = "${get_repo_root()}/.terragrunt-cache/${local.deployment_id}/${path_relative_to_include()}"
@@ -20,7 +22,7 @@ terraform {
   copy_terraform_lock_file = false
 }
 
-inputs = merge({ for name in local.small_flavor_vars : name => local.settings.default_flavor }, local.settings, {
+inputs = merge({ for name in local.small_flavor_vars : name => local.settings.default_flavor }, local.settings, { for name, image in local.image_choices : name => image.name }, {
   deployment_id = local.deployment_id
 })
 

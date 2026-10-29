@@ -40,3 +40,5 @@ ca.pem
 *.egg-info/
 scripts/*/build/
 
+# Generated AttackBed CLI runs
+runs/
