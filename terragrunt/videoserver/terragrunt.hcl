@@ -9,6 +9,11 @@ terraform {
 
 dependency "bootstrap" {
   config_path = "../bootstrap"
+  mock_outputs = {
+    network_ids = { for name in ["internet", "lan", "dmz", "admin", "user"] : name => "00000000-0000-0000-0000-000000000000" }
+  }
+  mock_outputs_allowed_terraform_commands = ["destroy"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
 inputs = {

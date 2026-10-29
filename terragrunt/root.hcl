@@ -3,8 +3,15 @@ locals {
   defaults      = jsondecode(read_tfvars_file("${get_repo_root()}/terragrunt/defaults.tfvars"))
   tfvars_file   = "${get_repo_root()}/terragrunt/terraform.tfvars"
   overrides     = fileexists(local.tfvars_file) ? jsondecode(read_tfvars_file(local.tfvars_file)) : {}
+  settings      = merge(local.defaults, local.overrides)
   state_name    = "${get_env("OS_PROJECT_NAME")}_${get_env("OS_USER_DOMAIN_NAME")}_${get_env("OS_REGION_NAME", "default")}_${local.deployment_id}_${path_relative_to_include()}"
   state_address = "${get_env("GITLAB_STATE_REPOSITORY")}/${local.state_name}"
+  # VM flavors whose module defaults are d2-2.
+  small_flavor_vars = [
+    "adminpc_flavor", "client_flavor", "corpdns_flavor", "docker_flavor",
+    "inetdns_flavor", "inetfw_flavor", "mgmt_flavor", "videoserver_flavor",
+    "wazuh_flavor", "webcam_flavor",
+  ]
 }
 
 download_dir = "${get_repo_root()}/.terragrunt-cache/${local.deployment_id}/${path_relative_to_include()}"
@@ -13,7 +20,7 @@ terraform {
   copy_terraform_lock_file = false
 }
 
-inputs = merge(local.defaults, local.overrides, {
+inputs = merge({ for name in local.small_flavor_vars : name => local.settings.default_flavor }, local.settings, {
   deployment_id = local.deployment_id
 })
 
