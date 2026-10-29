@@ -26,9 +26,10 @@ python3 terragrunt/deploy_scenario.py demo destroy --copies 3 --parallel-copies 
 Use `--deployment` repeatedly to select explicit IDs, or use `--copies N` and
 `--prefix` for IDs such as `lab-001` through `lab-00N`. `--parallel-copies`
 limits the number of concurrent deployments.
-`--tofu-parallelism` passes OpenTofu's `-parallelism=N` directly to each
-unit's `plan`, `apply`, or `destroy` command. If omitted, OpenTofu uses its
-default (10). These two settings are independent.
+`--tofu-parallelism` overrides the Terragrunt `apply` setting (from
+`TF_VAR_parallelism`, default 10), or passes `-parallelism=N` to `plan` and
+`destroy`. When omitted, the existing settings apply. These two controls are
+independent.
 
 A new lab's workload plans may require bootstrap outputs to exist first. To
 plan bootstrap alone, run Terragrunt directly in `terragrunt/bootstrap` with

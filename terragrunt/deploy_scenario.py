@@ -39,7 +39,11 @@ def run_unit(root, deployment_id, unit, action, tofu_parallelism=None):
     env["ATTACKBED_DEPLOYMENT_ID"] = deployment_id
     cmd = ["terragrunt", action, "--non-interactive"]
     if tofu_parallelism is not None:
-        cmd.append(f"-parallelism={tofu_parallelism}")
+        if action == "apply":
+            # terragrunt.hcl supplies the apply flag; avoid passing it twice.
+            env["TF_VAR_parallelism"] = str(tofu_parallelism)
+        else:
+            cmd.append(f"-parallelism={tofu_parallelism}")
     if action in ("apply", "destroy"):
         cmd.append("-auto-approve")
 
