@@ -47,6 +47,9 @@ def main(action):
             else:
                 openstack("router", "unset", "--external-gateway", ROUTER_ID)
         except subprocess.CalledProcessError as exc:
+            if action == "detach" and f"No Router found for {ROUTER_ID}" in exc.stderr:
+                print(f"Router {ROUTER_ID}: already deleted")
+                return
             print(
                 f"Gateway {action} attempt {attempt}: {exc.stderr.strip() or exc}",
                 file=sys.stderr,
