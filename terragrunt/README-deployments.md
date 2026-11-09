@@ -31,6 +31,13 @@ limits the number of concurrent deployments.
 `destroy`. When omitted, the existing settings apply. These two controls are
 independent.
 
+For OVHcloud, bootstrap explicitly assigns five vRack VLAN IDs per deployment:
+`1000 + (N - 1) * 5` for internet, followed by LAN, DMZ, admin, and user.
+Deployment IDs must end in `001`–`500`. The numeric suffix must be unique
+across deployments, including different prefixes or regions sharing a vRack.
+Ensure the calculated VLANs are unused (including any manual test networks).
+Changing existing networks to explicit VLANs may require their replacement.
+
 A new lab's workload plans may require bootstrap outputs to exist first. To
 plan bootstrap alone, run Terragrunt directly in `terragrunt/bootstrap` with
 `ATTACKBED_DEPLOYMENT_ID` set.
