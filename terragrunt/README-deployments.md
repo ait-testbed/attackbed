@@ -49,3 +49,15 @@ Destroy does not remove the local `.terragrunt-cache`.
 
 The script expects the usual OpenStack/GitLab environment and `terragrunt`,
 OpenTofu, and the OpenStack CLI (for gateway attachment) on `PATH`.
+
+Destroy also removes the deployment's GitLab Terraform states (and version
+histories) **only after all selected units destroy successfully**, and only if
+each remote state no longer tracks managed resources. Missing states are skipped.
+Cleanup errors leave remaining states untouched and return a failure status.
+Use the same scenario that was deployed; units omitted from a scenario are not
+checked or deleted. Do not run concurrent operations on the same deployment.
+
+The script overwrites `terragrunt/attackbed.log` on each invocation. By default
+it shows progress, successes, and the last 40 lines for failed commands.
+`--debug` also streams the complete output. The log contains all redacted
+Terragrunt output from that run; it is not rotated.
