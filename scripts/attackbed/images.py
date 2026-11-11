@@ -54,6 +54,10 @@ def latest_images(conn, root, recipes):
 def build_image(conn, root, recipe, log_path):
     recipe_config(root, recipe, build=True)
     directory = root / "packer" / recipe
+    subprocess.run(
+        ["ansible-galaxy", "role", "install", "-r", "playbook/requirements.yml", "-p", "playbook/roles"],
+        cwd=directory, check=True,
+    )
     subprocess.run(["packer", "init", "."], cwd=directory, check=True)
     image_id = None
     log_path.touch(mode=0o600)

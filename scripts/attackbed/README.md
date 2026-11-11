@@ -1,6 +1,6 @@
 # AttackBed CLI
 
-Run from the repository root with `uv run attackbed` (requires Packer, Terragrunt,
+Run from the repository root with `uv run attackbed` (requires Packer, Ansible, Terragrunt,
 OpenTofu, OpenStack credentials and the existing GitLab state credentials).
 
 ```sh
@@ -14,7 +14,9 @@ uv run attackbed --resume RUN_ID
 `--build` builds each scenario-required Packer image once in OpenStack; every
 Packer recipe in `scripts/attackbed/recipes.yaml` needs its own ignored
 `packer/RECIPE/default.json` (based on `default.json.example`) configured for
-the **target cloud**. The CLI runs `packer init` and `packer build` there.
+the **target cloud**. Before `packer init` and `packer build`, the CLI installs
+Ansible Galaxy roles from each recipe's `playbook/requirements.yml` into its own
+ignored `playbook/roles/` directory.
 
 Without `--build` or `--images`, it selects the newest active Glance image
 matching each recipe's `image_name` prefix. Images without a recipe (currently

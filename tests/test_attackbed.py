@@ -93,13 +93,28 @@ class WorkflowTests(unittest.TestCase):
 
     def test_packer_machine_output_parsing(self):
         self.conn.image.get_image = lambda uid: image("atb-firewall-3", uid, "2026")
-        with patch.object(images.subprocess, "run"), patch.object(images.subprocess, "Popen") as popen:
+        with patch.object(images.subprocess, "run") as run, patch.object(images.subprocess, "Popen") as popen:
             proc = popen.return_value.__enter__.return_value
             proc.stdout = ["123,openstack.builder,artifact,0,builder-id,mitchellh.openstack\n",
                            "123,openstack.builder,artifact,0,id,eu-west-par:44444444-4444-4444-4444-444444444444\n"]
             proc.wait.return_value = 0
             result = images.build_image(self.conn, self.root, "firewall", self.root / "build.log")
+        self.assertEqual([call.args[0] for call in run.call_args_list], [
+            ["ansible-galaxy", "role", "install", "-r", "playbook/requirements.yml", "-p", "playbook/roles"],
+            ["packer", "init", "."],
+        ])
+        self.assertTrue(all(call.kwargs["check"] for call in run.call_args_list))
         self.assertEqual(result["id"], "44444444-4444-4444-4444-444444444444")
+
+    def test_packer_stops_when_ansible_roles_fail(self):
+        with (
+            patch.object(images.subprocess, "run", side_effect=images.subprocess.CalledProcessError(1, "ansible-galaxy")) as run,
+            patch.object(images.subprocess, "Popen") as popen,
+        ):
+            with self.assertRaises(images.subprocess.CalledProcessError):
+                images.build_image(self.conn, self.root, "firewall", self.root / "build.log")
+        self.assertEqual(run.call_count, 1)
+        popen.assert_not_called()
 
 
 class SSHTests(unittest.TestCase):
