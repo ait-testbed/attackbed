@@ -37,6 +37,8 @@ class WorkflowTests(unittest.TestCase):
         (terragrunt / "bootstrap/module/variables.tf").write_text(
             'variable "inetfw_image" {}\nvariable "corpdns_image" {}\nvariable "mgmt_image" {}\n')
         (terragrunt / "scenarios.yaml").write_text("core: [bootstrap]\n")
+        (self.root / "packer/defaults.json").write_text(
+            '{"network": "build-net", "floating_ip_pool": "Ext-Net", "security_group": "default"}')
         self.images = [image("atb-firewall-1", "11111111-1111-1111-1111-111111111111", "2026-01-01"),
                        image("atb-firewall-2", "22222222-2222-2222-2222-222222222222", "2026-02-01"),
                        image("atb-corpdns-1", "33333333-3333-3333-3333-333333333333", "2026-03-01")]
@@ -50,6 +52,27 @@ class WorkflowTests(unittest.TestCase):
         selected = images.latest_images(self.conn, self.root, recipes)
         self.assertEqual(selected["inetfw_image"]["name"], "atb-firewall-2")
         self.assertEqual(selected["corpdns_image"]["id"], self.images[2].id)
+
+    def test_shared_packer_defaults_and_recipe_override(self):
+        recipe = self.root / "packer/firewall"
+        (recipe / "default.json.example").write_text(json.dumps({
+            "image_name": "atb-firewall", "base_image": "Ubuntu 22.04",
+            "network": "old-cloud", "floating_ip_pool": "old-pool",
+        }))
+        (recipe / "default.json").unlink()
+        config = images.recipe_config(self.root, "firewall", build=True)
+        self.assertEqual(config["image_name"], "atb-firewall")
+        self.assertEqual(config["base_image"], "Ubuntu 22.04")
+        self.assertEqual(config["network"], "build-net")
+        self.assertEqual(config["floating_ip_pool"], "Ext-Net")
+        (recipe / "default.json").write_text('{"network": "custom-net"}')
+        self.assertEqual(images.recipe_config(self.root, "firewall", build=True)["network"], "custom-net")
+
+    def test_build_requires_configured_network(self):
+        (self.root / "packer/defaults.json").unlink()
+        with self.assertRaisesRegex(ValueError, "Configure network and floating_ip_pool"):
+            images.recipe_config(self.root, "firewall", build=True)
+        self.assertEqual(images.recipe_config(self.root, "firewall")["image_name"], "atb-firewall")
 
     def test_resume_skips_successful_packer_build(self):
         built = []
@@ -105,6 +128,11 @@ class WorkflowTests(unittest.TestCase):
         ])
         self.assertTrue(all(call.kwargs["check"] for call in run.call_args_list))
         self.assertEqual(result["id"], "44444444-4444-4444-4444-444444444444")
+        args = popen.call_args.args[0]
+        var_file = Path(next(arg.partition("=")[2] for arg in args if arg.startswith("-var-file=")))
+        self.assertTrue(var_file.is_absolute())
+        self.assertEqual(json.loads(var_file.read_text())["network"], "build-net")
+        self.assertEqual(var_file.stat().st_mode & 0o777, 0o600)
 
     def test_packer_stops_when_ansible_roles_fail(self):
         with (

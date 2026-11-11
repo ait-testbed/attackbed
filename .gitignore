@@ -25,6 +25,7 @@ gather_scenario_*/
 
 # ignore packer-configs
 default.json
+packer/defaults.json
 
 # ignore terraform variables file
 terraform.tfvars

@@ -1,0 +1,5 @@
+{
+  "network": "REPLACE_WITH_BUILD_NETWORK_ID",
+  "floating_ip_pool": "Ext-Net",
+  "security_group": "default"
+}

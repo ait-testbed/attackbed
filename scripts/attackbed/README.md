@@ -11,12 +11,27 @@ uv run attackbed --resume
 uv run attackbed --resume RUN_ID
 ```
 
-`--build` builds each scenario-required Packer image once in OpenStack; every
-Packer recipe in `scripts/attackbed/recipes.yaml` needs its own ignored
-`packer/RECIPE/default.json` (based on `default.json.example`) configured for
-the **target cloud**. Before `packer init` and `packer build`, the CLI installs
-Ansible Galaxy roles from each recipe's `playbook/requirements.yml` into its own
-ignored `playbook/roles/` directory.
+`--build` builds each scenario-required Packer image once in OpenStack. Shared
+cloud settings live in `packer/defaults.json`, which you configure once:
+
+```sh
+cp packer/defaults.json.example packer/defaults.json
+# Set network to your build-net UUID; floating_ip_pool is Ext-Net.
+```
+
+The CLI merges each recipe's `default.json.example`,
+then the shared defaults, then an optional ignored `packer/RECIPE/default.json`
+(highest priority). Existing per-recipe configurations still work; remove
+shared keys from them if you want the global values to take effect. Builds
+require `network` and `floating_ip_pool` in the shared or per-recipe settings,
+not solely in the example, to avoid building against the example cloud.
+
+The CLI saves the resolved settings in `runs/RUN_ID/logs/RECIPE.vars.json`
+and passes this file to Packer. Before `packer init` and `packer build`, it
+installs Ansible Galaxy roles from each recipe's `playbook/requirements.yml`
+into its own ignored `playbook/roles/` directory. This merging applies to
+`uv run attackbed`; direct `packer build` commands still require explicit
+variable files.
 
 Without `--build` or `--images`, it selects the newest active Glance image
 matching each recipe's `image_name` prefix. Images without a recipe (currently

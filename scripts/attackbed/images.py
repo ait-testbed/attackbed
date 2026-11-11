@@ -20,12 +20,24 @@ def required_recipes(root, units):
 
 def recipe_config(root, recipe, build=False):
     directory = root / "packer" / recipe
-    config = directory / "default.json"
-    if not config.exists() and not build:
-        config = directory / "default.json.example"
-    if not config.is_file():
-        raise ValueError(f"Missing {config}; configure Packer before building")
-    return json.loads(config.read_text())
+    example = directory / "default.json.example"
+    shared = root / "packer" / "defaults.json"
+    local = directory / "default.json"
+    config = {}
+    overrides = {}
+    for path in (example, shared, local):
+        if path.is_file():
+            values = json.loads(path.read_text())
+            if not isinstance(values, dict):
+                raise ValueError(f"{path} must contain a JSON object")
+            config.update(values)
+            if path != example:
+                overrides.update(values)
+    if build and any(not overrides.get(key) for key in ("network", "floating_ip_pool")):
+        raise ValueError(f"Configure network and floating_ip_pool in {shared} or {local}")
+    if not config:
+        raise ValueError(f"Missing Packer configuration for {recipe}")
+    return config
 
 
 def active_image(conn, image_id):
@@ -52,19 +64,23 @@ def latest_images(conn, root, recipes):
 
 
 def build_image(conn, root, recipe, log_path):
-    recipe_config(root, recipe, build=True)
+    config = recipe_config(root, recipe, build=True)
     directory = root / "packer" / recipe
     subprocess.run(
         ["ansible-galaxy", "role", "install", "-r", "playbook/requirements.yml", "-p", "playbook/roles"],
         cwd=directory, check=True,
     )
     subprocess.run(["packer", "init", "."], cwd=directory, check=True)
+    config_file = log_path.with_suffix(".vars.json")
+    config_file.touch(mode=0o600)
+    config_file.chmod(0o600)
+    config_file.write_text(json.dumps(config, indent=2) + "\n")
     image_id = None
     log_path.touch(mode=0o600)
     log_path.chmod(0o600)
     with log_path.open("w", buffering=1) as logfile:
         with subprocess.Popen(
-            ["packer", "-machine-readable", "build", "-var-file=default.json", "."],
+            ["packer", "-machine-readable", "build", f"-var-file={config_file.resolve()}", "."],
             cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
         ) as process:
             for line in process.stdout:
