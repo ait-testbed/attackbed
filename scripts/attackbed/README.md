@@ -22,6 +22,9 @@ Use `--yes` to confirm deletion. Counter-based destroys do not update existing
 run manifests; prefer RUN_ID when available. Failed cleanup does not mark a
 saved run destroyed.
 
+Scenario composition is defined in `config/scenarios.yaml`; `config/image-recipes.yaml`
+links Terraform image variables to the Packer recipes that build them.
+
 `--build` builds each scenario-required Packer image once in OpenStack. Shared
 cloud settings live in `packer/defaults.json`, which you configure once:
 

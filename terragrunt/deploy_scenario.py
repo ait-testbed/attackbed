@@ -23,7 +23,7 @@ PRINT_LOCK = Lock()
 
 
 def scenario_units(root, scenario):
-    with (root / "scenarios.yaml").open() as stream:
+    with (root.parent / "config/scenarios.yaml").open() as stream:
         scenarios = yaml.safe_load(stream)
     if scenario not in scenarios:
         raise ValueError(f"Unknown scenario: {scenario}")
@@ -155,7 +155,7 @@ def run_deployment(root, deployment_id, units, action, runner=run_unit,
 
 def main(argv=None, root=ROOT):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("scenario", help="Scenario from scenarios.yaml")
+    parser.add_argument("scenario", help="Scenario from config/scenarios.yaml")
     parser.add_argument("action", choices=("plan", "apply", "destroy"))
     selection = parser.add_mutually_exclusive_group(required=True)
     selection.add_argument("--copies", type=int, help="Select PREFIX-001 through PREFIX-N")

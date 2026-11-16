@@ -29,14 +29,14 @@ class WorkflowTests(unittest.TestCase):
         recipe.mkdir(parents=True)
         (recipe / "default.json.example").write_text('{"image_name": "atb-corpdns"}')
         (recipe / "default.json").write_text('{"image_name": "atb-corpdns"}')
-        mapping = self.root / "scripts/attackbed"
-        mapping.mkdir(parents=True)
-        (mapping / "recipes.yaml").write_text("inetfw_image: firewall\ncorpdns_image: corpdns\n")
+        config = self.root / "config"
+        config.mkdir()
+        (config / "image-recipes.yaml").write_text("inetfw_image: firewall\ncorpdns_image: corpdns\n")
         terragrunt = self.root / "terragrunt"
         (terragrunt / "bootstrap/module").mkdir(parents=True)
         (terragrunt / "bootstrap/module/variables.tf").write_text(
             'variable "inetfw_image" {}\nvariable "corpdns_image" {}\nvariable "mgmt_image" {}\n')
-        (terragrunt / "scenarios.yaml").write_text("core: [bootstrap]\n")
+        (config / "scenarios.yaml").write_text("core: [bootstrap]\n")
         (self.root / "packer/defaults.json").write_text(
             '{"network": "build-net", "floating_ip_pool": "Ext-Net", "security_group": "default"}')
         self.images = [image("atb-firewall-1", "11111111-1111-1111-1111-111111111111", "2026-01-01"),

@@ -11,7 +11,7 @@ Install the repository's Python requirements in your active virtual environment:
 uv pip install -r requirements.txt
 ```
 
-Configure the units for each scenario in `terragrunt/scenarios.yaml`.
+Configure the units for each scenario in `config/scenarios.yaml`.
 Bootstrap runs first when applying and last when destroying. Units within one
 lab run sequentially; different labs run in parallel.
 

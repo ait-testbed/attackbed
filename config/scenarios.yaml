@@ -1,3 +1,4 @@
+# Scenario name -> ordered Terragrunt unit directories.
 core:
   - bootstrap
 attack:

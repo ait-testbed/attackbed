@@ -109,7 +109,7 @@ def main(argv=None, root=ROOT):
         return destroy(argv[1:], root)
     parser = argparse.ArgumentParser(description=__doc__,
                                      epilog="Destroy: attackbed destroy SCENARIO --copies N --yes, or destroy RUN_ID --yes")
-    parser.add_argument("scenario", nargs="?", help="Scenario from terragrunt/scenarios.yaml")
+    parser.add_argument("scenario", nargs="?", help="Scenario from config/scenarios.yaml")
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--build", action="store_true", help="Build required images using Packer")
     source.add_argument("--images", type=Path, help="Reuse a saved images.json")
@@ -133,7 +133,7 @@ def main(argv=None, root=ROOT):
     else:
         if not args.scenario:
             parser.error("scenario is required unless --resume is used")
-        scenarios = yaml.safe_load((root / "terragrunt/scenarios.yaml").read_text())
+        scenarios = yaml.safe_load((root / "config/scenarios.yaml").read_text())
         if args.scenario not in scenarios:
             parser.error(f"Unknown scenario: {args.scenario}")
         units = list(dict.fromkeys(scenarios[args.scenario]))

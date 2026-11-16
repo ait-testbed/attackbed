@@ -1,3 +1,5 @@
+# Map Terraform *_image variables to their Packer recipe directories.
+# This is explicit because some names differ (e.g. inetfw_image -> firewall).
 adminpc_image: adminpc
 attacker_image: attacker
 client_image: client

@@ -132,8 +132,11 @@ class LoggingTests(unittest.TestCase):
 
     def test_log_is_overwritten(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            (root / "scenarios.yaml").write_text("demo: [bootstrap]\n")
+            root = Path(temp) / "terragrunt"
+            root.mkdir()
+            config = root.parent / "config"
+            config.mkdir()
+            (config / "scenarios.yaml").write_text("demo: [bootstrap]\n")
             (root / "bootstrap").mkdir()
             (root / "bootstrap/terragrunt.hcl").touch()
             (root / "attackbed.log").write_text("previous run")

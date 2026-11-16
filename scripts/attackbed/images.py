@@ -10,7 +10,7 @@ import yaml
 
 
 def required_recipes(root, units):
-    recipes = yaml.safe_load((root / "scripts/attackbed/recipes.yaml").read_text())
+    recipes = yaml.safe_load((root / "config/image-recipes.yaml").read_text())
     variables = set()
     for unit in units:
         for path in (root / "terragrunt" / unit / "module").glob("*.tf"):
