@@ -43,8 +43,72 @@ def resume_directory(runs, requested):
     return directory
 
 
+
+def destroy(argv, root):
+    parser = argparse.ArgumentParser(prog="attackbed destroy", description="Destroy AttackBed deployments.")
+    parser.add_argument("target", help="Scenario or saved RUN_ID")
+    parser.add_argument("--copies", type=int, help="Destroy PREFIX-001 through PREFIX-N")
+    parser.add_argument("--prefix", default="lab")
+    parser.add_argument("--parallel-copies", type=int)
+    parser.add_argument("--tofu-parallelism", type=int)
+    parser.add_argument("--yes", action="store_true", help="Confirm infrastructure destruction")
+    args = parser.parse_args(argv)
+    if not args.yes:
+        parser.error("destroy requires --yes")
+    if args.copies is not None and args.copies < 1:
+        parser.error("--copies must be positive")
+    if args.parallel_copies is not None and args.parallel_copies < 1:
+        parser.error("--parallel-copies must be positive")
+    if args.tofu_parallelism is not None and args.tofu_parallelism < 1:
+        parser.error("--tofu-parallelism must be positive")
+    if not re.fullmatch(r"[a-z][a-z0-9-]*", args.prefix):
+        parser.error("Invalid deployment prefix")
+
+    job = None
+    directory = None
+    if args.target.startswith("run-"):
+        if args.copies is not None or args.prefix != "lab":
+            parser.error("Run ID cannot be combined with --copies or --prefix")
+        directory = resume_directory(root / "runs", args.target)
+        job = json.loads((directory / "run.json").read_text())
+        if job.get("destroyed"):
+            print(f"Already destroyed: {directory}")
+            return 0
+        scenario = job["scenario"]
+        selection = [item for name in job["deployments"] for item in ("--deployment", name)]
+        parallel_copies = args.parallel_copies or job["parallel_copies"]
+        tofu_parallelism = args.tofu_parallelism if args.tofu_parallelism is not None else job["tofu_parallelism"]
+    else:
+        if args.copies is None:
+            parser.error("Destroying a scenario requires --copies")
+        scenario = args.target
+        selection = ["--copies", str(args.copies), "--prefix", args.prefix]
+        parallel_copies = args.parallel_copies or 4
+        tofu_parallelism = args.tofu_parallelism
+
+    cmd = [sys.executable, str(root / "terragrunt/deploy_scenario.py"), scenario, "destroy", "--yes",
+           "--parallel-copies", str(parallel_copies), *selection]
+    if tofu_parallelism is not None:
+        cmd += ["--tofu-parallelism", str(tofu_parallelism)]
+    env = os.environ.copy()
+    if directory is not None:
+        env.pop("ATTACKBED_IMAGES_FILE", None)
+        images_file = directory / "images.json"
+        if images_file.is_file():
+            env["ATTACKBED_IMAGES_FILE"] = str(images_file.resolve())
+    subprocess.run(cmd, cwd=root, env=env, check=True)
+    if job is not None:
+        job["deployed"] = False
+        job["destroyed"] = True
+        save_json(directory / "run.json", job)
+    return 0
+
 def main(argv=None, root=ROOT):
-    parser = argparse.ArgumentParser(description=__doc__)
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "destroy":
+        return destroy(argv[1:], root)
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     epilog="Destroy: attackbed destroy SCENARIO --copies N --yes, or destroy RUN_ID --yes")
     parser.add_argument("scenario", nargs="?", help="Scenario from terragrunt/scenarios.yaml")
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--build", action="store_true", help="Build required images using Packer")
@@ -64,6 +128,8 @@ def main(argv=None, root=ROOT):
             parser.error("--resume does not accept a scenario, --build or --images")
         directory = resume_directory(runs, args.resume)
         job = json.loads((directory / "run.json").read_text())
+        if job.get("destroyed"):
+            parser.error("This run was destroyed; start a new run")
     else:
         if not args.scenario:
             parser.error("scenario is required unless --resume is used")

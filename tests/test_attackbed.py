@@ -114,6 +114,65 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(json.loads((directory / "images.json").read_text())["inetfw_image"]["name"],
                          "atb-firewall-2")
 
+
+    def test_destroy_uses_scenario_copies_and_prefix(self):
+        with patch.object(cli.subprocess, "run") as run, patch.object(cli, "connect") as connect:
+            self.assertEqual(cli.main(["destroy", "core", "--copies", "3", "--prefix", "trial",
+                                       "--parallel-copies", "2", "--yes"], self.root), 0)
+        cmd = run.call_args.args[0]
+        self.assertEqual(cmd[2:5], ["core", "destroy", "--yes"])
+        self.assertEqual(cmd[-4:], ["--copies", "3", "--prefix", "trial"])
+        self.assertIn("--parallel-copies", cmd)
+        self.assertNotIn("--deployment", cmd)
+        self.assertTrue(run.call_args.kwargs["check"])
+        connect.assert_not_called()
+
+    def test_destroy_run_id_uses_saved_deployments_and_updates_state(self):
+        with patch.object(cli, "connect", return_value=self.conn) as connect, \
+             patch.object(cli, "write_ssh_config"), \
+             patch.object(cli.subprocess, "run") as run:
+            self.assertEqual(cli.main(["core", "--copies", "2", "--tofu-parallelism", "3"], self.root), 0)
+            directory = next((self.root / "runs").iterdir())
+            run.reset_mock()
+            self.assertEqual(cli.main(["destroy", directory.name, "--yes"], self.root), 0)
+            run.assert_called_once()
+            cmd = run.call_args.args[0]
+            self.assertEqual(cmd.count("--deployment"), 2)
+            self.assertIn("lab-001", cmd)
+            self.assertIn("lab-002", cmd)
+            self.assertIn("--tofu-parallelism", cmd)
+            self.assertEqual(run.call_args.kwargs["env"]["ATTACKBED_IMAGES_FILE"],
+                             str((directory / "images.json").resolve()))
+            run.reset_mock()
+            self.assertEqual(cli.main(["destroy", directory.name, "--yes"], self.root), 0)
+            run.assert_not_called()
+            connect.assert_called_once()
+        job = json.loads((directory / "run.json").read_text())
+        self.assertTrue(job["destroyed"])
+        self.assertFalse(job["deployed"])
+        with self.assertRaises(SystemExit):
+            cli.main(["--resume", directory.name], self.root)
+
+    def test_destroy_requires_confirmation_and_preserves_failed_runs(self):
+        with patch.object(cli.subprocess, "run") as run:
+            for args in (["destroy", "core", "--copies", "2"],
+                         ["destroy", "core", "--yes"],
+                         ["destroy", "core", "--copies", "0", "--yes"]):
+                with self.assertRaises(SystemExit):
+                    cli.main(args, self.root)
+            run.assert_not_called()
+
+        directory = self.root / "runs" / "run-20261116-test"
+        directory.mkdir(parents=True)
+        job = {"scenario": "core", "deployments": ["lab-001"],
+               "parallel_copies": 2, "tofu_parallelism": None, "deployed": True}
+        cli.save_json(directory / "run.json", job)
+        with patch.object(cli.subprocess, "run",
+                          side_effect=cli.subprocess.CalledProcessError(1, "terragrunt")):
+            with self.assertRaises(cli.subprocess.CalledProcessError):
+                cli.main(["destroy", directory.name, "--yes"], self.root)
+        self.assertEqual(json.loads((directory / "run.json").read_text()), job)
+
     def test_packer_machine_output_parsing(self):
         self.conn.image.get_image = lambda uid: image("atb-firewall-3", uid, "2026")
         with patch.object(images.subprocess, "run") as run, patch.object(images.subprocess, "Popen") as popen:

@@ -9,7 +9,18 @@ uv run attackbed demo --copies 2
 uv run attackbed demo --images runs/RUN_ID/images.json --copies 5
 uv run attackbed --resume
 uv run attackbed --resume RUN_ID
+uv run attackbed destroy RUN_ID --yes
+uv run attackbed destroy demo --copies 2 --yes
+uv run attackbed destroy demo --copies 2 --prefix trial --yes
 ```
+
+`destroy RUN_ID` uses the exact saved scenario and deployments, marks the run
+as destroyed after successful cleanup, and leaves Glance images and logs intact.
+`destroy SCENARIO --copies N` targets the same PREFIX-001 through PREFIX-N
+names as creation (default prefix `lab`) without requiring deployment IDs.
+Use `--yes` to confirm deletion. Counter-based destroys do not update existing
+run manifests; prefer RUN_ID when available. Failed cleanup does not mark a
+saved run destroyed.
 
 `--build` builds each scenario-required Packer image once in OpenStack. Shared
 cloud settings live in `packer/defaults.json`, which you configure once:
