@@ -1,16 +1,14 @@
 """The CLI override must not conflict with Terragrunt's apply arguments."""
 
-import importlib.util
 import os
 from pathlib import Path
+import sys
 import unittest
 from unittest import mock
 
 
-script = Path(__file__).resolve().parents[1] / "deploy_scenario.py"
-spec = importlib.util.spec_from_file_location("deploy_scenario", script)
-deploy = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(deploy)
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+from attackbed import deploy
 
 
 class ParallelismTests(unittest.TestCase):

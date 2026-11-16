@@ -78,7 +78,8 @@ def build_image(conn, root, recipe, log_path):
     image_id = None
     log_path.touch(mode=0o600)
     log_path.chmod(0o600)
-    with log_path.open("w", buffering=1) as logfile:
+    with log_path.open("a", buffering=1) as logfile:
+        logfile.write(f"\n--- Packer build: {recipe} ---\n")
         with subprocess.Popen(
             ["packer", "-machine-readable", "build", f"-var-file={config_file.resolve()}", "."],
             cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,

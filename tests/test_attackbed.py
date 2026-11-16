@@ -1,6 +1,7 @@
 """Checks for image selection, resuming builds, and per-lab SSH aliases."""
 
 import json
+import os
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -9,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from attackbed import cli, images, ssh
+from attackbed import cli, deploy, images, ssh
 
 
 def image(name, image_id, created):
@@ -34,6 +35,7 @@ class WorkflowTests(unittest.TestCase):
         (config / "image-recipes.yaml").write_text("inetfw_image: firewall\ncorpdns_image: corpdns\n")
         terragrunt = self.root / "terragrunt"
         (terragrunt / "bootstrap/module").mkdir(parents=True)
+        (terragrunt / "bootstrap/terragrunt.hcl").touch()
         (terragrunt / "bootstrap/module/variables.tf").write_text(
             'variable "inetfw_image" {}\nvariable "corpdns_image" {}\nvariable "mgmt_image" {}\n')
         (config / "scenarios.yaml").write_text("core: [bootstrap]\n")
@@ -83,29 +85,36 @@ class WorkflowTests(unittest.TestCase):
                 raise RuntimeError("build failed")
             return images.active_image(conn, next(i.id for i in self.images if recipe in i.name))
 
+        selections = []
+
+        def run(*args, **kwargs):
+            selections.append(os.environ.get("ATTACKBED_IMAGES_FILE"))
+            return 0
+
         with patch.object(cli, "connect", return_value=self.conn), \
              patch.object(cli, "build_image", side_effect=build), \
-             patch.object(cli.subprocess, "run"), \
+             patch.object(deploy, "main", side_effect=run) as invoke, \
              patch.object(cli, "write_ssh_config"):
             with self.assertRaisesRegex(RuntimeError, "build failed"):
                 cli.main(["core", "--build", "--copies", "2", "--tofu-parallelism", "3"], self.root)
             self.assertEqual(cli.main(["--resume"], self.root), 0)
             self.assertEqual(cli.main(["--resume"], self.root), 0)
-            call = cli.subprocess.run.call_args
+            call = invoke.call_args
         self.assertEqual(built, ["corpdns", "firewall", "firewall"])
         self.assertEqual(call.args[0].count("--deployment"), 2)
         self.assertIn("--tofu-parallelism", call.args[0])
-        self.assertTrue(Path(call.kwargs["env"]["ATTACKBED_IMAGES_FILE"]).is_absolute())
+        self.assertTrue(Path(selections[0]).is_absolute())
         directory = next((self.root / "runs").iterdir())
+        self.assertEqual(call.kwargs["run_dir"], directory)
+        self.assertTrue((directory / "logs/packer").is_dir())
         self.assertTrue(json.loads((directory / "run.json").read_text())["complete"])
         self.assertEqual(len(json.loads((directory / "images.json").read_text())), 2)
 
     def test_latest_selection_is_saved_for_resume(self):
         with patch.object(cli, "connect", return_value=self.conn), \
              patch.object(cli, "write_ssh_config") as ssh_write, \
-             patch.object(cli.subprocess, "run") as run:
-            run.side_effect = [RuntimeError("interrupted"), None]
-            with self.assertRaisesRegex(RuntimeError, "interrupted"):
+             patch.object(deploy, "main", side_effect=[1, 0]):
+            with self.assertRaisesRegex(RuntimeError, "Terragrunt apply failed"):
                 cli.main(["core"], self.root)
             self.images.append(image("atb-firewall-3", "44444444-4444-4444-4444-444444444444", "2026-04-01"))
             cli.main(["--resume"], self.root)
@@ -114,38 +123,43 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(json.loads((directory / "images.json").read_text())["inetfw_image"]["name"],
                          "atb-firewall-2")
 
-
     def test_destroy_uses_scenario_copies_and_prefix(self):
-        with patch.object(cli.subprocess, "run") as run, patch.object(cli, "connect") as connect:
+        with patch.object(deploy, "main", return_value=0) as run, patch.object(cli, "connect") as connect:
             self.assertEqual(cli.main(["destroy", "core", "--copies", "3", "--prefix", "trial",
                                        "--parallel-copies", "2", "--yes"], self.root), 0)
-        cmd = run.call_args.args[0]
-        self.assertEqual(cmd[2:5], ["core", "destroy", "--yes"])
-        self.assertEqual(cmd[-4:], ["--copies", "3", "--prefix", "trial"])
-        self.assertIn("--parallel-copies", cmd)
-        self.assertNotIn("--deployment", cmd)
-        self.assertTrue(run.call_args.kwargs["check"])
+        args = run.call_args.args[0]
+        self.assertEqual(args[:3], ["core", "destroy", "--yes"])
+        self.assertEqual(args[-4:], ["--copies", "3", "--prefix", "trial"])
+        self.assertIn("--parallel-copies", args)
+        self.assertNotIn("--deployment", args)
+        self.assertIsNone(run.call_args.kwargs["run_dir"])
         connect.assert_not_called()
 
     def test_destroy_run_id_uses_saved_deployments_and_updates_state(self):
+        selected_images = []
+
+        def run(*args, **kwargs):
+            selected_images.append(os.environ.get("ATTACKBED_IMAGES_FILE"))
+            return 0
+
         with patch.object(cli, "connect", return_value=self.conn) as connect, \
              patch.object(cli, "write_ssh_config"), \
-             patch.object(cli.subprocess, "run") as run:
+             patch.object(deploy, "main", side_effect=run) as invoke:
             self.assertEqual(cli.main(["core", "--copies", "2", "--tofu-parallelism", "3"], self.root), 0)
             directory = next((self.root / "runs").iterdir())
-            run.reset_mock()
+            invoke.reset_mock()
             self.assertEqual(cli.main(["destroy", directory.name, "--yes"], self.root), 0)
-            run.assert_called_once()
-            cmd = run.call_args.args[0]
-            self.assertEqual(cmd.count("--deployment"), 2)
-            self.assertIn("lab-001", cmd)
-            self.assertIn("lab-002", cmd)
-            self.assertIn("--tofu-parallelism", cmd)
-            self.assertEqual(run.call_args.kwargs["env"]["ATTACKBED_IMAGES_FILE"],
-                             str((directory / "images.json").resolve()))
-            run.reset_mock()
+            invoke.assert_called_once()
+            args = invoke.call_args.args[0]
+            self.assertEqual(args.count("--deployment"), 2)
+            self.assertIn("lab-001", args)
+            self.assertIn("lab-002", args)
+            self.assertIn("--tofu-parallelism", args)
+            self.assertEqual(invoke.call_args.kwargs["run_dir"], directory)
+            self.assertEqual(selected_images[-1], str((directory / "images.json").resolve()))
+            invoke.reset_mock()
             self.assertEqual(cli.main(["destroy", directory.name, "--yes"], self.root), 0)
-            run.assert_not_called()
+            invoke.assert_not_called()
             connect.assert_called_once()
         job = json.loads((directory / "run.json").read_text())
         self.assertTrue(job["destroyed"])
@@ -154,7 +168,7 @@ class WorkflowTests(unittest.TestCase):
             cli.main(["--resume", directory.name], self.root)
 
     def test_destroy_requires_confirmation_and_preserves_failed_runs(self):
-        with patch.object(cli.subprocess, "run") as run:
+        with patch.object(deploy, "main") as run:
             for args in (["destroy", "core", "--copies", "2"],
                          ["destroy", "core", "--yes"],
                          ["destroy", "core", "--copies", "0", "--yes"]):
@@ -167,11 +181,24 @@ class WorkflowTests(unittest.TestCase):
         job = {"scenario": "core", "deployments": ["lab-001"],
                "parallel_copies": 2, "tofu_parallelism": None, "deployed": True}
         cli.save_json(directory / "run.json", job)
-        with patch.object(cli.subprocess, "run",
-                          side_effect=cli.subprocess.CalledProcessError(1, "terragrunt")):
-            with self.assertRaises(cli.subprocess.CalledProcessError):
+        with patch.object(deploy, "main", return_value=1):
+            with self.assertRaisesRegex(RuntimeError, "Terragrunt destroy failed"):
                 cli.main(["destroy", directory.name, "--yes"], self.root)
         self.assertEqual(json.loads((directory / "run.json").read_text()), job)
+
+    def test_terragrunt_logs_append_in_run_directory(self):
+        directory = self.root / "runs/run-test"
+        with patch.object(deploy.subprocess, "Popen") as popen:
+            proc = popen.return_value.__enter__.return_value
+            proc.stdout = ["created resource\n"]
+            proc.wait.return_value = 0
+            for _ in range(2):
+                with self.subTest(attempt=_):
+                    self.assertEqual(deploy.main(["core", "plan", "--copies", "1"],
+                                                 self.root / "terragrunt", run_dir=directory), 0)
+        log = (directory / "logs/plan.log").read_text()
+        self.assertEqual(log.count("[lab-001/bootstrap] created resource\n"), 2)
+        self.assertEqual(log.count("--- plan "), 2)
 
     def test_packer_machine_output_parsing(self):
         self.conn.image.get_image = lambda uid: image("atb-firewall-3", uid, "2026")
@@ -180,13 +207,16 @@ class WorkflowTests(unittest.TestCase):
             proc.stdout = ["123,openstack.builder,artifact,0,builder-id,mitchellh.openstack\n",
                            "123,openstack.builder,artifact,0,id,eu-west-par:44444444-4444-4444-4444-444444444444\n"]
             proc.wait.return_value = 0
-            result = images.build_image(self.conn, self.root, "firewall", self.root / "build.log")
+            log_path = self.root / "build.log"
+            log_path.write_text("previous build\n")
+            result = images.build_image(self.conn, self.root, "firewall", log_path)
         self.assertEqual([call.args[0] for call in run.call_args_list], [
             ["ansible-galaxy", "role", "install", "-r", "playbook/requirements.yml", "-p", "playbook/roles"],
             ["packer", "init", "."],
         ])
         self.assertTrue(all(call.kwargs["check"] for call in run.call_args_list))
         self.assertEqual(result["id"], "44444444-4444-4444-4444-444444444444")
+        self.assertIn("previous build\n", log_path.read_text())
         args = popen.call_args.args[0]
         var_file = Path(next(arg.partition("=")[2] for arg in args if arg.startswith("-var-file=")))
         self.assertTrue(var_file.is_absolute())

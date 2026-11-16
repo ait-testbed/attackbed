@@ -3,6 +3,7 @@
 
 import argparse
 from collections import deque
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 import json
 import os
@@ -14,11 +15,12 @@ from threading import Lock
 from urllib.error import HTTPError
 from urllib.parse import quote, urlsplit
 from urllib.request import Request, urlopen
+from uuid import uuid4
 
 import yaml
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2] / "terragrunt"
 PRINT_LOCK = Lock()
 
 
@@ -92,7 +94,7 @@ def run_unit(root, deployment_id, unit, action, tofu_parallelism=None, log_file=
             if not debug:
                 print("".join(tail), end="", file=sys.stderr)
             if log_file is not None:
-                print(f"Full log: {root / 'attackbed.log'}", file=sys.stderr)
+                print(f"Full log: {getattr(log_file, 'name', 'run log')}", file=sys.stderr)
     return returncode
 
 
@@ -153,7 +155,7 @@ def run_deployment(root, deployment_id, units, action, runner=run_unit,
     return 0
 
 
-def main(argv=None, root=ROOT):
+def main(argv=None, root=ROOT, run_dir=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("scenario", help="Scenario from config/scenarios.yaml")
     parser.add_argument("action", choices=("plan", "apply", "destroy"))
@@ -192,10 +194,16 @@ def main(argv=None, root=ROOT):
             if not os.environ.get(variable):
                 parser.error(f"{variable} is required to delete GitLab states after destroy")
 
-    log_path = root / "attackbed.log"
+    if run_dir is None:
+        run_id = "run-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S") + "-" + uuid4().hex[:6]
+        run_dir = root.parent / "runs" / run_id
+    log_dir = run_dir / "logs"
+    log_dir.mkdir(parents=True, mode=0o700, exist_ok=True)
+    log_path = log_dir / f"{args.action}.log"
     log_path.touch(mode=0o600)
     log_path.chmod(0o600)
-    with log_path.open("w") as log_file:
+    with log_path.open("a") as log_file:
+        log_file.write(f"\n--- {args.action} {datetime.now(timezone.utc).isoformat()} ---\n")
         with ThreadPoolExecutor(max_workers=args.parallel_copies) as executor:
             results = list(executor.map(
                 lambda name: run_deployment(

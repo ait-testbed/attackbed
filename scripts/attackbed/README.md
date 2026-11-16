@@ -40,7 +40,7 @@ shared keys from them if you want the global values to take effect. Builds
 require `network` and `floating_ip_pool` in the shared or per-recipe settings,
 not solely in the example, to avoid building against the example cloud.
 
-The CLI saves the resolved settings in `runs/RUN_ID/logs/RECIPE.vars.json`
+The CLI saves the resolved settings in `runs/RUN_ID/logs/packer/RECIPE.vars.json`
 and passes this file to Packer. Before `packer init` and `packer build`, it
 installs Ansible Galaxy roles from each recipe's `playbook/requirements.yml`
 into its own ignored `playbook/roles/` directory. This merging applies to
@@ -53,6 +53,10 @@ matching each recipe's `image_name` prefix. Images without a recipe (currently
 A missing required image is an error, not a silent substitution.
 
 Each run stores its image UUIDs/names, progress, and logs under `runs/RUN_ID/`.
+Packer logs are in `logs/packer/`; infrastructure logs are in `logs/apply.log`
+and `logs/destroy.log`. Repeated attempts append to the existing logs.
+Standalone deployment commands (`uv run python -m attackbed.deploy`) create
+a separate log directory under `runs/`.
 Resume skips successfully built images and retries deployments using OpenTofu
 state. A resumed run always uses its saved image selections, never newer ones.
 Existing labs with the same names may be modified; use `--prefix` when you

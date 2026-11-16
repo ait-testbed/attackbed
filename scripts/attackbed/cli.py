@@ -6,12 +6,12 @@ import json
 import os
 from pathlib import Path
 import re
-import subprocess
 import sys
 from uuid import uuid4
 
 import yaml
 
+from . import deploy
 from .images import active_image, build_image, latest_images, required_recipes
 from .ssh import write_ssh_config
 
@@ -42,6 +42,23 @@ def resume_directory(runs, requested):
         raise ValueError(f"Unknown run: {requested}")
     return directory
 
+def run_terragrunt(root, args, run_dir=None, images_file=None):
+    previous_images = os.environ.get("ATTACKBED_IMAGES_FILE")
+    if run_dir is not None:
+        if images_file is not None:
+            os.environ["ATTACKBED_IMAGES_FILE"] = str(images_file.resolve())
+        else:
+            os.environ.pop("ATTACKBED_IMAGES_FILE", None)
+    try:
+        result = deploy.main(args, root / "terragrunt", run_dir=run_dir)
+    finally:
+        if run_dir is not None:
+            if previous_images is None:
+                os.environ.pop("ATTACKBED_IMAGES_FILE", None)
+            else:
+                os.environ["ATTACKBED_IMAGES_FILE"] = previous_images
+    if result:
+        raise RuntimeError(f"Terragrunt {args[1]} failed; see the run log")
 
 
 def destroy(argv, root):
@@ -86,17 +103,13 @@ def destroy(argv, root):
         parallel_copies = args.parallel_copies or 4
         tofu_parallelism = args.tofu_parallelism
 
-    cmd = [sys.executable, str(root / "terragrunt/deploy_scenario.py"), scenario, "destroy", "--yes",
-           "--parallel-copies", str(parallel_copies), *selection]
+    args = [scenario, "destroy", "--yes", "--parallel-copies", str(parallel_copies), *selection]
     if tofu_parallelism is not None:
-        cmd += ["--tofu-parallelism", str(tofu_parallelism)]
-    env = os.environ.copy()
-    if directory is not None:
-        env.pop("ATTACKBED_IMAGES_FILE", None)
-        images_file = directory / "images.json"
-        if images_file.is_file():
-            env["ATTACKBED_IMAGES_FILE"] = str(images_file.resolve())
-    subprocess.run(cmd, cwd=root, env=env, check=True)
+        args += ["--tofu-parallelism", str(tofu_parallelism)]
+    images_file = directory / "images.json" if directory is not None else None
+    if images_file is not None and not images_file.is_file():
+        images_file = None
+    run_terragrunt(root, args, directory, images_file)
     if job is not None:
         job["deployed"] = False
         job["destroyed"] = True
@@ -165,13 +178,14 @@ def main(argv=None, root=ROOT):
     images_file = directory / "images.json"
     images = json.loads(images_file.read_text()) if images_file.exists() else {}
     if job["mode"] == "build":
-        (directory / "logs").mkdir(mode=0o700, exist_ok=True)
+        packer_logs = directory / "logs" / "packer"
+        packer_logs.mkdir(mode=0o700, parents=True, exist_ok=True)
         for role, recipe in recipes.items():
             if role in images:
                 active_image(conn, images[role]["id"])
                 continue
             print(f"Building {role} ({recipe})", flush=True)
-            images[role] = build_image(conn, root, recipe, directory / "logs" / f"{recipe}.log")
+            images[role] = build_image(conn, root, recipe, packer_logs / f"{recipe}.log")
             save_json(images_file, images)
     elif not images_file.exists():
         if job["mode"] == "latest":
@@ -183,15 +197,12 @@ def main(argv=None, root=ROOT):
         save_json(images_file, images)
 
     if not job["deployed"]:
-        env = os.environ.copy()
-        env["ATTACKBED_IMAGES_FILE"] = str(images_file.resolve())
-        cmd = [sys.executable, str(root / "terragrunt/deploy_scenario.py"), job["scenario"], "apply", "--yes",
-               "--parallel-copies", str(job["parallel_copies"])]
+        args = [job["scenario"], "apply", "--yes", "--parallel-copies", str(job["parallel_copies"])]
         for name in job["deployments"]:
-            cmd += ["--deployment", name]
+            args += ["--deployment", name]
         if job["tofu_parallelism"] is not None:
-            cmd += ["--tofu-parallelism", str(job["tofu_parallelism"])]
-        subprocess.run(cmd, cwd=root, env=env, check=True)
+            args += ["--tofu-parallelism", str(job["tofu_parallelism"])]
+        run_terragrunt(root, args, directory, images_file)
         job["deployed"] = True
         save_json(directory / "run.json", job)
 

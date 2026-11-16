@@ -1,6 +1,6 @@
 # Parallel AttackBed deployments
 
-`deploy_scenario.py` runs the existing Terragrunt units for multiple independent
+`attackbed.deploy` runs the existing Terragrunt units for multiple independent
 AttackBed deployments. It does not generate or copy Terragrunt configurations.
 Each deployment uses its own state, OpenStack resources and cache, selected by
 `ATTACKBED_DEPLOYMENT_ID`.
@@ -8,7 +8,7 @@ Each deployment uses its own state, OpenStack resources and cache, selected by
 Install the repository's Python requirements in your active virtual environment:
 
 ```sh
-uv pip install -r requirements.txt
+uv sync
 ```
 
 Configure the units for each scenario in `config/scenarios.yaml`.
@@ -18,9 +18,9 @@ lab run sequentially; different labs run in parallel.
 From the repository root:
 
 ```sh
-python3 terragrunt/deploy_scenario.py demo apply --copies 3 --parallel-copies 2 --tofu-parallelism 3 --yes
-python3 terragrunt/deploy_scenario.py demo plan --deployment lab-002
-python3 terragrunt/deploy_scenario.py demo destroy --copies 3 --parallel-copies 2 --tofu-parallelism 3 --yes
+uv run python -m attackbed.deploy demo apply --copies 3 --parallel-copies 2 --tofu-parallelism 3 --yes
+uv run python -m attackbed.deploy demo plan --deployment lab-002
+uv run python -m attackbed.deploy demo destroy --copies 3 --parallel-copies 2 --tofu-parallelism 3 --yes
 ```
 
 Use `--deployment` repeatedly to select explicit IDs, or use `--copies N` and
@@ -42,7 +42,7 @@ A new lab's workload plans may require bootstrap outputs to exist first. To
 plan bootstrap alone, run Terragrunt directly in `terragrunt/bootstrap` with
 `ATTACKBED_DEPLOYMENT_ID` set.
 
-No deployment manifests are stored. Select the same scenario units when
+When run standalone, no deployment manifests are stored. Select the same scenario units when
 tearing down a deployment. Failed operations stop that lab without affecting
 other lab workers, and a failed workload destroy leaves its bootstrap intact.
 Destroy does not remove the local `.terragrunt-cache`.
@@ -57,7 +57,8 @@ Cleanup errors leave remaining states untouched and return a failure status.
 Use the same scenario that was deployed; units omitted from a scenario are not
 checked or deleted. Do not run concurrent operations on the same deployment.
 
-The script overwrites `terragrunt/attackbed.log` on each invocation. By default
-it shows progress, successes, and the last 40 lines for failed commands.
-`--debug` also streams the complete output. The log contains all redacted
-Terragrunt output from that run; it is not rotated.
+Each standalone invocation creates a directory under `runs/RUN_ID/logs/`;
+`apply.log`, `plan.log`, or `destroy.log` holds the redacted Terragrunt output.
+CLI invocations write to their existing run directory, appending on retries.
+By default, the command shows progress, successes, and the last 40 lines of
+failed operations. `--debug` streams the full output.

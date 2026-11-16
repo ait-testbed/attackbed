@@ -44,5 +44,5 @@ scripts/*/build/
 # Generated AttackBed CLI runs
 runs/
 
-# Orchestrator output, overwritten each invocation
+# Legacy orchestrator output
 terragrunt/attackbed.log

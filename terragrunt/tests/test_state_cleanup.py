@@ -2,20 +2,19 @@
 
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, StringIO
-import importlib.util
 import json
 import os
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest import mock
 from urllib.error import HTTPError
 
 
-script = Path(__file__).resolve().parents[1] / "deploy_scenario.py"
-spec = importlib.util.spec_from_file_location("deploy_scenario", script)
-deploy = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(deploy)
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+from attackbed import deploy
+
 
 ENV = {
     "GITLAB_STATE_REPOSITORY": "https://gitlab.example.com/api/v4/projects/123/terraform/state",
@@ -130,7 +129,7 @@ class LoggingTests(unittest.TestCase):
         self.assertIn("[REDACTED]", log.getvalue())
         self.assertNotIn("SECRET", log.getvalue() + err.getvalue())
 
-    def test_log_is_overwritten(self):
+    def test_logs_append_under_run_directory(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "terragrunt"
             root.mkdir()
@@ -139,16 +138,18 @@ class LoggingTests(unittest.TestCase):
             (config / "scenarios.yaml").write_text("demo: [bootstrap]\n")
             (root / "bootstrap").mkdir()
             (root / "bootstrap/terragrunt.hcl").touch()
-            (root / "attackbed.log").write_text("previous run")
+            run_dir = root.parent / "runs" / "run-test"
             with mock.patch.object(deploy.subprocess, "Popen") as popen:
                 process = popen.return_value.__enter__.return_value
                 process.stdout = ["current run\n"]
                 process.wait.return_value = 0
                 with redirect_stdout(StringIO()):
-                    result = deploy.main(["demo", "plan", "--copies", "1"], root)
-            log = (root / "attackbed.log").read_text()
+                    result = deploy.main(["demo", "plan", "--copies", "1"], root, run_dir)
+                    result = max(result, deploy.main(["demo", "plan", "--copies", "1"], root, run_dir))
+            log = (run_dir / "logs/plan.log").read_text()
         self.assertEqual(result, 0)
-        self.assertEqual(log, "[lab-001/bootstrap] current run\n")
+        self.assertEqual(log.count("[lab-001/bootstrap] current run\n"), 2)
+        self.assertEqual(log.count("--- plan "), 2)
 
 
 if __name__ == "__main__":
