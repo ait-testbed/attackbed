@@ -2,7 +2,7 @@
 
 To setup the AttackBed it is necessary to have the following requirements prepared:
 
-1.  Access to a working [OpenStack](https://www.openstack.org/) is required
+1.  Access to a working [OpenStack](https://www.openstack.org/) is required, and [uv](https://docs.astral.sh/uv/) for Python dependencies
 
 2.  Install [OpenTofu](https://opentofu.org/)
 

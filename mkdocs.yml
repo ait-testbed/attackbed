@@ -17,6 +17,7 @@ nav:
     - Deploy Log Pipeline: installation/logpipeline.md
     - Deploy Scenario: installation/scenario.md
   - Tools:
+    - AttackBed CLI: tools/attackbed.md
     - Testbedrun: tools/testbedrun.md
     - MITRE Technique & Tactic Counter: tools/mitrecounter.md
   - Scenarios:

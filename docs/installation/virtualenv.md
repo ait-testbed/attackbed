@@ -1,25 +1,11 @@
-# Setting up a python virtual environment
+# Python environment
 
-For building certain images, it is necessary to have some python libraries installed locally.
+From the repository root:
 
-Create a virtual environment:
+```sh
+uv sync
+uv run attackbed --help
+```
 
-    python3 -m venv venv
+Ansible, Packer, OpenTofu, and Terragrunt are also required. See [AttackBed CLI](../tools/attackbed.md).
 
-Activate virtual environment:
-
-    source venv/bin/activate
-
-Install dependencies:
-
-    pip install -r requirements.txt
-
-## (Optional) Installing Ansible in the virtual environment
-
-If Ansible has not been installed yet, you can add it to your virtual environment:
-
-    pip install ansible
-
-Verify installation:
-
-    ansible --version
