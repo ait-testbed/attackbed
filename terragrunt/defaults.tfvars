@@ -1,5 +1,5 @@
 default_flavor    = "d2-2"
-sshkey            = "tu-honeypot"
+sshkey            = "testbed-key"
 floating_pool     = "Ext-Net"
 ext_router        = "ext-router"
 

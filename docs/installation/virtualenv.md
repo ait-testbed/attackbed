@@ -3,7 +3,6 @@
 From the repository root:
 
 ```sh
-uv sync
 uv run attackbed --help
 ```
 
