@@ -166,7 +166,6 @@ def main(argv=None, root=ROOT, run_dir=None):
     parser.add_argument("--parallel-copies", type=int, default=4, help="Concurrent deployments")
     parser.add_argument("--tofu-parallelism", type=int, help="OpenTofu operations per unit")
     parser.add_argument("--debug", action="store_true", help="Stream full Terragrunt output")
-    parser.add_argument("--yes", action="store_true", help="Confirm apply or destroy")
     args = parser.parse_args(argv)
 
     if args.copies is not None and args.copies < 1:
@@ -175,8 +174,6 @@ def main(argv=None, root=ROOT, run_dir=None):
         parser.error("--parallel-copies must be positive")
     if args.tofu_parallelism is not None and args.tofu_parallelism < 1:
         parser.error("--tofu-parallelism must be positive")
-    if args.action in ("apply", "destroy") and not args.yes:
-        parser.error("apply and destroy require --yes")
     for variable in ("TG_DOWNLOAD_DIR", "TF_DATA_DIR"):
         if os.environ.get(variable):
             parser.error(f"Unset {variable} to preserve cache isolation")

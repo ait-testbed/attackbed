@@ -24,6 +24,8 @@ class ParallelismTests(unittest.TestCase):
                             result = deploy.run_unit(Path("/tmp"), "lab-001", "bootstrap", action, override)
                     self.assertEqual(result, 0)
                     cmd = popen.call_args.args[0]
+                    if action in ("apply", "destroy"):
+                        self.assertIn("-auto-approve", cmd)
                     env = popen.call_args.kwargs["env"]
                     self.assertEqual(env["TF_VAR_parallelism"],
                                      "3" if action == "apply" and override == 3 else "1")

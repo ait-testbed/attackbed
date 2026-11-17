@@ -1,6 +1,8 @@
 """Checks for image selection, resuming builds, and per-lab SSH aliases."""
 
 import json
+from contextlib import redirect_stdout
+from io import StringIO
 import os
 from pathlib import Path
 import sys
@@ -79,7 +81,7 @@ class WorkflowTests(unittest.TestCase):
     def test_resume_skips_successful_packer_build(self):
         built = []
 
-        def build(conn, root, recipe, log):
+        def build(conn, root, recipe, log, debug=False):
             built.append(recipe)
             if recipe == "firewall" and built.count("firewall") == 1:
                 raise RuntimeError("build failed")
@@ -96,9 +98,9 @@ class WorkflowTests(unittest.TestCase):
              patch.object(deploy, "main", side_effect=run) as invoke, \
              patch.object(cli, "write_ssh_config"):
             with self.assertRaisesRegex(RuntimeError, "build failed"):
-                cli.main(["core", "--build", "--copies", "2", "--tofu-parallelism", "3"], self.root)
-            self.assertEqual(cli.main(["--resume"], self.root), 0)
-            self.assertEqual(cli.main(["--resume"], self.root), 0)
+                cli.main(["deploy", "core", "--build", "--copies", "2", "--tofu-parallelism", "3"], self.root)
+            self.assertEqual(cli.main(["resume"], self.root), 0)
+            self.assertEqual(cli.main(["resume"], self.root), 0)
             call = invoke.call_args
         self.assertEqual(built, ["corpdns", "firewall", "firewall"])
         self.assertEqual(call.args[0].count("--deployment"), 2)
@@ -115,9 +117,9 @@ class WorkflowTests(unittest.TestCase):
              patch.object(cli, "write_ssh_config") as ssh_write, \
              patch.object(deploy, "main", side_effect=[1, 0]):
             with self.assertRaisesRegex(RuntimeError, "Terragrunt apply failed"):
-                cli.main(["core"], self.root)
+                cli.main(["deploy", "core"], self.root)
             self.images.append(image("atb-firewall-3", "44444444-4444-4444-4444-444444444444", "2026-04-01"))
-            cli.main(["--resume"], self.root)
+            cli.main(["resume"], self.root)
             self.assertEqual(ssh_write.call_count, 1)
         directory = next((self.root / "runs").iterdir())
         self.assertEqual(json.loads((directory / "images.json").read_text())["inetfw_image"]["name"],
@@ -126,9 +128,9 @@ class WorkflowTests(unittest.TestCase):
     def test_destroy_uses_scenario_copies_and_prefix(self):
         with patch.object(deploy, "main", return_value=0) as run, patch.object(cli, "connect") as connect:
             self.assertEqual(cli.main(["destroy", "core", "--copies", "3", "--prefix", "trial",
-                                       "--parallel-copies", "2", "--yes"], self.root), 0)
+                                       "--parallel-copies", "2"], self.root), 0)
         args = run.call_args.args[0]
-        self.assertEqual(args[:3], ["core", "destroy", "--yes"])
+        self.assertEqual(args[:2], ["core", "destroy"])
         self.assertEqual(args[-4:], ["--copies", "3", "--prefix", "trial"])
         self.assertIn("--parallel-copies", args)
         self.assertNotIn("--deployment", args)
@@ -145,10 +147,10 @@ class WorkflowTests(unittest.TestCase):
         with patch.object(cli, "connect", return_value=self.conn) as connect, \
              patch.object(cli, "write_ssh_config"), \
              patch.object(deploy, "main", side_effect=run) as invoke:
-            self.assertEqual(cli.main(["core", "--copies", "2", "--tofu-parallelism", "3"], self.root), 0)
+            self.assertEqual(cli.main(["deploy", "core", "--copies", "2", "--tofu-parallelism", "3"], self.root), 0)
             directory = next((self.root / "runs").iterdir())
             invoke.reset_mock()
-            self.assertEqual(cli.main(["destroy", directory.name, "--yes"], self.root), 0)
+            self.assertEqual(cli.main(["destroy", directory.name], self.root), 0)
             invoke.assert_called_once()
             args = invoke.call_args.args[0]
             self.assertEqual(args.count("--deployment"), 2)
@@ -158,32 +160,30 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(invoke.call_args.kwargs["run_dir"], directory)
             self.assertEqual(selected_images[-1], str((directory / "images.json").resolve()))
             invoke.reset_mock()
-            self.assertEqual(cli.main(["destroy", directory.name, "--yes"], self.root), 0)
+            self.assertEqual(cli.main(["destroy", directory.name], self.root), 0)
             invoke.assert_not_called()
             connect.assert_called_once()
         job = json.loads((directory / "run.json").read_text())
         self.assertTrue(job["destroyed"])
         self.assertFalse(job["deployed"])
         with self.assertRaises(SystemExit):
-            cli.main(["--resume", directory.name], self.root)
+            cli.main(["resume", directory.name], self.root)
 
-    def test_destroy_requires_confirmation_and_preserves_failed_runs(self):
+    def test_destroy_validates_copy_count_and_preserves_failed_runs(self):
         with patch.object(deploy, "main") as run:
-            for args in (["destroy", "core", "--copies", "2"],
-                         ["destroy", "core", "--yes"],
-                         ["destroy", "core", "--copies", "0", "--yes"]):
+            for args in (["destroy", "core"], ["destroy", "core", "--copies", "0"]):
                 with self.assertRaises(SystemExit):
                     cli.main(args, self.root)
             run.assert_not_called()
 
         directory = self.root / "runs" / "run-20261116-test"
         directory.mkdir(parents=True)
-        job = {"scenario": "core", "deployments": ["lab-001"],
+        job = {"action": "deploy", "scenario": "core", "deployments": ["lab-001"],
                "parallel_copies": 2, "tofu_parallelism": None, "deployed": True}
         cli.save_json(directory / "run.json", job)
         with patch.object(deploy, "main", return_value=1):
             with self.assertRaisesRegex(RuntimeError, "Terragrunt destroy failed"):
-                cli.main(["destroy", directory.name, "--yes"], self.root)
+                cli.main(["destroy", directory.name], self.root)
         self.assertEqual(json.loads((directory / "run.json").read_text()), job)
 
     def test_terragrunt_logs_append_in_run_directory(self):
@@ -199,6 +199,75 @@ class WorkflowTests(unittest.TestCase):
         log = (directory / "logs/plan.log").read_text()
         self.assertEqual(log.count("[lab-001/bootstrap] created resource\n"), 2)
         self.assertEqual(log.count("--- plan "), 2)
+
+    def test_build_only_resumes_without_deployment(self):
+        attempts = []
+
+        def build(conn, root, recipe, log, debug=False):
+            attempts.append((recipe, debug))
+            if recipe == "firewall" and sum(name == "firewall" for name, _ in attempts) == 1:
+                raise RuntimeError("Packer failed")
+            return images.active_image(conn, next(item.id for item in self.images if recipe in item.name))
+
+        with patch.object(cli, "connect", return_value=self.conn), \
+             patch.object(cli, "build_image", side_effect=build), \
+             patch.object(deploy, "main") as infra, \
+             patch.object(cli, "write_ssh_config") as ssh:
+            with self.assertRaisesRegex(RuntimeError, "Packer failed"):
+                cli.main(["build", "core"], self.root)
+            directory = next((self.root / "runs").iterdir())
+            self.assertEqual(cli.main(["resume", directory.name, "--debug"], self.root), 0)
+            infra.assert_not_called()
+            ssh.assert_not_called()
+        self.assertEqual(attempts, [("corpdns", False), ("firewall", False), ("firewall", True)])
+        job = json.loads((directory / "run.json").read_text())
+        self.assertEqual(job["action"], "build")
+        self.assertTrue(job["complete"])
+        self.assertFalse(job["deployed"])
+        self.assertEqual(job["deployments"], [])
+        self.assertEqual(len(json.loads((directory / "images.json").read_text())), 2)
+        with self.assertRaises(SystemExit):
+            cli.main(["destroy", directory.name], self.root)
+
+    def test_debug_forwarded_to_terragrunt(self):
+        with patch.object(cli, "connect", return_value=self.conn), \
+             patch.object(deploy, "main", return_value=0) as invoke, \
+             patch.object(cli, "write_ssh_config"):
+            self.assertEqual(cli.main(["deploy", "core", "--debug"], self.root), 0)
+        self.assertIn("--debug", invoke.call_args.args[0])
+
+    def test_backend_applies_without_yes(self):
+        with patch.object(deploy.subprocess, "Popen") as popen:
+            process = popen.return_value.__enter__.return_value
+            process.stdout = []
+            process.wait.return_value = 0
+            self.assertEqual(deploy.main(["core", "apply", "--copies", "1"],
+                                         self.root / "terragrunt"), 0)
+        self.assertIn("-auto-approve", popen.call_args.args[0])
+
+    def test_action_help(self):
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit) as context:
+            cli.main(["--help"], self.root)
+        self.assertEqual(context.exception.code, 0)
+        for action in ("build", "deploy", "resume", "destroy"):
+            self.assertIn(action, output.getvalue())
+        with redirect_stdout(output), self.assertRaises(SystemExit) as context:
+            cli.main(["deploy", "--help"], self.root)
+        self.assertEqual(context.exception.code, 0)
+        self.assertIn("--tofu-parallelism", output.getvalue())
+
+    def test_packer_debug_enables_diagnostics(self):
+        self.conn.image.get_image = lambda uid: image("atb-firewall", uid, "2026")
+        with patch.object(images.subprocess, "run"), \
+             patch.object(images.subprocess, "Popen") as popen:
+            process = popen.return_value.__enter__.return_value
+            process.stdout = [
+                "123,openstack.builder,artifact,0,id,eu-west-par:44444444-4444-4444-4444-444444444444\n"
+            ]
+            process.wait.return_value = 0
+            images.build_image(self.conn, self.root, "firewall", self.root / "debug.log", debug=True)
+        self.assertEqual(popen.call_args.kwargs["env"]["PACKER_LOG"], "1")
 
     def test_packer_machine_output_parsing(self):
         self.conn.image.get_image = lambda uid: image("atb-firewall-3", uid, "2026")

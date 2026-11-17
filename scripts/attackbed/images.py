@@ -1,6 +1,7 @@
 """Build or discover OpenStack images for the requested Terraform units."""
 
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -63,7 +64,7 @@ def latest_images(conn, root, recipes):
     return selected
 
 
-def build_image(conn, root, recipe, log_path):
+def build_image(conn, root, recipe, log_path, debug=False):
     config = recipe_config(root, recipe, build=True)
     directory = root / "packer" / recipe
     subprocess.run(
@@ -83,6 +84,7 @@ def build_image(conn, root, recipe, log_path):
         with subprocess.Popen(
             ["packer", "-machine-readable", "build", f"-var-file={config_file.resolve()}", "."],
             cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            env={**os.environ, "PACKER_LOG": "1"} if debug else None,
         ) as process:
             for line in process.stdout:
                 logfile.write(line)
@@ -93,7 +95,9 @@ def build_image(conn, root, recipe, log_path):
                         image_id = str(UUID(value))
                     except ValueError:
                         pass
-                if len(fields) >= 5 and fields[2] == "ui" and fields[3] in ("say", "message", "error"):
+                if debug:
+                    print(line, end="", flush=True)
+                elif len(fields) >= 5 and fields[2] == "ui" and fields[3] in ("say", "message", "error"):
                     print(fields[4], flush=True)
             if process.wait():
                 raise RuntimeError(f"Packer {recipe} failed; see {log_path}")

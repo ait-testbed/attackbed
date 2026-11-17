@@ -1,4 +1,4 @@
-"""Build Packer images and deploy AttackBed scenarios."""
+"""Build Packer images and manage AttackBed deployments."""
 
 import argparse
 from datetime import datetime, timezone
@@ -42,13 +42,15 @@ def resume_directory(runs, requested):
         raise ValueError(f"Unknown run: {requested}")
     return directory
 
-def run_terragrunt(root, args, run_dir=None, images_file=None):
+def run_terragrunt(root, args, run_dir=None, images_file=None, debug=False):
     previous_images = os.environ.get("ATTACKBED_IMAGES_FILE")
     if run_dir is not None:
         if images_file is not None:
             os.environ["ATTACKBED_IMAGES_FILE"] = str(images_file.resolve())
         else:
             os.environ.pop("ATTACKBED_IMAGES_FILE", None)
+    if debug:
+        args = [*args, "--debug"]
     try:
         result = deploy.main(args, root / "terragrunt", run_dir=run_dir)
     finally:
@@ -61,38 +63,57 @@ def run_terragrunt(root, args, run_dir=None, images_file=None):
         raise RuntimeError(f"Terragrunt {args[1]} failed; see the run log")
 
 
-def destroy(argv, root):
-    parser = argparse.ArgumentParser(prog="attackbed destroy", description="Destroy AttackBed deployments.")
-    parser.add_argument("target", help="Scenario or saved RUN_ID")
-    parser.add_argument("--copies", type=int, help="Destroy PREFIX-001 through PREFIX-N")
-    parser.add_argument("--prefix", default="lab")
-    parser.add_argument("--parallel-copies", type=int)
-    parser.add_argument("--tofu-parallelism", type=int)
-    parser.add_argument("--yes", action="store_true", help="Confirm infrastructure destruction")
-    args = parser.parse_args(argv)
-    if not args.yes:
-        parser.error("destroy requires --yes")
-    if args.copies is not None and args.copies < 1:
-        parser.error("--copies must be positive")
-    if args.parallel_copies is not None and args.parallel_copies < 1:
-        parser.error("--parallel-copies must be positive")
-    if args.tofu_parallelism is not None and args.tofu_parallelism < 1:
-        parser.error("--tofu-parallelism must be positive")
-    if not re.fullmatch(r"[a-z][a-z0-9-]*", args.prefix):
-        parser.error("Invalid deployment prefix")
+def make_parser():
+    parser = argparse.ArgumentParser(description="Build images and manage AttackBed deployments.")
+    commands = parser.add_subparsers(dest="action", required=True)
 
+    build = commands.add_parser("build", help="Build scenario images without deploying")
+    build.add_argument("scenario", help="Scenario from config/scenarios.yaml")
+    build.add_argument("--debug", action="store_true", help="Stream Packer diagnostic output")
+
+    deploy_cmd = commands.add_parser("deploy", help="Deploy scenario using existing or newly built images")
+    deploy_cmd.add_argument("scenario", help="Scenario from config/scenarios.yaml")
+    source = deploy_cmd.add_mutually_exclusive_group()
+    source.add_argument("--build", action="store_true", help="Build images before deploying")
+    source.add_argument("--images", type=Path, metavar="FILE", help="Use image selection from JSON file")
+    deploy_cmd.add_argument("--copies", type=int, default=1, metavar="N", help="Deploy PREFIX-001 through PREFIX-N (default: 1)")
+    deploy_cmd.add_argument("--prefix", default="lab", help="Deployment name prefix (default: lab)")
+    deploy_cmd.add_argument("--parallel-copies", type=int, default=4, metavar="N", help="Concurrent deployments (default: 4)")
+    deploy_cmd.add_argument("--tofu-parallelism", type=int, metavar="N", help="OpenTofu operations per unit")
+    deploy_cmd.add_argument("--debug", action="store_true", help="Stream full Packer and Terragrunt output")
+
+    resume = commands.add_parser("resume", help="Resume a run; defaults to the latest")
+    resume.add_argument("run_id", nargs="?", default="latest", metavar="RUN_ID", help="Saved run ID (default: latest)")
+    resume.add_argument("--debug", action="store_true", help="Stream full Packer and Terragrunt output")
+
+    destroy_cmd = commands.add_parser("destroy", help="Destroy a saved run or scenario copies")
+    destroy_cmd.add_argument("target", help="RUN_ID or scenario name")
+    destroy_cmd.add_argument("--copies", type=int, metavar="N", help="Destroy PREFIX-001 through PREFIX-N")
+    destroy_cmd.add_argument("--prefix", default="lab", help="Deployment name prefix (default: lab)")
+    destroy_cmd.add_argument("--parallel-copies", type=int, metavar="N", help="Concurrent deployments")
+    destroy_cmd.add_argument("--tofu-parallelism", type=int, metavar="N", help="OpenTofu operations per unit")
+    destroy_cmd.add_argument("--debug", action="store_true", help="Stream full Terragrunt output")
+
+    return parser
+
+
+def destroy(args, root, parser):
     job = None
     directory = None
     if args.target.startswith("run-"):
         if args.copies is not None or args.prefix != "lab":
-            parser.error("Run ID cannot be combined with --copies or --prefix")
+            parser.error("RUN_ID cannot be combined with --copies or --prefix")
         directory = resume_directory(root / "runs", args.target)
         job = json.loads((directory / "run.json").read_text())
+        if job["action"] == "build":
+            parser.error("Build-only runs have no infrastructure to destroy")
         if job.get("destroyed"):
             print(f"Already destroyed: {directory}")
             return 0
         scenario = job["scenario"]
-        selection = [item for name in job["deployments"] for item in ("--deployment", name)]
+        selection = []
+        for name in job["deployments"]:
+            selection += ["--deployment", name]
         parallel_copies = args.parallel_copies or job["parallel_copies"]
         tofu_parallelism = args.tofu_parallelism if args.tofu_parallelism is not None else job["tofu_parallelism"]
     else:
@@ -103,67 +124,64 @@ def destroy(argv, root):
         parallel_copies = args.parallel_copies or 4
         tofu_parallelism = args.tofu_parallelism
 
-    args = [scenario, "destroy", "--yes", "--parallel-copies", str(parallel_copies), *selection]
+    command = [scenario, "destroy", "--parallel-copies", str(parallel_copies), *selection]
     if tofu_parallelism is not None:
-        args += ["--tofu-parallelism", str(tofu_parallelism)]
+        command += ["--tofu-parallelism", str(tofu_parallelism)]
     images_file = directory / "images.json" if directory is not None else None
     if images_file is not None and not images_file.is_file():
         images_file = None
-    run_terragrunt(root, args, directory, images_file)
+    run_terragrunt(root, command, directory, images_file, args.debug)
     if job is not None:
         job["deployed"] = False
         job["destroyed"] = True
         save_json(directory / "run.json", job)
     return 0
 
+
 def main(argv=None, root=ROOT):
-    argv = sys.argv[1:] if argv is None else argv
-    if argv and argv[0] == "destroy":
-        return destroy(argv[1:], root)
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     epilog="Destroy: attackbed destroy SCENARIO --copies N --yes, or destroy RUN_ID --yes")
-    parser.add_argument("scenario", nargs="?", help="Scenario from config/scenarios.yaml")
-    source = parser.add_mutually_exclusive_group()
-    source.add_argument("--build", action="store_true", help="Build required images using Packer")
-    source.add_argument("--images", type=Path, help="Reuse a saved images.json")
-    parser.add_argument("--resume", nargs="?", const="latest", metavar="RUN_ID")
-    parser.add_argument("--copies", type=int, default=1)
-    parser.add_argument("--prefix", default="lab")
-    parser.add_argument("--parallel-copies", type=int, default=4)
-    parser.add_argument("--tofu-parallelism", type=int)
+    parser = make_parser()
     args = parser.parse_args(argv)
-    if args.copies < 1 or args.parallel_copies < 1 or (args.tofu_parallelism is not None and args.tofu_parallelism < 1):
-        parser.error("Parallelism and copy counts must be positive")
+
+    if args.action in ("deploy", "destroy"):
+        if args.copies is not None and args.copies < 1:
+            parser.error("--copies must be positive")
+        if args.parallel_copies is not None and args.parallel_copies < 1:
+            parser.error("--parallel-copies must be positive")
+        if args.tofu_parallelism is not None and args.tofu_parallelism < 1:
+            parser.error("--tofu-parallelism must be positive")
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", args.prefix):
+            parser.error("Invalid deployment prefix")
+
+    if args.action == "destroy":
+        return destroy(args, root, parser)
 
     runs = root / "runs"
-    if args.resume is not None:
-        if args.scenario or args.build or args.images:
-            parser.error("--resume does not accept a scenario, --build or --images")
-        directory = resume_directory(runs, args.resume)
+    if args.action == "resume":
+        directory = resume_directory(runs, args.run_id)
         job = json.loads((directory / "run.json").read_text())
         if job.get("destroyed"):
             parser.error("This run was destroyed; start a new run")
     else:
-        if not args.scenario:
-            parser.error("scenario is required unless --resume is used")
         scenarios = yaml.safe_load((root / "config/scenarios.yaml").read_text())
         if args.scenario not in scenarios:
             parser.error(f"Unknown scenario: {args.scenario}")
         units = list(dict.fromkeys(scenarios[args.scenario]))
         if "bootstrap" not in units:
             parser.error("Scenario must include bootstrap")
-        if not re.fullmatch(r"[a-z][a-z0-9-]*", args.prefix):
-            parser.error("Invalid deployment prefix")
         directory = runs / ("run-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S") + "-" + uuid4().hex[:6])
         directory.mkdir(parents=True, mode=0o700)
+        build_images = args.action == "build" or args.build
+        image_source = args.images if args.action == "deploy" else None
         job = {
+            "action": args.action,
             "scenario": args.scenario,
             "units": units,
-            "deployments": [f"{args.prefix}-{n:03d}" for n in range(1, args.copies + 1)],
-            "mode": "build" if args.build else "file" if args.images else "latest",
-            "source_images": str(args.images.expanduser().resolve()) if args.images else None,
-            "parallel_copies": args.parallel_copies,
-            "tofu_parallelism": args.tofu_parallelism,
+            "deployments": ([f"{args.prefix}-{n:03d}" for n in range(1, args.copies + 1)]
+                            if args.action == "deploy" else []),
+            "mode": "build" if build_images else "file" if image_source else "latest",
+            "source_images": str(image_source.expanduser().resolve()) if image_source else None,
+            "parallel_copies": args.parallel_copies if args.action == "deploy" else None,
+            "tofu_parallelism": args.tofu_parallelism if args.action == "deploy" else None,
             "deployed": False,
             "complete": False,
         }
@@ -185,7 +203,7 @@ def main(argv=None, root=ROOT):
                 active_image(conn, images[role]["id"])
                 continue
             print(f"Building {role} ({recipe})", flush=True)
-            images[role] = build_image(conn, root, recipe, packer_logs / f"{recipe}.log")
+            images[role] = build_image(conn, root, recipe, packer_logs / f"{recipe}.log", debug=args.debug)
             save_json(images_file, images)
     elif not images_file.exists():
         if job["mode"] == "latest":
@@ -196,13 +214,19 @@ def main(argv=None, root=ROOT):
         images = {role: active_image(conn, images[role]["id"]) for role in recipes}
         save_json(images_file, images)
 
+    if job["action"] == "build":
+        job["complete"] = True
+        save_json(directory / "run.json", job)
+        print(f"Images: {images_file}")
+        return 0
+
     if not job["deployed"]:
-        args = [job["scenario"], "apply", "--yes", "--parallel-copies", str(job["parallel_copies"])]
+        command = [job["scenario"], "apply", "--parallel-copies", str(job["parallel_copies"])]
         for name in job["deployments"]:
-            args += ["--deployment", name]
+            command += ["--deployment", name]
         if job["tofu_parallelism"] is not None:
-            args += ["--tofu-parallelism", str(job["tofu_parallelism"])]
-        run_terragrunt(root, args, directory, images_file)
+            command += ["--tofu-parallelism", str(job["tofu_parallelism"])]
+        run_terragrunt(root, command, directory, images_file, args.debug)
         job["deployed"] = True
         save_json(directory / "run.json", job)
 
