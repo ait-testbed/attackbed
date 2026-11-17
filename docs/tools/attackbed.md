@@ -34,7 +34,7 @@ Deployment settings live in `terragrunt/defaults.tfvars` and optional ignored `t
 
 ## Runs and networking
 
-Each invocation saves `runs/RUN_ID/run.json`, image selections in `images.json`, and logs under `logs/` (`packer/RECIPE.log`, `apply.log`, `destroy.log`). Retries append. Successful deployment also writes `ssh_config`. Build-only runs create no OpenStack deployment VMs. A saved image selection can be reused with `deploy --images`.
+Each invocation saves `runs/RUN_ID/run.json`, image selections in `images.json`, and logs under `logs/` (`packer/RECIPE.log`, `apply.log`, `destroy.log`). Retries append. Successful deployment also writes `ssh_config`. Each host uses its OpenStack keypair name as `IdentityFile ~/.ssh/KEY_NAME`; keep the private key under that filename locally. Build-only runs create no OpenStack deployment VMs. A saved image selection can be reused with `deploy --images`.
 
 Bootstrap creates five vRack networks per deployment with VLANs `1000 + (N - 1) * 5` through `+4`, where `N` is the deployment ID's three-digit suffix (`001`–`500`). **Prefixes do not isolate VLANs:** `lab-001` and `test-001` collide. Do not reuse suffixes within the same vRack. Use the same scenario when destroying, including after partial failures.
 

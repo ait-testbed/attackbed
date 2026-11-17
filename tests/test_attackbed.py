@@ -305,14 +305,14 @@ class WorkflowTests(unittest.TestCase):
 
 class SSHTests(unittest.TestCase):
     def test_labs_with_overlapping_private_ips(self):
-        def server(name, network, ip, floating=None):
+        def server(name, network, ip, floating=None, key_name="testbed-key"):
             addresses = [{"addr": ip, "OS-EXT-IPS:type": "fixed"}]
             if floating:
                 addresses.append({"addr": floating, "OS-EXT-IPS:type": "floating"})
-            return SimpleNamespace(name=name, addresses={network: addresses})
+            return SimpleNamespace(name=name, addresses={network: addresses}, key_name=key_name)
 
         machines = [server("lab-001-mgmt", "lab-001-admin", "10.12.0.201", "203.0.113.1"),
-                    server("lab-001-adminpc1", "lab-001-admin", "10.12.0.222"),
+                    server("lab-001-adminpc1", "lab-001-admin", "10.12.0.222", key_name="admin-key"),
                     server("lab-002-mgmt", "lab-002-admin", "10.12.0.201", "203.0.113.2"),
                     server("lab-002-adminpc1", "lab-002-admin", "10.12.0.222")]
         conn = SimpleNamespace(compute=SimpleNamespace(servers=lambda: machines))
@@ -325,6 +325,22 @@ class SSHTests(unittest.TestCase):
         self.assertIn("HostKeyAlias lab-001-adminpc1", content)
         self.assertIn("HostKeyAlias lab-002-adminpc1", content)
         self.assertEqual(content.count("HostName 10.12.0.222"), 2)
+        self.assertEqual(content.count("IdentityFile ~/.ssh/testbed-key"), 3)
+        self.assertIn("IdentityFile ~/.ssh/admin-key", content)
+        self.assertIn("Host lab-001-mgmt\n    HostName 203.0.113.1\n    User ubuntu\n"
+                      "    IdentityFile ~/.ssh/testbed-key", content)
+        self.assertIn("Host lab-001-adminpc1\n    HostName 10.12.0.222\n    User ubuntu\n"
+                      "    IdentityFile ~/.ssh/admin-key", content)
+
+    def test_invalid_ssh_key_name_is_rejected(self):
+        server = SimpleNamespace(name="lab-001-mgmt", key_name="../other",
+                                 addresses={"lab-001-admin": [
+                                     {"addr": "203.0.113.1", "OS-EXT-IPS:type": "floating"}
+                                 ]})
+        conn = SimpleNamespace(compute=SimpleNamespace(servers=lambda: [server]))
+        with TemporaryDirectory() as temp:
+            with self.assertRaisesRegex(ValueError, "Invalid OpenStack keypair"):
+                ssh.write_ssh_config(conn, ["lab-001"], Path(temp) / "ssh_config")
 
 
 if __name__ == "__main__":
