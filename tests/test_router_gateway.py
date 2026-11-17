@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 
-path = Path(__file__).resolve().parents[1] / "bootstrap/module/scripts/router_gateway.py"
+path = Path(__file__).resolve().parents[1] / "terragrunt/bootstrap/module/scripts/router_gateway.py"
 spec = importlib.util.spec_from_file_location("router_gateway", path)
 router_gateway = importlib.util.module_from_spec(spec)
 with mock.patch.dict(os.environ, {"ROUTER_ID": "router-123", "NETWORK_ID": "network-123"}):
