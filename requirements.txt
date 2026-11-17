@@ -1,2 +1,3 @@
 passlib
 python-openstackclient
+PyYAML>=6,<7

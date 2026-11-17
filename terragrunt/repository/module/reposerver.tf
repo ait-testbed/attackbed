@@ -23,6 +23,12 @@ data "template_cloudinit_config" "cloudinitreposerver" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_reposerver.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: reposerver\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "reposerver-image" {
@@ -31,7 +37,7 @@ data "openstack_images_image_v2" "reposerver-image" {
 }
 
 resource "openstack_compute_instance_v2" "reposerver" {
-  name        = "reposerver"
+  name        = "${var.deployment_id}-reposerver"
   flavor_name = var.reposerver_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.reposerver-image.id
@@ -42,7 +48,7 @@ resource "openstack_compute_instance_v2" "reposerver" {
   }
   
   network {
-    name = "dmz"
+    uuid        = var.network_ids["dmz"]
     fixed_ip_v4 = cidrhost(var.dmz_cidr,122)
   }
 

@@ -1,11 +1,9 @@
-# Overview
+# Installation overview
 
-The following steps are required to install the AttackBed:
+1. [Requirements](requirements.md) and [repository setup](repository.md).
+2. [Configure OpenStack and GitLab credentials](configure.md).
+3. [Set up Python dependencies](virtualenv.md).
+4. [Configure and run AttackBed](../tools/attackbed.md).
 
-1.  [Requirements](requirements.md)
-2.  [Prepare Repository](repository.md)
-3.  [Configure Access to OpenStack](configure.md)
-4.  [Setup Virtualenv](virtualenv.md)
-5.  [Deploy Server Images](images.md)
-6.  [Deploy Bootstrap](bootstrap.md)
-7.  [Deploy Scenario](scenario.md)
+For manual workflows, see [images](images.md), [bootstrap](bootstrap.md), and [scenarios](scenario.md).
+

@@ -22,6 +22,12 @@ data "template_cloudinit_config" "cloudinitopensearch" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_opensearch.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: opensearch\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "opensearch-image" {
@@ -30,7 +36,7 @@ data "openstack_images_image_v2" "opensearch-image" {
 }
 
 resource "openstack_compute_instance_v2" "opensearch" {
-  name        = "opensearch"
+  name        = "${var.deployment_id}-opensearch"
   flavor_name = var.opensearch_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.opensearch-image.id
@@ -41,7 +47,7 @@ resource "openstack_compute_instance_v2" "opensearch" {
   }
   
   network {
-    name = "lan"
+    uuid        = var.network_ids["lan"]
     fixed_ip_v4 = cidrhost(var.lan_cidr,11)
   }
 

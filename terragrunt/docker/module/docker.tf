@@ -20,6 +20,12 @@ data "template_cloudinit_config" "cloudinitdocker" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_docker.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: docker\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "docker-image" {
@@ -28,7 +34,7 @@ data "openstack_images_image_v2" "docker-image" {
 }
 
 resource "openstack_compute_instance_v2" "docker" {
-  name        = "docker"
+  name        = "${var.deployment_id}-docker"
   flavor_name = var.docker_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.docker-image.id
@@ -39,7 +45,7 @@ resource "openstack_compute_instance_v2" "docker" {
   }
 
   network {
-    name = "dmz"
+    uuid        = var.network_ids["dmz"]
     fixed_ip_v4 = cidrhost(var.dmz_cidr,125)
   }
 

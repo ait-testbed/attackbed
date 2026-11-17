@@ -7,11 +7,44 @@ locals {
   fw_userdata_file    = var.fw_userdata == null ? "${path.module}/scripts/firewallinit.yml" : var.fw_userdata
   mgmt_userdata_file    = var.mgmt_userdata == null ? "${path.module}/scripts/mgmtinit.yml" : var.mgmt_userdata
   ext_dnsserver_userdata_file = var.corpdns_userdata == null ? "${path.module}/scripts/corpdns.yml" : var.corpdns_userdata
+  # shortcut: numeric suffixes must be unique across deployments, regardless of prefix.
+  vlan_base = 1000 + (tonumber(regex("[0-9]{3}$", var.deployment_id)) - 1) * 5
 }
 
 
-data "openstack_networking_router_v2" "router" {
-  name = var.ext_router
+data "openstack_networking_network_v2" "external" {
+  name     = var.floating_pool
+  external = true
+}
+
+resource "openstack_networking_router_v2" "router" {
+  name           = "${var.deployment_id}-router"
+  admin_state_up = true
+}
+
+# Retry Neutron gateway updates separately from router creation.
+resource "terraform_data" "router_gateway" {
+  triggers_replace = {
+    router_id  = openstack_networking_router_v2.router.id
+    network_id = data.openstack_networking_network_v2.external.id
+  }
+
+  provisioner "local-exec" {
+    command = "python3 \"${path.module}/scripts/router_gateway.py\" attach"
+    environment = {
+      ROUTER_ID  = self.triggers_replace.router_id
+      NETWORK_ID = self.triggers_replace.network_id
+    }
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "python3 \"${path.module}/scripts/router_gateway.py\" detach"
+    environment = {
+      ROUTER_ID  = self.triggers_replace.router_id
+      NETWORK_ID = self.triggers_replace.network_id
+    }
+  }
 }
 
 ###################################################################
@@ -19,13 +52,17 @@ data "openstack_networking_router_v2" "router" {
 # CREATE NETWORK "Internet"
 #
 resource "openstack_networking_network_v2" "internet" {
-  name           = "internet"
+  name           = "${var.deployment_id}-internet"
   port_security_enabled = "false"
   admin_state_up = "true"
+  value_specs = {
+    "provider:network_type"    = "vrack"
+    "provider:segmentation_id" = local.vlan_base
+  }
 }
 
 resource "openstack_networking_subnet_v2" "internet_subnet" {
-  name       = "internet_subnet"
+  name       = "${var.deployment_id}-internet_subnet"
   network_id = "${openstack_networking_network_v2.internet.id}"
   cidr       = var.subnet_cidrs["inet"]
   dns_nameservers = var.inet_dns
@@ -37,8 +74,9 @@ resource "openstack_networking_subnet_v2" "internet_subnet" {
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface_inet" {
-  router_id = data.openstack_networking_router_v2.router.id
-  subnet_id = "${openstack_networking_subnet_v2.internet_subnet.id}"
+  router_id  = openstack_networking_router_v2.router.id
+  subnet_id  = "${openstack_networking_subnet_v2.internet_subnet.id}"
+  depends_on = [terraform_data.router_gateway]
 }
 
 ####################################################################
@@ -59,6 +97,12 @@ data "template_cloudinit_config" "cloudinitdns" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_dns.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: inetdns\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "inet-dns-image" {
@@ -67,7 +111,7 @@ data "openstack_images_image_v2" "inet-dns-image" {
 }
 
 resource "openstack_compute_instance_v2" "inet-dns" {
-  name        = "inetdns"
+  name        = "${var.deployment_id}-inetdns"
   flavor_name = var.inetdns_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.inet-dns-image.id
@@ -78,12 +122,13 @@ resource "openstack_compute_instance_v2" "inet-dns" {
   }
 
   network {
-    name = "internet"
+    uuid        = openstack_networking_network_v2.internet.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],514)
   }
 
   depends_on = [
-     openstack_networking_network_v2.internet,
+     openstack_networking_router_interface_v2.router_interface_inet,
+     openstack_networking_subnet_v2.internet_subnet,
   ]
 
 }
@@ -93,13 +138,17 @@ resource "openstack_compute_instance_v2" "inet-dns" {
 # CREATE NETWORK "LAN"
 #
 resource "openstack_networking_network_v2" "lan" {
-  name           = "lan"
+  name           = "${var.deployment_id}-lan"
   port_security_enabled = "false"
   admin_state_up = "true"
+  value_specs = {
+    "provider:network_type"    = "vrack"
+    "provider:segmentation_id" = local.vlan_base + 1
+  }
 }
 
 resource "openstack_networking_subnet_v2" "lan_subnet" {
-  name       = "lan_subnet"
+  name       = "${var.deployment_id}-lan_subnet"
   network_id = "${openstack_networking_network_v2.lan.id}"
   cidr       = var.subnet_cidrs["lan"]
   ip_version = 4
@@ -118,13 +167,17 @@ resource "openstack_networking_subnet_v2" "lan_subnet" {
 # CREATE NETWORK "DMZ"
 #
 resource "openstack_networking_network_v2" "dmz" {
-  name           = "dmz"
+  name           = "${var.deployment_id}-dmz"
   port_security_enabled = "false"
   admin_state_up = "true"
+  value_specs = {
+    "provider:network_type"    = "vrack"
+    "provider:segmentation_id" = local.vlan_base + 2
+  }
 }
 
 resource "openstack_networking_subnet_v2" "dmz_subnet" {
-  name       = "dmz_subnet"
+  name       = "${var.deployment_id}-dmz_subnet"
   network_id = "${openstack_networking_network_v2.dmz.id}"
   cidr       = var.subnet_cidrs["dmz"]
   ip_version = 4
@@ -144,13 +197,17 @@ resource "openstack_networking_subnet_v2" "dmz_subnet" {
 # CREATE NETWORK "ADMIN"
 #
 resource "openstack_networking_network_v2" "admin" {
-  name           = "admin"
+  name           = "${var.deployment_id}-admin"
   port_security_enabled = "false"
   admin_state_up = "true"
+  value_specs = {
+    "provider:network_type"    = "vrack"
+    "provider:segmentation_id" = local.vlan_base + 3
+  }
 }
 
 resource "openstack_networking_subnet_v2" "admin_subnet" {
-  name       = "admin_subnet"
+  name       = "${var.deployment_id}-admin_subnet"
   network_id = "${openstack_networking_network_v2.admin.id}"
   cidr       = var.subnet_cidrs["admin"]
   ip_version = 4
@@ -170,13 +227,17 @@ resource "openstack_networking_subnet_v2" "admin_subnet" {
 # CREATE NETWORK "USER"
 #
 resource "openstack_networking_network_v2" "user" {
-  name           = "user"
+  name           = "${var.deployment_id}-user"
   port_security_enabled = "false"
   admin_state_up = "true"
+  value_specs = {
+    "provider:network_type"    = "vrack"
+    "provider:segmentation_id" = local.vlan_base + 4
+  }
 }
 
 resource "openstack_networking_subnet_v2" "user_subnet" {
-  name       = "user_subnet"
+  name       = "${var.deployment_id}-user_subnet"
   network_id = "${openstack_networking_network_v2.user.id}"
   cidr       = var.subnet_cidrs["user"]
   ip_version = 4
@@ -214,6 +275,12 @@ data "template_cloudinit_config" "cloudinitinetfw" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_inetfw.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: inetfw\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "inet-fw-image" {
@@ -222,7 +289,7 @@ data "openstack_images_image_v2" "inet-fw-image" {
 }
 
 resource "openstack_compute_instance_v2" "inet-fw" {
-  name        = "inetfw"
+  name        = "${var.deployment_id}-inetfw"
   flavor_name = var.inetfw_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.inet-fw-image.id
@@ -233,37 +300,37 @@ resource "openstack_compute_instance_v2" "inet-fw" {
   }
 
   network {
-    name = "internet"
+    uuid        = openstack_networking_network_v2.internet.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"],254)
   }
 
   network {
-    name = "lan"
+    uuid        = openstack_networking_network_v2.lan.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["lan"],254)
   }
 
   network {
-    name = "dmz"
+    uuid        = openstack_networking_network_v2.dmz.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["dmz"],254)
   }
 
   network {
-    name = "admin"
+    uuid        = openstack_networking_network_v2.admin.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["admin"],254)
   }
 
   network {
-    name = "user"
+    uuid        = openstack_networking_network_v2.user.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["user"],254)
   }
 
   depends_on = [
      openstack_compute_instance_v2.inet-dns,
-     openstack_networking_network_v2.dmz,
-     openstack_networking_network_v2.internet,
-     openstack_networking_network_v2.lan,
-     openstack_networking_network_v2.admin,
-     openstack_networking_network_v2.user
+     openstack_networking_subnet_v2.dmz_subnet,
+     openstack_networking_subnet_v2.internet_subnet,
+     openstack_networking_subnet_v2.lan_subnet,
+     openstack_networking_subnet_v2.admin_subnet,
+     openstack_networking_subnet_v2.user_subnet
   ]
 }
 
@@ -286,6 +353,12 @@ data "template_cloudinit_config" "cloudinitmgmt" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_mgmt.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: mgmt\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "mgmt-image" {
@@ -304,7 +377,7 @@ locals {
 }
 
 resource "openstack_compute_instance_v2" "mgmt" {
-  name        = "mgmt"
+  name        = "${var.deployment_id}-mgmt"
   flavor_name = var.mgmt_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.mgmt-image.id
@@ -315,60 +388,63 @@ resource "openstack_compute_instance_v2" "mgmt" {
   }
 
   network {
-    name = "internet"
+    uuid        = openstack_networking_network_v2.internet.id
     fixed_ip_v4 = local.mgmt_ips.internet
   }
 
   network {
-    name = "lan"
+    uuid        = openstack_networking_network_v2.lan.id
     fixed_ip_v4 = local.mgmt_ips.lan
   }
 
   network {
-    name = "dmz"
+    uuid        = openstack_networking_network_v2.dmz.id
     fixed_ip_v4 = local.mgmt_ips.dmz
   }
 
   network {
-    name = "admin"
+    uuid        = openstack_networking_network_v2.admin.id
     fixed_ip_v4 = local.mgmt_ips.admin
   }
 
   network {
-    name = "user"
+    uuid        = openstack_networking_network_v2.user.id
     fixed_ip_v4 = local.mgmt_ips.user
   }
 
   depends_on = [
-     openstack_networking_network_v2.dmz,
-     openstack_networking_network_v2.internet,
-     openstack_networking_network_v2.lan,
-     openstack_networking_network_v2.admin,
-     openstack_networking_network_v2.user
+     openstack_networking_router_interface_v2.router_interface_inet,
+     openstack_networking_subnet_v2.dmz_subnet,
+     openstack_networking_subnet_v2.internet_subnet,
+     openstack_networking_subnet_v2.lan_subnet,
+     openstack_networking_subnet_v2.admin_subnet,
+     openstack_networking_subnet_v2.user_subnet
   ]
 }
 
-data "openstack_networking_port_v2" "mgmt"{
-  fixed_ip =  local.mgmt_ips.internet
+data "openstack_networking_port_v2" "mgmt" {
+  network_id = openstack_networking_network_v2.internet.id
+  device_id  = openstack_compute_instance_v2.mgmt.id
+  fixed_ip   = local.mgmt_ips.internet
     depends_on = [
       openstack_compute_instance_v2.mgmt  
   ]
 }
 
-### a floating ip with this description has to be already allocated to the project 
-### (via horizon dashboard or openstack sdk) and not assigned to any other host 
 
-data "openstack_networking_floatingip_v2" "mgmt" {
-  description = "mgmt"
+resource "openstack_networking_floatingip_v2" "mgmt" {
+  pool        = var.floating_pool
+  description = "${var.deployment_id}-mgmt"
+  depends_on  = [terraform_data.router_gateway]
 }
 
 resource "openstack_networking_floatingip_associate_v2" "mgmt" {
-  floating_ip = data.openstack_networking_floatingip_v2.mgmt.address
+  floating_ip = openstack_networking_floatingip_v2.mgmt.address
   port_id     = data.openstack_networking_port_v2.mgmt.id
 
   depends_on = [
      data.openstack_networking_port_v2.mgmt,
-     data.openstack_networking_floatingip_v2.mgmt
+     openstack_networking_router_interface_v2.router_interface_inet
   ]
 }
 
@@ -391,6 +467,12 @@ data "template_cloudinit_config" "cloudinitdnsserver" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_dnsserver.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: corpdns\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "dnsserver-image" {
@@ -399,7 +481,7 @@ data "openstack_images_image_v2" "dnsserver-image" {
 }
 
 resource "openstack_compute_instance_v2" "dnsserver" {
-  name        = "corpdns"
+  name        = "${var.deployment_id}-corpdns"
   flavor_name = var.corpdns_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.dnsserver-image.id
@@ -410,12 +492,13 @@ resource "openstack_compute_instance_v2" "dnsserver" {
   }
 
   network {
-    name = "internet"
+    uuid        = openstack_networking_network_v2.internet.id
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["inet"], 233)
     
   }
 
   depends_on = [
-    openstack_networking_network_v2.internet,
+    openstack_networking_router_interface_v2.router_interface_inet,
+    openstack_networking_subnet_v2.internet_subnet,
   ]
 }

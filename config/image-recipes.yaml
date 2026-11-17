@@ -1,0 +1,16 @@
+# Map Terraform *_image variables to their Packer recipe directories.
+# This is explicit because some names differ (e.g. inetfw_image -> firewall).
+adminpc_image: adminpc
+attacker_image: attacker
+client_image: client
+corpdns_image: corpdns
+docker_image: docker
+inetfw_image: firewall
+kafka_image: kafka
+linuxshare_image: linuxshare
+logstash_image: logstash
+opensearch_image: opensearch
+reposerver_image: repository
+videoserver_image: videoserver
+wazuh_image: wazuh
+webcam_image: webcam

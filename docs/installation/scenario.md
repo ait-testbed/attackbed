@@ -1,12 +1,13 @@
-# Deploy scenario
+# Deploy scenarios
 
-!!! info "See also"
-    [Deploy bootstrap](bootstrap.md)
+Select units in `config/scenarios.yaml` and deploy through the [AttackBed CLI](../tools/attackbed.md):
 
-A scenario can be installed similar to the bootstrap. The following steps are required:
+```sh
+uv run attackbed deploy demo --copies 2
+uv run attackbed destroy demo --copies 2
+```
 
-1.  Change into the directory(e.g. *terragrunt/videoserver*)
-2.  Copy and modify terraform.tfvars.example to terraform.tfvars
-3.  Run **terragrunt apply**
+Bootstrap runs before scenario units; the order is reversed during destruction.
 
-![image](../images/AttackBed-Videoserver.png)
+![Videoserver](../images/AttackBed-Videoserver.png)
+

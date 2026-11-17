@@ -23,6 +23,12 @@ data "template_cloudinit_config" "cloudinitlinuxshare" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_linuxshare.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: linuxshare\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "linuxshare-image" {
@@ -31,7 +37,7 @@ data "openstack_images_image_v2" "linuxshare-image" {
 }
 
 resource "openstack_compute_instance_v2" "linuxshare" {
-  name        = "linuxshare"
+  name        = "${var.deployment_id}-linuxshare"
   flavor_name = var.linuxshare_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.linuxshare-image.id
@@ -42,7 +48,7 @@ resource "openstack_compute_instance_v2" "linuxshare" {
   }
   
   network {
-    name = "lan"
+    uuid        = var.network_ids["lan"]
     fixed_ip_v4 = cidrhost(var.lan_cidr,23)
   }
 

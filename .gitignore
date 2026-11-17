@@ -5,6 +5,7 @@ venv/
 ansible/.venv*
 .env
 .terragrunt-cache/
+terragrunt/deployments
 .terraform.lock.hcl
 collections
 
@@ -24,6 +25,7 @@ gather_scenario_*/
 
 # ignore packer-configs
 default.json
+packer/defaults.json
 
 # ignore terraform variables file
 terraform.tfvars
@@ -39,3 +41,8 @@ ca.pem
 *.egg-info/
 scripts/*/build/
 
+# Generated AttackBed CLI runs
+runs/
+
+# Legacy orchestrator output
+terragrunt/attackbed.log

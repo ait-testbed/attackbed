@@ -20,6 +20,12 @@ data "template_cloudinit_config" "cloudinitwebcam" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_webcam.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: webcam\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "webcam-image" {
@@ -28,7 +34,7 @@ data "openstack_images_image_v2" "webcam-image" {
 }
 
 resource "openstack_compute_instance_v2" "webcam" {
-  name        = "webcam"
+  name        = "${var.deployment_id}-webcam"
   flavor_name = var.webcam_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.webcam-image.id
@@ -39,7 +45,7 @@ resource "openstack_compute_instance_v2" "webcam" {
   }
   
   network {
-    name = "dmz"
+    uuid        = var.network_ids["dmz"]
     fixed_ip_v4 = cidrhost(var.dmz_cidr,80)
   }
 

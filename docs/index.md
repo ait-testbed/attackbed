@@ -25,5 +25,6 @@ project structure and how machines in the testbed are connected.
 
 ## Tools
 
+- [AttackBed CLI](tools/attackbed.md) — build images, deploy and destroy labs, and resume runs.
 - [Testbedrun](tools/testbedrun.md) — selectively redeploy individual OpenStack instances.
 - [MITRE Technique & Tactic Counter](tools/mitrecounter.md) — count MITRE ATT&CK technique references in a file.

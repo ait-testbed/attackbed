@@ -7,9 +7,6 @@ locals {
 
 }
 
-data "openstack_networking_router_v2" "router" {
-  name = var.ext_router
-}
 
 
 ####################################################################
@@ -36,6 +33,12 @@ data "template_cloudinit_config" "cloudinitclient" {
     content_type = "text/cloud-config"
     content      = data.template_file.userdata_client.rendered
   }
+
+  part {
+    filename     = "hostname.cfg"
+    content_type = "text/cloud-config"
+    content      = "#cloud-config\nhostname: client\npreserve_hostname: false\n"
+  }
 }
 
 data "openstack_images_image_v2" "client-image" {
@@ -44,7 +47,7 @@ data "openstack_images_image_v2" "client-image" {
 }
 
 resource "openstack_compute_instance_v2" "client" {
-  name        = "client"
+  name        = "${var.deployment_id}-client"
   flavor_name = var.client_flavor
   key_pair    = var.sshkey
   image_id    = data.openstack_images_image_v2.client-image.id
@@ -55,7 +58,7 @@ resource "openstack_compute_instance_v2" "client" {
   }
 
   network {
-    name = "user"
+    uuid        = var.network_ids["user"]
     fixed_ip_v4 = cidrhost(var.subnet_cidrs["user"],100)
   }
 

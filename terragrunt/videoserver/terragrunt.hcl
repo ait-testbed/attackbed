@@ -7,14 +7,18 @@ terraform {
     }
 }
 
-inputs = {
-  sshkey = "testbed-key"
-  dnsserver_image = "atb-corpdns-image-2026-02-26T08-11-32Z"
-  videoserver_image = "atb-videoserver-image-2026-02-27T13-46-11Z"
-  adminpc_image = "atb-adminpc-image-2026-02-26T13-54-41Z"
-  webcam_image = "atb-webcam-image-2026-02-27T14-26-04Z"
-} 
+dependency "bootstrap" {
+  config_path = "../bootstrap"
+  mock_outputs = {
+    network_ids = { for name in ["internet", "lan", "dmz", "admin", "user"] : name => "00000000-0000-0000-0000-000000000000" }
+  }
+  mock_outputs_allowed_terraform_commands = ["destroy"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
+}
 
+inputs = {
+  network_ids = dependency.bootstrap.outputs.network_ids
+}
 
 include {
   path = find_in_parent_folders("root.hcl")
